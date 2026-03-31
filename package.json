@@ -7,7 +7,7 @@
     "dev": "node --watch server.js"
   },
   "dependencies": {
-    "node-sqlite3-wasm": "^0.8.0",
+    "mysql2": "^3.6.0",
     "dotenv": "^16.0.0",
     "ejs": "^3.1.0",
     "exceljs": "^4.3.0",
