@@ -24,7 +24,20 @@
 
     .login-wrapper {
       width: 100%;
-      max-width: 400px;
+      max-width: 420px;
+    }
+
+    /* Avatar */
+    .login-avatar {
+      display: block;
+      width: 160px;
+      height: 160px;
+      object-fit: contain;
+      object-position: bottom;
+      margin: 0 auto -24px auto;
+      position: relative;
+      z-index: 1;
+      filter: drop-shadow(0 8px 24px rgba(0,0,0,0.35));
     }
 
     /* Logo bovenaan */
@@ -180,11 +193,11 @@
 
   <div class="login-wrapper">
 
+    <!-- Avatar -->
+    <img src="/images/avatar.png" alt="Tinneke" class="login-avatar" />
+
     <!-- Logo -->
     <div class="login-logo">
-      <div class="login-logo-icon">
-        <span>T</span>
-      </div>
       <h1>Tinneke</h1>
       <p>Attestatietool — Damiaaninstituut</p>
     </div>
