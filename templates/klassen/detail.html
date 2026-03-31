@@ -1,0 +1,201 @@
+{% extends "base.html" %}
+
+{% block title %}{{ klas.naam }} — Klas detail{% endblock %}
+
+{% block content %}
+
+<!-- Breadcrumb -->
+<nav class="flex items-center gap-2 text-sm font-body text-slate-400 mb-6">
+    <a href="{{ url_for('klassen.dashboard') }}" class="hover:text-primary transition-colors">Dashboard</a>
+    <span>/</span>
+    <span class="text-ink font-500">{{ klas.naam }}</span>
+</nav>
+
+<!-- Paginaheader -->
+<div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-8">
+    <div>
+        <div class="flex items-center gap-3 flex-wrap">
+            <h1 class="font-heading text-3xl font-700 text-ink">{{ klas.naam }}</h1>
+            <span class="clay-badge clay-badge-blue">{{ klas.schooljaar }}</span>
+        </div>
+        {% if klas.richting %}
+        <p class="mt-1 text-base font-body text-slate-500">{{ klas.richting }}</p>
+        {% endif %}
+        <p class="mt-2 text-sm font-body text-slate-400">
+            <span class="font-600 text-slate-600">{{ leerlingen|length }}</span> leerlingen
+        </p>
+    </div>
+
+    <!-- Actie knoppen -->
+    <div class="flex flex-wrap gap-2 sm:justify-end">
+        <a href="{{ url_for('klassen.importeer', klas_id=klas.id) }}"
+           class="clay-btn clay-btn-ghost text-sm">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 15V3" />
+            </svg>
+            Importeer leerlingen (CSV)
+        </a>
+        <button type="button" onclick="openLeerplanModal()"
+                class="clay-btn clay-btn-primary text-sm">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+            </svg>
+            Leerplan koppelen
+        </button>
+    </div>
+</div>
+
+<!-- Leerlingenlijst -->
+{% if leerlingen %}
+<div class="clay-card overflow-hidden">
+    <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+        <h2 class="font-heading text-lg font-600 text-ink">Leerlingen</h2>
+        <span class="clay-badge clay-badge-blue">{{ leerlingen|length }}</span>
+    </div>
+
+    <!-- Zoekbalk -->
+    <div class="px-5 py-3 border-b border-slate-50">
+        <input type="search" id="zoek-leerling" class="clay-input"
+               placeholder="Zoek op naam of voornaam…" oninput="filterLeerlingen(this.value)" />
+    </div>
+
+    <div class="overflow-x-auto">
+        <table class="clay-table" id="leerlingen-tabel">
+            <thead>
+                <tr>
+                    <th class="text-left">Naam</th>
+                    <th class="text-left">Voornaam</th>
+                    <th class="text-left hidden sm:table-cell">Status</th>
+                    <th class="text-right">Acties</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for leerling in leerlingen %}
+                <tr class="leerling-rij" data-naam="{{ leerling.naam|lower }} {{ leerling.voornaam|lower }}">
+                    <td class="font-600">{{ leerling.naam }}</td>
+                    <td>{{ leerling.voornaam }}</td>
+                    <td class="hidden sm:table-cell">
+                        {% if leerling.geattesteerd %}
+                            <span class="clay-badge clay-badge-green">Geattesteerd</span>
+                        {% else %}
+                            <span class="clay-badge" style="background:#F1F5F9;color:#64748B;">Openstaand</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-right">
+                        <a href="{{ url_for('klassen.attesteer', klas_id=klas.id, leerling_id=leerling.id) }}"
+                           class="clay-btn clay-btn-cta text-xs py-1.5 px-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                            </svg>
+                            Attesteer
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Geen resultaten bij zoeken -->
+    <div id="geen-resultaten" class="hidden px-5 py-8 text-center text-sm font-body text-slate-400">
+        Geen leerlingen gevonden voor deze zoekterm.
+    </div>
+</div>
+
+{% else %}
+<!-- Lege staat -->
+<div class="clay-card flex flex-col items-center justify-center text-center py-14 px-8">
+    <div class="w-14 h-14 rounded-2xl flex items-center justify-center mb-4"
+         style="background: linear-gradient(135deg, #EFF6FF, #DBEAFE);">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a4 4 0 00-5-3.97M9 20H4v-2a4 4 0 015-3.97m6-4a4 4 0 11-8 0 4 4 0 018 0z" />
+        </svg>
+    </div>
+    <h2 class="font-heading text-lg font-600 text-ink mb-2">Nog geen leerlingen</h2>
+    <p class="text-sm font-body text-slate-500 mb-5">
+        Importeer leerlingen via een WISA CSV-export.
+    </p>
+    <a href="{{ url_for('klassen.importeer', klas_id=klas.id) }}" class="clay-btn clay-btn-primary">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 15V3" />
+        </svg>
+        Leerlingen importeren
+    </a>
+</div>
+{% endif %}
+
+<!-- ── Leerplan koppelen modal ── -->
+<div id="leerplan-modal" class="clay-modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="modal-titel">
+    <div class="clay-modal">
+        <div class="flex items-center justify-between mb-5">
+            <h2 id="modal-titel" class="font-heading text-xl font-600 text-ink">Leerplan koppelen</h2>
+            <button onclick="closeLeerplanModal()" class="w-8 h-8 rounded-xl flex items-center justify-center text-slate-400 hover:text-ink hover:bg-slate-100 transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+
+        <p class="text-sm font-body text-slate-500 mb-5">
+            Selecteer het LLinkid-leerplan dat van toepassing is voor <strong>{{ klas.naam }}</strong>.
+        </p>
+
+        <!-- LLinkid selector placeholder -->
+        <div class="clay-card p-4 mb-5" style="background: #F8FAFC;">
+            <p class="text-sm font-body text-slate-400 text-center py-4">
+                LLinkid-leerplannen worden hier geladen via de LLinkid-koppeling.
+            </p>
+        </div>
+
+        <div class="flex gap-3 justify-end">
+            <button onclick="closeLeerplanModal()" class="clay-btn clay-btn-ghost">Annuleer</button>
+            <button class="clay-btn clay-btn-primary" disabled>Koppelen</button>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Zoekfunctie voor leerlingen
+    function filterLeerlingen(zoekterm) {
+        const rijen = document.querySelectorAll('.leerling-rij');
+        const geenResultaten = document.getElementById('geen-resultaten');
+        let aantalZichtbaar = 0;
+        const q = zoekterm.toLowerCase().trim();
+
+        rijen.forEach(rij => {
+            const naam = rij.dataset.naam || '';
+            if (!q || naam.includes(q)) {
+                rij.classList.remove('hidden');
+                aantalZichtbaar++;
+            } else {
+                rij.classList.add('hidden');
+            }
+        });
+
+        geenResultaten.classList.toggle('hidden', aantalZichtbaar > 0);
+    }
+
+    // Leerplan modal
+    function openLeerplanModal() {
+        document.getElementById('leerplan-modal').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+    function closeLeerplanModal() {
+        document.getElementById('leerplan-modal').classList.add('hidden');
+        document.body.style.overflow = '';
+    }
+
+    // Sluit modal bij klik buiten
+    document.getElementById('leerplan-modal').addEventListener('click', function(e) {
+        if (e.target === this) closeLeerplanModal();
+    });
+
+    // Sluit modal met Escape
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') closeLeerplanModal();
+    });
+</script>
+{% endblock %}

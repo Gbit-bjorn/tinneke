@@ -1,0 +1,217 @@
+{% extends "base.html" %}
+
+{% block title %}Leerlingen importeren — {{ klas.naam }}{% endblock %}
+
+{% block content %}
+
+<!-- Breadcrumb -->
+<nav class="flex items-center gap-2 text-sm font-body text-slate-400 mb-6">
+    <a href="{{ url_for('klassen.dashboard') }}" class="hover:text-primary transition-colors">Dashboard</a>
+    <span>/</span>
+    <a href="{{ url_for('klassen.detail', klas_id=klas.id) }}" class="hover:text-primary transition-colors">{{ klas.naam }}</a>
+    <span>/</span>
+    <span class="text-ink font-500">Importeer leerlingen</span>
+</nav>
+
+<div class="max-w-2xl">
+
+    <div class="mb-7">
+        <h1 class="font-heading text-3xl font-700 text-ink">Leerlingen importeren</h1>
+        <p class="mt-1 text-base font-body text-slate-500">
+            Voor klas <strong class="text-ink">{{ klas.naam }}</strong> — {{ klas.schooljaar }}
+        </p>
+    </div>
+
+    <!-- Uitleg formaat -->
+    <div class="clay-card-blue p-5 mb-6">
+        <div class="flex items-start gap-3">
+            <div class="w-8 h-8 rounded-xl flex-shrink-0 flex items-center justify-center text-primary mt-0.5"
+                 style="background: rgba(37,99,235,0.12);">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </div>
+            <div>
+                <p class="text-sm font-body font-700 text-primary mb-1.5">Verwacht formaat</p>
+                <p class="text-sm font-body text-slate-600 mb-3">
+                    Eén leerling per rij, naam en voornaam gescheiden door een puntkomma:
+                </p>
+                <div class="rounded-xl p-3 text-sm font-mono text-slate-700 leading-relaxed"
+                     style="background: rgba(255,255,255,0.70); border: 1.5px solid rgba(37,99,235,0.15);">
+                    naam;voornaam<br>
+                    Janssen;Marie<br>
+                    Peeters;Thomas<br>
+                    De Smedt;Emma
+                </div>
+                <p class="text-xs font-body text-slate-400 mt-2">
+                    Tip: exporteer vanuit WISA en kies het CSV-formaat met puntkomma als scheidingsteken.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Import formulier -->
+    <form method="POST"
+          action="{{ url_for('klassen.importeer', klas_id=klas.id) }}"
+          enctype="multipart/form-data"
+          id="import-form">
+
+        <!-- Tab switcher: bestand vs plakken -->
+        <div class="clay-card p-6 mb-4">
+            <div class="flex gap-1 p-1 rounded-xl mb-5"
+                 style="background: #F1F5F9; width: fit-content;">
+                <button type="button" id="tab-bestand"
+                        onclick="switchTab('bestand')"
+                        class="px-4 py-2 rounded-lg text-sm font-body font-600 transition-all tab-actief">
+                    Bestand uploaden
+                </button>
+                <button type="button" id="tab-plakken"
+                        onclick="switchTab('plakken')"
+                        class="px-4 py-2 rounded-lg text-sm font-body font-600 transition-all text-slate-500 hover:text-ink">
+                    Tekst plakken
+                </button>
+            </div>
+
+            <!-- Paneel: bestand uploaden -->
+            <div id="paneel-bestand">
+                <label class="clay-label" for="csv-bestand">CSV-bestand</label>
+                <div id="dropzone"
+                     class="rounded-xl border-2 border-dashed border-slate-300 p-8 text-center cursor-pointer transition-all hover:border-primary hover:bg-blue-50"
+                     onclick="document.getElementById('csv-bestand').click()"
+                     ondragover="handleDragOver(event)"
+                     ondragleave="handleDragLeave(event)"
+                     ondrop="handleDrop(event)">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 mx-auto text-slate-300 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                    </svg>
+                    <p class="text-sm font-body font-600 text-slate-500" id="dropzone-tekst">
+                        Sleep een CSV-bestand hierheen<br>
+                        <span class="text-xs font-normal text-slate-400">of klik om te bladeren</span>
+                    </p>
+                </div>
+                <input type="file"
+                       id="csv-bestand"
+                       name="csv_bestand"
+                       accept=".csv,.txt"
+                       class="hidden"
+                       onchange="toonBestandsnaam(this)" />
+            </div>
+
+            <!-- Paneel: tekst plakken -->
+            <div id="paneel-plakken" class="hidden">
+                <label class="clay-label" for="csv-tekst">Plak CSV-inhoud</label>
+                <textarea
+                    id="csv-tekst"
+                    name="csv_tekst"
+                    class="clay-input font-mono text-sm leading-relaxed"
+                    rows="10"
+                    placeholder="naam;voornaam&#10;Janssen;Marie&#10;Peeters;Thomas"></textarea>
+                <p class="text-xs font-body text-slate-400 mt-1.5">
+                    Kopieer en plak rechtstreeks vanuit Excel of een teksteditor.
+                </p>
+            </div>
+        </div>
+
+        <!-- Opties -->
+        <div class="clay-card p-5 mb-6">
+            <h3 class="font-heading text-base font-600 text-ink mb-3">Importeeropties</h3>
+            <label class="flex items-center gap-3 cursor-pointer">
+                <input type="checkbox" name="overschrijven" id="overschrijven" value="1"
+                       class="w-4 h-4 rounded text-primary" />
+                <span class="text-sm font-body text-slate-600">
+                    Bestaande leerlingen overschrijven (verwijdert huidige lijst eerst)
+                </span>
+            </label>
+            <label class="flex items-center gap-3 cursor-pointer mt-3">
+                <input type="checkbox" name="skip_header" id="skip-header" value="1" checked
+                       class="w-4 h-4 rounded text-primary" />
+                <span class="text-sm font-body text-slate-600">
+                    Eerste rij overslaan (kopregel)
+                </span>
+            </label>
+        </div>
+
+        <!-- Actieknoppen -->
+        <div class="flex gap-3">
+            <a href="{{ url_for('klassen.detail', klas_id=klas.id) }}"
+               class="clay-btn clay-btn-ghost">
+                Annuleer
+            </a>
+            <button type="submit" class="clay-btn clay-btn-cta">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 15V3" />
+                </svg>
+                Importeer leerlingen
+            </button>
+        </div>
+    </form>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Tab switcher
+    function switchTab(tab) {
+        const isBest = tab === 'bestand';
+        document.getElementById('paneel-bestand').classList.toggle('hidden', !isBest);
+        document.getElementById('paneel-plakken').classList.toggle('hidden', isBest);
+
+        const tabBest = document.getElementById('tab-bestand');
+        const tabPlak = document.getElementById('tab-plakken');
+
+        if (isBest) {
+            tabBest.classList.add('tab-actief');
+            tabBest.classList.remove('text-slate-500');
+            tabPlak.classList.remove('tab-actief');
+            tabPlak.classList.add('text-slate-500');
+        } else {
+            tabPlak.classList.add('tab-actief');
+            tabPlak.classList.remove('text-slate-500');
+            tabBest.classList.remove('tab-actief');
+            tabBest.classList.add('text-slate-500');
+        }
+    }
+
+    // Drag & drop
+    function handleDragOver(e) {
+        e.preventDefault();
+        document.getElementById('dropzone').style.borderColor = '#3B82F6';
+        document.getElementById('dropzone').style.background = '#EFF6FF';
+    }
+    function handleDragLeave(e) {
+        document.getElementById('dropzone').style.borderColor = '';
+        document.getElementById('dropzone').style.background = '';
+    }
+    function handleDrop(e) {
+        e.preventDefault();
+        handleDragLeave(e);
+        const file = e.dataTransfer.files[0];
+        if (file) {
+            const input = document.getElementById('csv-bestand');
+            const dt = new DataTransfer();
+            dt.items.add(file);
+            input.files = dt.files;
+            toonBestandsnaam(input);
+        }
+    }
+
+    // Bestandsnaam tonen
+    function toonBestandsnaam(input) {
+        const tekst = document.getElementById('dropzone-tekst');
+        if (input.files && input.files[0]) {
+            tekst.innerHTML = `<span class="text-primary font-700">✓ ${input.files[0].name}</span><br><span class="text-xs text-slate-400">(${(input.files[0].size / 1024).toFixed(1)} KB)</span>`;
+            document.getElementById('dropzone').style.borderColor = '#22C55E';
+            document.getElementById('dropzone').style.background = '#F0FDF4';
+        }
+    }
+</script>
+
+<style>
+    .tab-actief {
+        background: white;
+        color: #2563EB;
+        box-shadow: 2px 2px 6px rgba(37,99,235,0.12), -1px -1px 3px rgba(255,255,255,0.80);
+    }
+</style>
+{% endblock %}
