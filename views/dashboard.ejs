@@ -1,0 +1,96 @@
+<%- include('partials/head', { title: 'Dashboard', activePage: 'klassen' }) %>
+
+<!-- ── Welkom header ── -->
+<div class="mb-8 flex items-center justify-between flex-wrap gap-4">
+  <div>
+    <h1 class="font-heading text-4xl font-bold text-ink mb-1">
+      Mijn klassen
+    </h1>
+    <p class="text-slate-500 text-base">
+      Schooljaar <strong><%= schooljaar || new Date().getFullYear() %>&ndash;<%= (schooljaar || new Date().getFullYear()) + 1 %></strong>
+      &mdash; <%= klassen.length %> klas<%= klassen.length !== 1 ? 'sen' : '' %>
+    </p>
+  </div>
+
+  <a href="/klassen/nieuw" class="clay-btn clay-btn-cta">
+    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+    </svg>
+    Nieuwe klas
+  </a>
+</div>
+
+<% if (klassen.length === 0) { %>
+
+  <!-- ── Lege staat ── -->
+  <div class="clay-card p-14 text-center">
+    <div class="w-20 h-20 bg-blue-50 rounded-clayl flex items-center justify-center mx-auto mb-6">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+              d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+      </svg>
+    </div>
+    <h2 class="font-heading text-2xl text-ink mb-2">Nog geen klassen</h2>
+    <p class="text-slate-500 mb-8 max-w-sm mx-auto">
+      Maak je eerste klas aan om leerlingen te beheren en attesten bij te houden.
+    </p>
+    <a href="/klassen/nieuw" class="clay-btn clay-btn-cta">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+      </svg>
+      Eerste klas aanmaken
+    </a>
+  </div>
+
+<% } else { %>
+
+  <!-- ── Klassen grid ── -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    <% klassen.forEach(function(klas) { %>
+      <div class="clay-card clay-card-hover p-6 flex flex-col gap-4 transition-all">
+
+        <!-- Header kaart -->
+        <div class="flex items-start justify-between">
+          <div>
+            <h2 class="font-heading text-2xl font-bold text-ink leading-tight">
+              <%= klas.naam %>
+            </h2>
+            <% if (klas.richting) { %>
+              <p class="text-slate-500 text-sm mt-1"><%= klas.richting %></p>
+            <% } %>
+          </div>
+          <span class="clay-badge clay-badge-blue text-xs whitespace-nowrap">
+            <%= klas.schooljaar %>&ndash;<%= klas.schooljaar + 1 %>
+          </span>
+        </div>
+
+        <!-- Statistieken -->
+        <div class="flex items-center gap-2 text-slate-500 text-sm">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197" />
+          </svg>
+          <span>
+            <strong class="text-ink"><%= klas.aantal_leerlingen %></strong>
+            leerling<%= klas.aantal_leerlingen !== 1 ? 'en' : '' %>
+          </span>
+        </div>
+
+        <!-- Actie knop -->
+        <div class="mt-auto pt-2">
+          <a href="/klassen/<%= klas.id %>" class="clay-btn clay-btn-primary w-full justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7..." />
+            </svg>
+            Bekijk klas
+          </a>
+        </div>
+
+      </div>
+    <% }); %>
+  </div>
+
+<% } %>
+
+<%- include('partials/footer') %>

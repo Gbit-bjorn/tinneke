@@ -1,0 +1,143 @@
+<%- include('../partials/head', {title: 'Leerplan Detail', activePage: 'llinkid', flash: {}}) %>
+    <!-- Broodkruimel -->
+    <nav class="text-sm text-slate-400">
+      <a href="/llinkid" class="hover:text-primary transition-colors">LLinkid</a>
+      <span class="mx-2">/</span>
+      <span class="text-textmain font-medium"><%= detail ? detail.titel : 'Detail' %></span>
+    </nav>
+
+    <% if (error) { %>
+    <div class="bg-red-50 border border-red-200 text-red-700 rounded-[20px] px-4 py-3 text-sm"><%= error %></div>
+    <% } %>
+
+    <% if (detail) { %>
+
+    <!-- Metadata kaart -->
+    <div class="clay-card p-6 space-y-4">
+      <div class="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h1 class="text-2xl font-heading font-bold text-primary"><%= detail.titel || 'Naamloos leerplan' %></h1>
+          <% if (detail.identifier) { %>
+          <span class="inline-block mt-1 text-xs font-mono bg-blue-50 text-primary px-2 py-0.5 rounded-full"><%= detail.identifier %></span>
+          <% } %>
+        </div>
+        <a href="/llinkid/<%= detail.uuid %>/doelen"
+           class="clay-btn bg-primary text-white px-5 py-2.5 text-sm font-semibold hover:bg-blue-700 transition-colors">
+          Alle doelen bekijken
+        </a>
+      </div>
+
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 text-sm pt-2 border-t border-slate-100">
+        <% if (detail.datum) { %>
+        <div>
+          <span class="block text-xs text-slate-400 mb-0.5">Datum</span>
+          <span class="font-semibold"><%= detail.datum %></span>
+        </div>
+        <% } %>
+        <% if (detail.versie && Object.keys(detail.versie).length) { %>
+        <div>
+          <span class="block text-xs text-slate-400 mb-0.5">Versie</span>
+          <span class="font-semibold font-mono text-xs"><%= JSON.stringify(detail.versie) %></span>
+        </div>
+        <% } %>
+        <div>
+          <span class="block text-xs text-slate-400 mb-0.5">UUID</span>
+          <span class="font-mono text-xs text-slate-500 break-all"><%= detail.uuid %></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Doelen preview (eerste 10) -->
+    <% if (doelen && doelen.length > 0) { %>
+    <div class="clay-card p-6 space-y-4">
+      <div class="flex items-center justify-between">
+        <h2 class="text-lg font-heading font-semibold text-textmain">
+          Doelen
+          <span class="text-sm font-normal text-slate-400 ml-2">(<%= doelen.length %> items)</span>
+        </h2>
+        <a href="/llinkid/<%= detail.uuid %>/doelen" class="text-sm text-primary hover:underline">Alle doelen →</a>
+      </div>
+
+      <div class="space-y-2">
+        <% doelen.slice(0, 10).forEach(doel => { %>
+        <div class="flex gap-3 items-start py-2 border-b border-slate-50 last:border-0">
+          <% if (doel.is_section) { %>
+          <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-violet-100 text-violet-700 shrink-0 mt-0.5">sectie</span>
+          <% } else { %>
+          <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-primary shrink-0 mt-0.5">
+            <%= doel.nr || '—' %>
+          </span>
+          <% } %>
+          <span class="text-sm text-textmain leading-snug"><%= doel.titel || '(geen beschrijving)' %></span>
+        </div>
+        <% }) %>
+        <% if (doelen.length > 10) { %>
+        <p class="text-sm text-slate-400 pt-1">… en nog <%= doelen.length - 10 %> meer</p>
+        <% } %>
+      </div>
+    </div>
+    <% } %>
+
+    <!-- Koppel aan klas -->
+    <div class="clay-card p-6 space-y-4">
+      <h2 class="text-lg font-heading font-semibold text-textmain">Koppel aan klas</h2>
+      <p class="text-sm text-slate-500">Selecteer een klas om dit leerplan eraan te koppelen.</p>
+
+      <form id="koppelForm" class="flex flex-wrap gap-3 items-end">
+        <div class="flex-1 min-w-48">
+          <label for="klasId" class="block text-xs font-semibold text-slate-500 mb-1">Klas-ID</label>
+          <input
+            type="text"
+            id="klasId"
+            name="klasId"
+            placeholder="bv. KLS-001"
+            class="w-full clay-card px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/30 transition"
+          >
+        </div>
+        <button
+          type="submit"
+          class="clay-btn-cta bg-cta text-white px-5 py-2.5 text-sm font-semibold hover:bg-orange-600 transition-colors"
+        >Koppelen</button>
+      </form>
+
+      <div id="koppelStatus" class="hidden text-sm"></div>
+    </div>
+
+    <% } %> <%# einde if (detail) %>
+
+  </main>
+
+  <script>
+    document.getElementById('koppelForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const klasId = document.getElementById('klasId').value.trim();
+      const statusEl = document.getElementById('koppelStatus');
+      if (!klasId) {
+        statusEl.textContent = 'Vul een klas-ID in.';
+        statusEl.className = 'text-sm text-red-600';
+        statusEl.classList.remove('hidden');
+        return;
+      }
+
+      try {
+        const resp = await fetch('/llinkid/<%= detail ? detail.uuid : "" %>/koppel', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ klasId }),
+        });
+        const data = await resp.json();
+        if (data.ok) {
+          statusEl.textContent = `Gekoppeld: leerplan aan klas ${data.klasId}. ${data.boodschap || ''}`;
+          statusEl.className = 'text-sm text-green-700 bg-green-50 rounded-lg px-3 py-2';
+        } else {
+          statusEl.textContent = `Fout: ${data.error}`;
+          statusEl.className = 'text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2';
+        }
+      } catch (err) {
+        statusEl.textContent = 'Verbindingsfout. Probeer opnieuw.';
+        statusEl.className = 'text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2';
+      }
+      statusEl.classList.remove('hidden');
+    });
+  </script>
+<%- include("../partials/footer") %>

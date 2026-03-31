@@ -1,0 +1,117 @@
+<%- include('../partials/head', {title: 'Leerplandoelen', activePage: 'llinkid', flash: {}}) %>
+    <!-- Broodkruimel -->
+    <nav class="text-sm text-slate-400">
+      <a href="/llinkid" class="hover:text-primary transition-colors">LLinkid</a>
+      <span class="mx-2">/</span>
+      <% if (detail) { %>
+      <a href="/llinkid/<%= detail.uuid %>" class="hover:text-primary transition-colors"><%= detail.titel %></a>
+      <span class="mx-2">/</span>
+      <% } %>
+      <span class="text-textmain font-medium">Doelen</span>
+    </nav>
+
+    <% if (error) { %>
+    <div class="bg-red-50 border border-red-200 text-red-700 rounded-[20px] px-4 py-3 text-sm"><%= error %></div>
+    <% } %>
+
+    <!-- Header -->
+    <% if (detail) { %>
+    <div class="clay-card p-5 flex flex-wrap items-center justify-between gap-4">
+      <div>
+        <h1 class="text-2xl font-heading font-bold text-primary"><%= detail.titel || 'Leerplan' %></h1>
+        <% if (detail.identifier) { %>
+        <span class="inline-block mt-1 text-xs font-mono bg-blue-50 text-primary px-2 py-0.5 rounded-full"><%= detail.identifier %></span>
+        <% } %>
+      </div>
+      <div class="text-sm text-slate-400">
+        <span class="font-semibold text-textmain"><%= doelen.length %></span> items
+      </div>
+    </div>
+    <% } %>
+
+    <!-- Doelen boom -->
+    <div class="clay-card p-6" id="doelenBoom">
+      <% if (!doelen || doelen.length === 0) { %>
+      <p class="text-slate-400 text-sm">Geen doelen gevonden voor dit leerplan.</p>
+      <% } else { %>
+
+      <%
+      // Bouw een boom-structuur uit de platte lijst
+      // We groeperen sections en hun kinderen
+
+      // Maak een map van parentKey -> children
+      const childrenMap = {};
+      const roots = [];
+
+      doelen.forEach(doel => {
+        if (!childrenMap[doel.key]) childrenMap[doel.key] = [];
+        if (doel.parentKey) {
+          if (!childrenMap[doel.parentKey]) childrenMap[doel.parentKey] = [];
+          childrenMap[doel.parentKey].push(doel);
+        } else {
+          roots.push(doel);
+        }
+      });
+
+      // Recursieve render-functie als string
+      function renderNode(node, depth) {
+        const children = childrenMap[node.key] || [];
+        const hasChildren = children.length > 0;
+        const indent = `depth-${Math.min(depth, 4)}`;
+        const nrLabel = node.nr ? `<span class="inline-flex items-center justify-center w-8 h-5 rounded-full text-xs font-semibold bg-blue-100 text-primary shrink-0">${node.nr}</span>` : '';
+
+        if (node.is_section) {
+          const childrenHtml = children.map(c => renderNode(c, depth + 1)).join('');
+          return `
+            <details class="${indent} mb-1" open>
+              <summary class="flex items-center gap-2 py-2 px-3 rounded-xl hover:bg-slate-50 transition-colors">
+                <span class="toggle-icon text-sm">▶</span>
+                <span class="font-heading font-semibold text-sm text-textmain">${node.titel || '(sectie)'}</span>
+                ${children.length ? `<span class="text-xs text-slate-400 ml-auto">${children.length} items</span>` : ''}
+              </summary>
+              <div class="pl-4 border-l-2 border-blue-100 ml-3 mt-1 space-y-0.5">
+                ${childrenHtml}
+              </div>
+            </details>
+          `;
+        } else {
+          // Doel-node
+          const goalBadge = node.goalType === 'MINIMUM'
+            ? `<span class="shrink-0 text-xs px-1.5 py-0.5 rounded-full bg-orange-100 text-orange-700 font-semibold">min</span>`
+            : '';
+          return `
+            <div class="${indent} flex items-start gap-3 py-2 px-3 rounded-xl hover:bg-slate-50 transition-colors">
+              ${nrLabel}
+              <span class="text-sm text-textmain leading-snug flex-1">${node.titel || '(geen beschrijving)'}</span>
+              ${goalBadge}
+            </div>
+          `;
+        }
+      }
+
+      // Als er geen roots zijn (alle nodes hebben een parent die niet in de lijst staat),
+      // toon dan alle nodes plat gesorteerd op nr
+      const teLadenNodes = roots.length > 0 ? roots : doelen;
+      %>
+
+      <div class="space-y-1">
+        <% teLadenNodes.forEach(node => { %>
+        <%- renderNode(node, 0) %>
+        <% }) %>
+      </div>
+
+      <% } %>
+    </div>
+
+  </main>
+
+  <script>
+    // Alles uit/inklappen
+    document.getElementById('btnAllesUitklappen').addEventListener('click', () => {
+      document.querySelectorAll('#doelenBoom details').forEach(d => d.open = true);
+    });
+    document.getElementById('btnAllesInklappen').addEventListener('click', () => {
+      document.querySelectorAll('#doelenBoom details').forEach(d => d.open = false);
+    });
+  </script>
+<%- include("../partials/footer") %>

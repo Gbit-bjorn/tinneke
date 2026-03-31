@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= typeof title !== 'undefined' ? title + ' — Tinneke' : 'Tinneke' %></title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            heading: ['Fredoka', 'sans-serif'],
+            body:    ['Nunito', 'sans-serif'],
+          },
+          colors: {
+            primary:   '#2563EB',
+            secondary: '#3B82F6',
+            cta:       '#F97316',
+            surface:   '#FFFFFF',
+            bg:        '#F8FAFC',
+            ink:       '#1E293B',
+            success:   '#22C55E',
+            warning:   '#F59E0B',
+            danger:    '#EF4444',
+          },
+          borderRadius: {
+            clay:  '20px',
+            clayl: '24px',
+            clays: '14px',
+          },
+        },
+      },
+    };
+  </script>
+
+  <style>
+    * { font-family: 'Nunito', sans-serif; }
+    h1, h2, h3, .font-heading { font-family: 'Fredoka', sans-serif; }
+    body { background-color: #F8FAFC; color: #1E293B; }
+
+    /* ── Clay kaart ── */
+    .clay-card {
+      background: white;
+      border-radius: 20px;
+      box-shadow:
+        6px 6px 12px rgba(37, 99, 235, 0.10),
+        -2px -2px 6px rgba(255, 255, 255, 0.80),
+        inset 0 1px 0 rgba(255, 255, 255, 0.90);
+      border: 2px solid rgba(255, 255, 255, 0.60);
+    }
+    .clay-card-hover:hover {
+      box-shadow:
+        8px 8px 18px rgba(37, 99, 235, 0.15),
+        -2px -2px 8px rgba(255, 255, 255, 0.90),
+        inset 0 1px 0 rgba(255, 255, 255, 0.95);
+      transform: translateY(-2px);
+      transition: all 200ms ease-out;
+    }
+
+    /* ── Clay knoppen ── */
+    .clay-btn {
+      border-radius: 14px;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 600;
+      padding: 10px 20px;
+      cursor: pointer;
+      transition: all 200ms ease-out;
+      border: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      text-decoration: none;
+    }
+    .clay-btn:hover { transform: translateY(-1px); }
+    .clay-btn:active { transform: translateY(0); }
+
+    .clay-btn-primary {
+      background: #2563EB;
+      color: white;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.30);
+    }
+    .clay-btn-primary:hover { box-shadow: 0 6px 16px rgba(37, 99, 235, 0.40); }
+
+    .clay-btn-secondary {
+      background: white;
+      color: #2563EB;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
+      border: 2px solid rgba(37, 99, 235, 0.20);
+    }
+    .clay-btn-secondary:hover { box-shadow: 0 6px 16px rgba(37, 99, 235, 0.22); }
+
+    .clay-btn-cta {
+      background: #F97316;
+      color: white;
+      box-shadow: 0 4px 12px rgba(249, 115, 22, 0.30);
+    }
+    .clay-btn-cta:hover { box-shadow: 0 6px 16px rgba(249, 115, 22, 0.40); }
+
+    .clay-btn-danger {
+      background: #EF4444;
+      color: white;
+      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.30);
+    }
+    .clay-btn-sm { padding: 6px 14px; font-size: 0.875rem; border-radius: 10px; }
+
+    /* ── Clay input ── */
+    .clay-input {
+      border-radius: 12px;
+      border: 2px solid #e2e8f0;
+      padding: 10px 14px;
+      font-family: 'Nunito', sans-serif;
+      font-size: 1rem;
+      width: 100%;
+      background: white;
+      transition: border-color 200ms, box-shadow 200ms;
+      outline: none;
+    }
+    .clay-input:focus {
+      border-color: #2563EB;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+    }
+
+    /* ── Clay badge ── */
+    .clay-badge {
+      border-radius: 999px;
+      padding: 3px 12px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      font-family: 'Nunito', sans-serif;
+      display: inline-block;
+    }
+    .clay-badge-blue   { background: rgba(37,99,235,0.12);  color: #1d4ed8; }
+    .clay-badge-orange { background: rgba(249,115,22,0.12); color: #c2410c; }
+    .clay-badge-green  { background: rgba(34,197,94,0.12);  color: #15803d; }
+    .clay-badge-gray   { background: rgba(100,116,139,0.10);color: #475569; }
+
+    /* ── Navbar ── */
+    .clay-navbar {
+      background: white;
+      border-bottom: 2px solid rgba(37, 99, 235, 0.08);
+      box-shadow: 0 2px 12px rgba(37, 99, 235, 0.08);
+    }
+
+    /* ── Toast ── */
+    .toast {
+      position: fixed;
+      top: 1.25rem;
+      right: 1.25rem;
+      z-index: 9999;
+      min-width: 280px;
+      max-width: 420px;
+      border-radius: 16px;
+      padding: 14px 18px;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 600;
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.14);
+      animation: slideIn 300ms ease-out;
+    }
+    .toast-success { background: #22C55E; color: white; }
+    .toast-error   { background: #EF4444; color: white; }
+    .toast-warning { background: #F59E0B; color: white; }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(80px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes fadeOut {
+      to { opacity: 0; transform: translateX(80px); }
+    }
+
+    /* ── Tabel ── */
+    .clay-table { width: 100%; border-collapse: separate; border-spacing: 0; }
+    .clay-table thead th {
+      background: #F1F5F9;
+      padding: 12px 16px;
+      text-align: left;
+      font-weight: 700;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #64748B;
+    }
+    .clay-table thead th:first-child { border-radius: 12px 0 0 12px; }
+    .clay-table thead th:last-child  { border-radius: 0 12px 12px 0; }
+    .clay-table tbody tr { border-bottom: 1px solid #F1F5F9; }
+    .clay-table tbody tr:hover { background: #F8FAFC; }
+    .clay-table tbody td { padding: 13px 16px; vertical-align: middle; }
+  </style>
+</head>
+<body class="bg-bg min-h-screen">
+
+<!-- ── Navbar ── -->
+<nav class="clay-navbar sticky top-0 z-50">
+  <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+
+    <!-- Logo -->
+    <a href="/klassen" class="flex items-center gap-3 text-primary hover:opacity-80 transition-opacity">
+      <div class="w-9 h-9 bg-primary rounded-clays flex items-center justify-center shadow-md">
+        <span class="text-white font-heading text-lg leading-none">T</span>
+      </div>
+      <span class="font-heading text-2xl text-ink">Tinneke</span>
+    </a>
+
+    <!-- Nav links -->
+    <div class="flex items-center gap-2">
+      <a href="/klassen"
+         class="px-4 py-2 rounded-clays font-semibold text-sm transition-all
+                <%= typeof activePage !== 'undefined' && activePage === 'klassen'
+                    ? 'bg-primary text-white shadow-md'
+                    : 'text-ink hover:bg-blue-50' %>">
+        Klassen
+      </a>
+      <a href="/llinkid"
+         class="px-4 py-2 rounded-clays font-semibold text-sm transition-all
+                <%= typeof activePage !== 'undefined' && activePage === 'llinkid'
+                    ? 'bg-primary text-white shadow-md'
+                    : 'text-ink hover:bg-blue-50' %>">
+        LLinkid
+      </a>
+    </div>
+
+    <!-- Logout -->
+    <form action="/auth/logout" method="POST">
+      <button type="submit" class="clay-btn clay-btn-secondary clay-btn-sm text-sm">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h6a2 2 0 012 2v1" />
+        </svg>
+        Afmelden
+      </button>
+    </form>
+  </div>
+</nav>
+
+<!-- ── Flash messages zone ── -->
+<div id="toast-container">
+  <% if (typeof flash !== 'undefined') { %>
+    <% if (flash.success) { %>
+      <div class="toast toast-success" role="alert">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+        </svg>
+        <span><%= flash.success %></span>
+      </div>
+    <% } %>
+    <% if (flash.error) { %>
+      <div class="toast toast-error" role="alert">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+        <span><%= flash.error %></span>
+      </div>
+    <% } %>
+    <% if (flash.warning) { %>
+      <div class="toast toast-warning" role="alert">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+        </svg>
+        <span><%= flash.warning %></span>
+      </div>
+    <% } %>
+  <% } %>
+</div>
+
+<!-- ── Pagina-inhoud start ── -->
+<main class="max-w-6xl mx-auto px-4 py-8">

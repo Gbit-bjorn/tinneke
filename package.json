@@ -3,11 +3,10 @@
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "node --watch server.js"
+    "start": "node --experimental-sqlite server.js",
+    "dev": "node --experimental-sqlite --watch server.js"
   },
   "dependencies": {
-    "better-sqlite3": "^9.0.0",
     "dotenv": "^16.0.0",
     "ejs": "^3.1.0",
     "exceljs": "^4.3.0",

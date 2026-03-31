@@ -1,0 +1,24 @@
+</main>
+
+<footer class="mt-16 py-6 border-t border-slate-100">
+  <div class="max-w-6xl mx-auto px-4 flex items-center justify-between text-xs text-slate-400 font-body">
+    <span>Tinneke &mdash; Damiaaninstituut Aarschot</span>
+    <span>&copy; <%= new Date().getFullYear() %></span>
+  </div>
+</footer>
+
+<!-- ── Toast auto-dismiss ── -->
+<script>
+  (function () {
+    const toasts = document.querySelectorAll('.toast');
+    toasts.forEach(function (toast) {
+      setTimeout(function () {
+        toast.style.animation = 'fadeOut 400ms ease-in forwards';
+        setTimeout(function () { toast.remove(); }, 400);
+      }, 4000);
+    });
+  })();
+</script>
+
+</body>
+</html>

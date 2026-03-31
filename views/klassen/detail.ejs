@@ -1,0 +1,174 @@
+<%- include('../partials/head', { title: klas.naam, activePage: 'klassen' }) %>
+
+<!-- ── Breadcrumb & header ── -->
+<div class="mb-2">
+  <a href="/klassen" class="text-primary text-sm font-semibold hover:underline inline-flex items-center gap-1">
+    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+    </svg>
+    Alle klassen
+  </a>
+</div>
+
+<div class="mb-8 flex items-start justify-between flex-wrap gap-4">
+  <div>
+    <div class="flex items-center gap-3 flex-wrap">
+      <h1 class="font-heading text-4xl font-bold text-ink"><%= klas.naam %></h1>
+      <span class="clay-badge clay-badge-blue">
+        <%= klas.schooljaar %>&ndash;<%= klas.schooljaar + 1 %>
+      </span>
+      <% if (klas.richting) { %>
+        <span class="clay-badge clay-badge-gray"><%= klas.richting %></span>
+      <% } %>
+    </div>
+    <p class="text-slate-500 mt-2">
+      <strong class="text-ink"><%= leerlingen.length %></strong>
+      leerling<%= leerlingen.length !== 1 ? 'en' : '' %>
+    </p>
+  </div>
+
+  <div class="flex items-center gap-3 flex-wrap">
+    <a href="/klassen/<%= klas.id %>/importeer" class="clay-btn clay-btn-secondary">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+      </svg>
+      Importeer CSV
+    </a>
+    <a href="/attestering/<%= klas.id %>" class="clay-btn clay-btn-cta">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806..." />
+      </svg>
+      Attesteer klas
+    </a>
+  </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+  <!-- ── Leerlingentabel ── -->
+  <div class="lg:col-span-2">
+    <div class="clay-card overflow-hidden">
+      <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+        <h2 class="font-heading text-xl font-semibold text-ink">Leerlingen</h2>
+        <span class="clay-badge clay-badge-gray"><%= leerlingen.length %></span>
+      </div>
+
+      <% if (leerlingen.length === 0) { %>
+        <div class="p-12 text-center">
+          <div class="w-14 h-14 bg-blue-50 rounded-clay flex items-center justify-center mx-auto mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                    d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1z" />
+            </svg>
+          </div>
+          <h3 class="font-heading text-lg text-ink mb-2">Geen leerlingen</h3>
+          <p class="text-slate-500 text-sm mb-6">Importeer leerlingen via een CSV-bestand.</p>
+          <a href="/klassen/<%= klas.id %>/importeer" class="clay-btn clay-btn-primary">
+            CSV importeren
+          </a>
+        </div>
+      <% } else { %>
+        <div class="overflow-x-auto">
+          <table class="clay-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Naam</th>
+                <th>Voornaam</th>
+                <th class="text-right">Actie</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% leerlingen.forEach(function(leerling, i) { %>
+                <tr>
+                  <td class="text-slate-400 text-sm w-10"><%= i + 1 %></td>
+                  <td class="font-semibold"><%= leerling.naam %></td>
+                  <td class="text-slate-600"><%= leerling.voornaam %></td>
+                  <td class="text-right">
+                    <a href="/attestering/<%= klas.id %>?leerling=<%= leerling.id %>"
+                       class="clay-btn clay-btn-primary clay-btn-sm">
+                      Attesteer
+                    </a>
+                  </td>
+                </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
+      <% } %>
+    </div>
+  </div>
+
+  <!-- ── Zijpaneel ── -->
+  <div class="flex flex-col gap-6">
+
+    <!-- Leerplan koppelen -->
+    <div class="clay-card p-6">
+      <h2 class="font-heading text-xl font-semibold text-ink mb-1">Leerplan</h2>
+      <p class="text-slate-500 text-sm mb-4">
+        Koppel een LLinkid-leerplan aan deze klas voor attestering.
+      </p>
+
+      <% if (typeof leerplanUuid !== 'undefined' && leerplanUuid) { %>
+        <div class="mb-4 p-3 bg-green-50 border-2 border-green-100 rounded-xl">
+          <p class="text-xs font-semibold text-green-700 mb-1">Gekoppeld leerplan</p>
+          <p class="text-xs text-green-600 font-mono break-all"><%= leerplanUuid %></p>
+        </div>
+      <% } %>
+
+      <form action="/klassen/<%= klas.id %>/leerplan" method="POST">
+        <div class="mb-3">
+          <label for="leerplan_uuid" class="block text-sm font-bold text-slate-700 mb-1">
+            LLinkid UUID
+          </label>
+          <input
+            type="text"
+            id="leerplan_uuid"
+            name="leerplan_uuid"
+            class="clay-input"
+            placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+            value="<%= typeof leerplanUuid !== 'undefined' && leerplanUuid ? leerplanUuid : '' %>"
+            required
+          />
+        </div>
+        <button type="submit" class="clay-btn clay-btn-primary w-full justify-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+          </svg>
+          <%= (typeof leerplanUuid !== 'undefined' && leerplanUuid) ? 'Leerplan bijwerken' : 'Leerplan koppelen' %>
+        </button>
+      </form>
+
+      <div class="mt-4 pt-4 border-t border-slate-100">
+        <a href="/llinkid" class="text-primary text-sm font-semibold hover:underline inline-flex items-center gap-1">
+          LLinkid verkennen
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </a>
+      </div>
+    </div>
+
+    <!-- Snelle acties -->
+    <div class="clay-card p-6">
+      <h2 class="font-heading text-xl font-semibold text-ink mb-4">Acties</h2>
+      <div class="flex flex-col gap-3">
+        <a href="/klassen/<%= klas.id %>/importeer" class="clay-btn clay-btn-secondary justify-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+          </svg>
+          CSV importeren
+        </a>
+        <a href="/export/<%= klas.id %>" class="clay-btn clay-btn-secondary justify-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4 4l4 4m0 0l4-4m-4 4V4" />
+          </svg>
+          Exporteer resultaten
+        </a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

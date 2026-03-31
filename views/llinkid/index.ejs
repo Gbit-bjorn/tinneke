@@ -1,0 +1,69 @@
+<%- include('../partials/head', {title: 'LLinkid Leerplannen', activePage: 'llinkid', flash: {}}) %>
+    <!-- Paginatitel -->
+    <div>
+      <h1 class="text-3xl font-heading font-bold text-primary mb-1">LLinkid Leerplannen</h1>
+      <p class="text-slate-500 text-sm">Zoek en bekijk officiële leerplannen van KOV</p>
+    </div>
+
+    <!-- Zoekbalk -->
+    <form method="GET" action="/llinkid" class="flex gap-3">
+      <input
+        type="text"
+        name="q"
+        value="<%= zoekterm %>"
+        placeholder="Zoek op naam of identifier…"
+        class="flex-1 clay-card px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-blue-200 transition"
+      >
+      <button
+        type="submit"
+        class="clay-btn bg-primary text-white px-5 py-2.5 text-sm font-semibold hover:bg-blue-700 transition-colors"
+      >Zoeken</button>
+      <% if (zoekterm) { %>
+      <a href="/llinkid"
+         class="clay-btn bg-slate-100 text-slate-600 px-4 py-2.5 text-sm font-semibold hover:bg-slate-200 transition-colors flex items-center">
+        Wis
+      </a>
+      <% } %>
+    </form>
+
+    <!-- Foutmelding -->
+    <% if (error) { %>
+    <div class="bg-red-50 border border-red-200 text-red-700 rounded-[20px] px-4 py-3 text-sm"><%= error %></div>
+    <% } %>
+
+    <!-- Resultaten teller -->
+    <% if (leerplannen.length > 0) { %>
+    <p class="text-sm text-slate-400">
+      <strong class="text-textmain"><%= leerplannen.length %></strong>
+      leerplan<%= leerplannen.length !== 1 ? 'nen' : '' %> gevonden
+      <% if (zoekterm) { %> voor "<strong class="text-slate-600"><%= zoekterm %></strong>"<% } %>
+    </p>
+    <% } else if (!error) { %>
+    <p class="text-sm text-slate-400">Geen leerplannen gevonden<%= zoekterm ? ' voor deze zoekopdracht' : '' %>.</p>
+    <% } %>
+
+    <!-- Grid van kaartjes -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+      <% leerplannen.forEach(lp => { %>
+      <a href="/llinkid/<%= lp.uuid %>"
+         class="clay-card p-5 flex flex-col gap-2 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-150 group">
+        <div class="flex items-start gap-2">
+          <h2 class="font-heading text-base font-semibold text-textmain group-hover:text-primary transition-colors leading-snug flex-1">
+            <%= lp.titel || 'Naamloos leerplan' %>
+          </h2>
+        </div>
+        <% if (lp.identifier) { %>
+        <span class="inline-block text-xs font-mono bg-blue-50 text-primary px-2 py-0.5 rounded-full w-fit">
+          <%= lp.identifier %>
+        </span>
+        <% } %>
+        <div class="mt-auto pt-2 border-t border-slate-100 flex items-center justify-between">
+          <span class="text-xs text-slate-400">Bekijk leerplan</span>
+          <svg class="w-4 h-4 text-slate-300 group-hover:text-primary transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+          </svg>
+        </div>
+      </a>
+      <% }) %>
+    </div>
+<%- include("../partials/footer") %>

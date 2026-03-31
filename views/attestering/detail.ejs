@@ -1,0 +1,276 @@
+<%- include('../partials/head', {title: leerling.naam + ' ' + leerling.voornaam + ' — Attestering', activePage: '', flash: {}}) %>
+
+
+  <!-- ── Header ── -->
+  <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
+    <div>
+      <h1 class="font-heading text-2xl md:text-3xl font-bold text-primary">
+        <%= leerling.naam %> <%= leerling.voornaam %>
+      </h1>
+      <p class="text-sm text-slate-500 mt-0.5">
+        <span class="font-semibold"><%= klas.naam %></span>
+        <% if (klas.richting) { %>
+          &nbsp;·&nbsp;<%= klas.richting %>
+        <% } %>
+      </p>
+    </div>
+
+    <div class="flex gap-2 flex-wrap">
+      <a href="/export/<%= leerling.id %>"
+         class="inline-flex items-center gap-1.5 px-4 py-2 rounded-clay font-semibold text-sm
+                bg-cta text-white shadow hover:brightness-105 active:scale-95 transition">
+        &#8659; Export
+      </a>
+      <a href="/klassen"
+         class="inline-flex items-center gap-1.5 px-4 py-2 rounded-clay font-semibold text-sm
+                bg-white border border-slate-200 text-textmain shadow hover:bg-slate-50 active:scale-95 transition">
+        &larr; Terug
+      </a>
+    </div>
+  </div>
+
+  <!-- ── Geen leerplan ── -->
+  <% if (!leerplanUuid) { %>
+    <div class="clay-card p-6 text-slate-500 text-sm">
+      Geen leerplan gekoppeld aan deze klas. Koppel eerst een leerplan via het klassenbeheer.
+    </div>
+  <% } else if (bkSecties.length === 0) { %>
+    <div class="clay-card p-6 text-slate-500 text-sm">
+      Geen doelen gevonden voor dit leerplan.
+    </div>
+  <% } else { %>
+
+  <!-- ── BK-secties ── -->
+  <div class="space-y-5" id="bk-container">
+    <% bkSecties.forEach(function(bk, bkIdx) { %>
+
+      <div class="clay-card overflow-hidden"
+           data-bk-key="<%= bk.key %>">
+
+        <!-- BK header (klikbaar voor collapse) -->
+        <button
+          type="button"
+          class="w-full flex items-center gap-3 px-5 py-3 bg-blue-50 hover:bg-blue-100
+                 transition text-left select-none"
+          onclick="toggleBk(this)"
+          aria-expanded="true"
+        >
+          <span class="bk-toggle-icon open text-primary font-bold text-base">&#9654;</span>
+
+          <span class="font-heading font-semibold text-primary text-base flex-1">
+            BK: <%= bk.titel || bk.key %>
+          </span>
+
+          <!-- BK voortgangsindicator -->
+          <span class="text-xs font-semibold ml-auto shrink-0
+            <%= bk.stats.percentage === 100 ? 'text-success' : 'text-primary' %>"
+            data-bk-stats="<%= bk.key %>">
+            <%= bk.stats.behaald %>/<%= bk.stats.totaal %> (<%= bk.stats.percentage %>%)
+          </span>
+        </button>
+
+        <!-- BK voortgangsbalk -->
+        <div class="px-5 pt-2 pb-1 bg-blue-50">
+          <div class="progress-bar-track">
+            <div class="progress-bar-fill <%= bk.stats.percentage < 100 ? 'partial' : '' %>"
+                 style="width: <%= bk.stats.percentage %>%"
+                 data-bk-bar="<%= bk.key %>">
+            </div>
+          </div>
+        </div>
+
+        <!-- BK body (collapsible) -->
+        <div class="bk-body px-5 py-4 space-y-4">
+
+          <% bk.dpkSecties.forEach(function(dpk) { %>
+            <div data-dpk-key="<%= dpk.key %>">
+
+              <!-- DPK header -->
+              <div class="flex items-center gap-2 mb-1">
+                <span class="text-slate-400 font-mono text-xs">&#x2523;</span>
+                <span class="font-semibold text-sm text-textmain">DPK: <%= dpk.titel || dpk.key %></span>
+                <span class="ml-auto text-xs font-semibold shrink-0
+                  <%= dpk.stats.percentage === 100 ? 'text-success' : 'text-slate-400' %>"
+                  data-dpk-stats="<%= dpk.key %>">
+                  <%= dpk.stats.behaald %>/<%= dpk.stats.totaal %> (<%= dpk.stats.percentage %>%)
+                </span>
+              </div>
+
+              <!-- DPK voortgangsbalk -->
+              <div class="progress-bar-track mb-3 ml-4">
+                <div class="progress-bar-fill <%= dpk.stats.percentage < 100 ? 'partial' : '' %>"
+                     style="width: <%= dpk.stats.percentage %>%"
+                     data-dpk-bar="<%= dpk.key %>">
+                </div>
+              </div>
+
+              <!-- LPD regels -->
+              <ul class="space-y-1 ml-4">
+                <% dpk.lpds.forEach(function(lpd) { %>
+                  <li class="flex items-start gap-2"
+                      data-lpd-key="<%= lpd.key %>"
+                      data-bk-key="<%= bk.key %>"
+                      data-dpk-key="<%= dpk.key %>">
+
+                    <input
+                      type="checkbox"
+                      id="lpd-<%= lpd.key %>"
+                      class="mt-0.5 w-4 h-4 accent-primary cursor-pointer shrink-0"
+                      <%= lpd.behaald ? 'checked' : '' %>
+                      onchange="toggleLpd(this, '<%= lpd.key %>', '<%= leerling.id %>')"
+                    />
+
+                    <label
+                      for="lpd-<%= lpd.key %>"
+                      class="text-sm cursor-pointer lpd-label <%= lpd.behaald ? 'behaald' : '' %>"
+                    >
+                      <span class="font-bold text-primary mr-1">LPD <%= lpd.nr %>:</span><%= lpd.titel %>
+                    </label>
+
+                  </li>
+                <% }); %>
+              </ul>
+
+            </div>
+          <% }); %>
+
+        </div><!-- /bk-body -->
+      </div><!-- /clay-card -->
+
+    <% }); %>
+  </div><!-- /bk-container -->
+
+  <% } %>
+
+  <!-- ── Toast ── -->
+  <div id="toast" role="status" aria-live="polite"></div>
+
+  <!-- ── Vanilla JS ── -->
+  <script>
+    // --- Collapse / expand BK-sectie ---
+    function toggleBk(btn) {
+      const card  = btn.closest('[data-bk-key]');
+      const body  = card.querySelector('.bk-body');
+      const icon  = btn.querySelector('.bk-toggle-icon');
+      const open  = btn.getAttribute('aria-expanded') === 'true';
+
+      if (open) {
+        body.style.display = 'none';
+        btn.setAttribute('aria-expanded', 'false');
+        icon.classList.remove('open');
+      } else {
+        body.style.display = '';
+        btn.setAttribute('aria-expanded', 'true');
+        icon.classList.add('open');
+      }
+    }
+
+    // --- AJAX toggle ---
+    async function toggleLpd(checkbox, lpdUuid, leerlingId) {
+      const behaald = checkbox.checked;
+
+      // Optimistisch UI: streep label door
+      const label = document.querySelector(`label[for="lpd-${lpdUuid}"]`);
+      if (label) label.classList.toggle('behaald', behaald);
+
+      try {
+        const resp = await fetch(`/attestering/${leerlingId}/toggle`, {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({ lpdUuid, behaald }),
+        });
+
+        if (!resp.ok) throw new Error('Server fout: ' + resp.status);
+        const data = await resp.json();
+        if (!data.success) throw new Error(data.error || 'Onbekende fout');
+
+        // Herbereken voortgangsbalken
+        _herbereken(data.resultaten);
+        showToast(behaald ? 'Doel behaald opgeslagen' : 'Doel gemarkeerd als niet behaald', 'ok');
+
+      } catch (err) {
+        // Rollback checkbox
+        checkbox.checked = !behaald;
+        if (label) label.classList.toggle('behaald', !behaald);
+        showToast('Opslaan mislukt: ' + err.message, 'err');
+      }
+    }
+
+    // --- Herbereken voortgangsbalken op basis van server-resultaten ---
+    function _herbereken(resultaten) {
+      // Groepeer per BK en DPK via de DOM
+      const bkCards = document.querySelectorAll('[data-bk-key]');
+
+      bkCards.forEach(card => {
+        const bkKey   = card.dataset.bkKey;
+        const dpkEls  = card.querySelectorAll('[data-dpk-key]');
+
+        let bkTotaal  = 0;
+        let bkBehaald = 0;
+
+        dpkEls.forEach(dpkEl => {
+          const dpkKey  = dpkEl.dataset.dpkKey;
+          const lpdEls  = dpkEl.querySelectorAll('[data-lpd-key]');
+
+          let dpkTotaal  = 0;
+          let dpkBehaald = 0;
+
+          lpdEls.forEach(lpdEl => {
+            const lpdKey = lpdEl.dataset.lpdKey;
+            const isBehaald = resultaten[lpdKey] === true;
+            dpkTotaal++;
+            if (isBehaald) dpkBehaald++;
+          });
+
+          bkTotaal  += dpkTotaal;
+          bkBehaald += dpkBehaald;
+
+          const dpkPct = dpkTotaal > 0 ? Math.round((dpkBehaald / dpkTotaal) * 100) : 0;
+
+          // DPK balk
+          const dpkBar = document.querySelector(`[data-dpk-bar="${dpkKey}"]`);
+          if (dpkBar) {
+            dpkBar.style.width = dpkPct + '%';
+            dpkBar.classList.toggle('partial', dpkPct < 100);
+          }
+          // DPK stats tekst
+          const dpkStats = document.querySelector(`[data-dpk-stats="${dpkKey}"]`);
+          if (dpkStats) {
+            dpkStats.textContent = `${dpkBehaald}/${dpkTotaal} (${dpkPct}%)`;
+            dpkStats.classList.toggle('text-success', dpkPct === 100);
+            dpkStats.classList.toggle('text-slate-400', dpkPct < 100);
+          }
+        });
+
+        const bkPct = bkTotaal > 0 ? Math.round((bkBehaald / bkTotaal) * 100) : 0;
+
+        // BK balk
+        const bkBar = document.querySelector(`[data-bk-bar="${bkKey}"]`);
+        if (bkBar) {
+          bkBar.style.width = bkPct + '%';
+          bkBar.classList.toggle('partial', bkPct < 100);
+        }
+        // BK stats tekst
+        const bkStats = document.querySelector(`[data-bk-stats="${bkKey}"]`);
+        if (bkStats) {
+          bkStats.textContent = `${bkBehaald}/${bkTotaal} (${bkPct}%)`;
+          bkStats.classList.toggle('text-success', bkPct === 100);
+          bkStats.classList.toggle('text-primary',  bkPct < 100);
+        }
+      });
+    }
+
+    // --- Toast ---
+    let _toastTimer = null;
+    function showToast(tekst, type) {
+      const el = document.getElementById('toast');
+      el.textContent = tekst;
+      el.className   = 'show ' + type;
+
+      clearTimeout(_toastTimer);
+      _toastTimer = setTimeout(() => {
+        el.classList.remove('show');
+      }, 2800);
+    }
+  </script>
+<%- include("../partials/footer") %>
