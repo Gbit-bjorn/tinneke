@@ -1,113 +1,163 @@
-<%- include('../partials/head', {title: leerling.naam + ' ' + leerling.voornaam + ' — Attestering', activePage: '', flash: {}}) %>
+<%- include('../partials/head', {title: leerling.naam + ' ' + leerling.voornaam + ' — Attestering', activePage: 'klassen'}) %>
 
+  <style>
+    .progress-track { background: #E2E8F0; border-radius: 999px; height: 5px; overflow: hidden; }
+    .progress-fill { background: #1E3A8A; height: 100%; border-radius: 999px; transition: width 300ms ease; }
+    .progress-fill.partial { background: #93C5FD; }
+    .lpd-label.behaald { text-decoration: line-through; color: #94A3B8; }
+    .bk-toggle-icon { transition: transform 200ms; display: inline-block; }
+    .bk-toggle-icon.open { transform: rotate(90deg); }
+    @media (max-width: 640px) { .attestering-header { flex-direction: column; gap: 12px; } }
 
-  <!-- ── Header ── -->
-  <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 250ms ease;
+      z-index: 9999;
+    }
+    #toast.show { opacity: 1; }
+    #toast.ok  { background: #D1FAE5; color: #065F46; border: 1px solid #6EE7B7; }
+    #toast.err { background: #FEE2E2; color: #991B1B; border: 1px solid #FCA5A5; }
+  </style>
+
+  <!-- Header -->
+  <div class="attestering-header" style="display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:24px; gap:16px; flex-wrap:wrap;">
     <div>
-      <h1 class="font-heading text-2xl md:text-3xl font-bold text-primary">
-        <%= leerling.naam %> <%= leerling.voornaam %>
+      <h1 style="font-size:1.75rem; font-weight:700; color:#0F172A; margin:0 0 4px;">
+        <%= leerling.voornaam %> <%= leerling.naam %>
       </h1>
-      <p class="text-sm text-slate-500 mt-0.5">
-        <span class="font-semibold"><%= klas.naam %></span>
+      <p style="font-size:0.875rem; color:#475569; margin:0;">
+        <span style="font-weight:600; color:#1E3A8A;"><%= klas.naam %></span>
         <% if (klas.richting) { %>
-          &nbsp;·&nbsp;<%= klas.richting %>
+          <span style="margin:0 6px; color:#CBD5E1;">&middot;</span><%= klas.richting %>
         <% } %>
       </p>
     </div>
 
-    <div class="flex gap-2 flex-wrap">
+    <div style="display:flex; gap:8px; flex-wrap:wrap;">
       <a href="/export/<%= leerling.id %>"
-         class="inline-flex items-center gap-1.5 px-4 py-2 rounded-clay font-semibold text-sm
-                bg-cta text-white shadow hover:brightness-105 active:scale-95 transition">
-        &#8659; Export
+         class="btn btn-secondary btn-sm"
+         style="display:inline-flex; align-items:center; gap:6px; min-height:44px;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+        </svg>
+        Export
       </a>
-      <a href="/klassen"
-         class="inline-flex items-center gap-1.5 px-4 py-2 rounded-clay font-semibold text-sm
-                bg-white border border-slate-200 text-textmain shadow hover:bg-slate-50 active:scale-95 transition">
-        &larr; Terug
+      <a href="/klassen/<%= typeof klasId !== 'undefined' && klasId ? klasId : '' %>"
+         class="btn btn-secondary btn-sm"
+         style="display:inline-flex; align-items:center; gap:6px; min-height:44px;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+        </svg>
+        Terug naar klas
       </a>
     </div>
   </div>
 
-  <!-- ── Geen leerplan ── -->
+  <!-- Geen leerplan -->
   <% if (!leerplanUuid) { %>
-    <div class="clay-card p-6 text-slate-500 text-sm">
-      Geen leerplan gekoppeld aan deze klas. Koppel eerst een leerplan via het klassenbeheer.
+    <div class="card" style="padding:24px; color:#475569; font-size:0.9rem; display:flex; align-items:center; gap:12px;">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="#94A3B8" stroke-width="2" style="flex-shrink:0;">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+      </svg>
+      <span>Geen leerplan gekoppeld aan deze klas. Koppel eerst een leerplan via het klassenbeheer.</span>
     </div>
   <% } else if (bkSecties.length === 0) { %>
-    <div class="clay-card p-6 text-slate-500 text-sm">
-      Geen doelen gevonden voor dit leerplan.
+    <div class="card" style="padding:24px; color:#475569; font-size:0.9rem; display:flex; align-items:center; gap:12px;">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="#94A3B8" stroke-width="2" style="flex-shrink:0;">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+      </svg>
+      <span>Geen doelen gevonden voor dit leerplan.</span>
     </div>
   <% } else { %>
 
-  <!-- ── BK-secties ── -->
-  <div class="space-y-5" id="bk-container">
-    <% bkSecties.forEach(function(bk, bkIdx) { %>
+  <!-- BK-secties -->
+  <div id="bk-container" style="display:flex; flex-direction:column; gap:12px;">
+    <% bkSecties.forEach(function(bk) { %>
 
-      <div class="clay-card overflow-hidden"
-           data-bk-key="<%= bk.key %>">
+      <div class="card" style="overflow:hidden;" data-bk-key="<%= bk.key %>">
 
-        <!-- BK header (klikbaar voor collapse) -->
+        <!-- BK header (klikbaar) -->
         <button
           type="button"
-          class="w-full flex items-center gap-3 px-5 py-3 bg-blue-50 hover:bg-blue-100
-                 transition text-left select-none"
           onclick="toggleBk(this)"
           aria-expanded="true"
+          style="width:100%; display:flex; align-items:center; gap:10px; padding:14px 16px; background:#EFF6FF; border:none; cursor:pointer; text-align:left; border-bottom:1px solid #DBEAFE;"
         >
-          <span class="bk-toggle-icon open text-primary font-bold text-base">&#9654;</span>
-
-          <span class="font-heading font-semibold text-primary text-base flex-1">
+          <span class="bk-toggle-icon open" style="color:#1E3A8A; font-size:11px; flex-shrink:0;">&#9654;</span>
+          <span style="font-weight:600; color:#1E3A8A; flex:1; font-size:0.9375rem;">
             BK: <%= bk.titel || bk.key %>
           </span>
-
+          <!-- BK Behaald badge -->
+          <span
+            data-bk-badge="<%= bk.key %>"
+            style="display:<%= bk.stats.percentage === 100 ? 'inline-flex' : 'none' %>; align-items:center; background:#D1FAE5; color:#065F46; padding:3px 10px; border-radius:999px; font-size:11px; font-weight:700; white-space:nowrap; margin-right:8px;">
+            &#10003; Behaald
+          </span>
           <!-- BK voortgangsindicator -->
-          <span class="text-xs font-semibold ml-auto shrink-0
-            <%= bk.stats.percentage === 100 ? 'text-success' : 'text-primary' %>"
-            data-bk-stats="<%= bk.key %>">
-            <%= bk.stats.behaald %>/<%= bk.stats.totaal %> (<%= bk.stats.percentage %>%)
+          <span
+            data-bk-stats="<%= bk.key %>"
+            style="font-size:13px; color:#475569; white-space:nowrap; flex-shrink:0;">
+            <%= bk.stats.behaald %>/<%= bk.stats.totaal %>
           </span>
         </button>
 
         <!-- BK voortgangsbalk -->
-        <div class="px-5 pt-2 pb-1 bg-blue-50">
-          <div class="progress-bar-track">
-            <div class="progress-bar-fill <%= bk.stats.percentage < 100 ? 'partial' : '' %>"
-                 style="width: <%= bk.stats.percentage %>%"
-                 data-bk-bar="<%= bk.key %>">
+        <div style="padding:0 16px 8px; background:#EFF6FF;">
+          <div class="progress-track" style="margin-top:6px;">
+            <div
+              class="progress-fill<%= bk.stats.percentage < 100 ? ' partial' : '' %>"
+              style="width:<%= bk.stats.percentage %>%"
+              data-bk-bar="<%= bk.key %>">
             </div>
           </div>
         </div>
 
         <!-- BK body (collapsible) -->
-        <div class="bk-body px-5 py-4 space-y-4">
+        <div class="bk-body" style="padding:16px; display:flex; flex-direction:column; gap:16px;">
 
           <% bk.dpkSecties.forEach(function(dpk) { %>
             <div data-dpk-key="<%= dpk.key %>">
 
               <!-- DPK header -->
-              <div class="flex items-center gap-2 mb-1">
-                <span class="text-slate-400 font-mono text-xs">&#x2523;</span>
-                <span class="font-semibold text-sm text-textmain">DPK: <%= dpk.titel || dpk.key %></span>
-                <span class="ml-auto text-xs font-semibold shrink-0
-                  <%= dpk.stats.percentage === 100 ? 'text-success' : 'text-slate-400' %>"
-                  data-dpk-stats="<%= dpk.key %>">
-                  <%= dpk.stats.behaald %>/<%= dpk.stats.totaal %> (<%= dpk.stats.percentage %>%)
+              <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
+                <span style="color:#94A3B8; font-size:11px; flex-shrink:0;">&#x2523;</span>
+                <span style="font-weight:600; font-size:0.875rem; color:#0F172A; flex:1;">
+                  DPK: <%= dpk.titel || dpk.key %>
+                </span>
+                <!-- DPK behaald vink -->
+                <span
+                  data-dpk-badge="<%= dpk.key %>"
+                  style="display:<%= dpk.stats.percentage === 100 ? 'inline' : 'none' %>; color:#059669; font-size:13px; font-weight:700;">
+                  &#10003;
+                </span>
+                <span
+                  data-dpk-stats="<%= dpk.key %>"
+                  style="font-size:12px; font-weight:600; color:<%= dpk.stats.percentage === 100 ? '#059669' : '#94A3B8' %>; white-space:nowrap; flex-shrink:0;">
+                  <%= dpk.stats.behaald %>/<%= dpk.stats.totaal %>
                 </span>
               </div>
 
               <!-- DPK voortgangsbalk -->
-              <div class="progress-bar-track mb-3 ml-4">
-                <div class="progress-bar-fill <%= dpk.stats.percentage < 100 ? 'partial' : '' %>"
-                     style="width: <%= dpk.stats.percentage %>%"
-                     data-dpk-bar="<%= dpk.key %>">
+              <div class="progress-track" style="margin-bottom:10px; margin-left:16px;">
+                <div
+                  class="progress-fill<%= dpk.stats.percentage < 100 ? ' partial' : '' %>"
+                  style="width:<%= dpk.stats.percentage %>%"
+                  data-dpk-bar="<%= dpk.key %>">
                 </div>
               </div>
 
               <!-- LPD regels -->
-              <ul class="space-y-1 ml-4">
+              <ul style="list-style:none; margin:0 0 0 16px; padding:0; display:flex; flex-direction:column; gap:6px;">
                 <% dpk.lpds.forEach(function(lpd) { %>
-                  <li class="flex items-start gap-2"
+                  <li style="display:flex; align-items:flex-start; gap:8px;"
                       data-lpd-key="<%= lpd.key %>"
                       data-bk-key="<%= bk.key %>"
                       data-dpk-key="<%= dpk.key %>">
@@ -115,16 +165,16 @@
                     <input
                       type="checkbox"
                       id="lpd-<%= lpd.key %>"
-                      class="mt-0.5 w-4 h-4 accent-primary cursor-pointer shrink-0"
+                      style="margin-top:2px; width:16px; height:16px; accent-color:#1E3A8A; cursor:pointer; flex-shrink:0;"
                       <%= lpd.behaald ? 'checked' : '' %>
                       onchange="toggleLpd(this, '<%= lpd.key %>', '<%= leerling.id %>')"
                     />
 
                     <label
                       for="lpd-<%= lpd.key %>"
-                      class="text-sm cursor-pointer lpd-label <%= lpd.behaald ? 'behaald' : '' %>"
-                    >
-                      <span class="font-bold text-primary mr-1">LPD <%= lpd.nr %>:</span><%= lpd.titel %>
+                      class="lpd-label<%= lpd.behaald ? ' behaald' : '' %>"
+                      style="font-size:0.875rem; cursor:pointer; line-height:1.4;">
+                      <span style="font-weight:700; color:#1E3A8A; margin-right:4px;">LPD <%= lpd.nr %>:</span><%= lpd.titel %>
                     </label>
 
                   </li>
@@ -135,24 +185,23 @@
           <% }); %>
 
         </div><!-- /bk-body -->
-      </div><!-- /clay-card -->
+      </div><!-- /card -->
 
     <% }); %>
   </div><!-- /bk-container -->
 
   <% } %>
 
-  <!-- ── Toast ── -->
+  <!-- Toast -->
   <div id="toast" role="status" aria-live="polite"></div>
 
-  <!-- ── Vanilla JS ── -->
   <script>
-    // --- Collapse / expand BK-sectie ---
+    // Collapse / expand BK-sectie
     function toggleBk(btn) {
-      const card  = btn.closest('[data-bk-key]');
-      const body  = card.querySelector('.bk-body');
-      const icon  = btn.querySelector('.bk-toggle-icon');
-      const open  = btn.getAttribute('aria-expanded') === 'true';
+      const card = btn.closest('[data-bk-key]');
+      const body = card.querySelector('.bk-body');
+      const icon = btn.querySelector('.bk-toggle-icon');
+      const open = btn.getAttribute('aria-expanded') === 'true';
 
       if (open) {
         body.style.display = 'none';
@@ -165,11 +214,11 @@
       }
     }
 
-    // --- AJAX toggle ---
+    // AJAX toggle LPD
     async function toggleLpd(checkbox, lpdUuid, leerlingId) {
       const behaald = checkbox.checked;
 
-      // Optimistisch UI: streep label door
+      // Optimistisch UI
       const label = document.querySelector(`label[for="lpd-${lpdUuid}"]`);
       if (label) label.classList.toggle('behaald', behaald);
 
@@ -184,39 +233,37 @@
         const data = await resp.json();
         if (!data.success) throw new Error(data.error || 'Onbekende fout');
 
-        // Herbereken voortgangsbalken
         _herbereken(data.resultaten);
         showToast(behaald ? 'Doel behaald opgeslagen' : 'Doel gemarkeerd als niet behaald', 'ok');
 
       } catch (err) {
-        // Rollback checkbox
+        // Rollback
         checkbox.checked = !behaald;
         if (label) label.classList.toggle('behaald', !behaald);
         showToast('Opslaan mislukt: ' + err.message, 'err');
       }
     }
 
-    // --- Herbereken voortgangsbalken op basis van server-resultaten ---
+    // Herbereken voortgangsbalken op basis van server-resultaten
     function _herbereken(resultaten) {
-      // Groepeer per BK en DPK via de DOM
       const bkCards = document.querySelectorAll('[data-bk-key]');
 
       bkCards.forEach(card => {
-        const bkKey   = card.dataset.bkKey;
-        const dpkEls  = card.querySelectorAll('[data-dpk-key]');
+        const bkKey  = card.dataset.bkKey;
+        const dpkEls = card.querySelectorAll('[data-dpk-key]');
 
         let bkTotaal  = 0;
         let bkBehaald = 0;
 
         dpkEls.forEach(dpkEl => {
-          const dpkKey  = dpkEl.dataset.dpkKey;
-          const lpdEls  = dpkEl.querySelectorAll('[data-lpd-key]');
+          const dpkKey = dpkEl.dataset.dpkKey;
+          const lpdEls = dpkEl.querySelectorAll('[data-lpd-key]');
 
           let dpkTotaal  = 0;
           let dpkBehaald = 0;
 
           lpdEls.forEach(lpdEl => {
-            const lpdKey = lpdEl.dataset.lpdKey;
+            const lpdKey    = lpdEl.dataset.lpdKey;
             const isBehaald = resultaten[lpdKey] === true;
             dpkTotaal++;
             if (isBehaald) dpkBehaald++;
@@ -227,50 +274,50 @@
 
           const dpkPct = dpkTotaal > 0 ? Math.round((dpkBehaald / dpkTotaal) * 100) : 0;
 
-          // DPK balk
           const dpkBar = document.querySelector(`[data-dpk-bar="${dpkKey}"]`);
           if (dpkBar) {
             dpkBar.style.width = dpkPct + '%';
             dpkBar.classList.toggle('partial', dpkPct < 100);
           }
-          // DPK stats tekst
+
           const dpkStats = document.querySelector(`[data-dpk-stats="${dpkKey}"]`);
           if (dpkStats) {
-            dpkStats.textContent = `${dpkBehaald}/${dpkTotaal} (${dpkPct}%)`;
-            dpkStats.classList.toggle('text-success', dpkPct === 100);
-            dpkStats.classList.toggle('text-slate-400', dpkPct < 100);
+            dpkStats.textContent = `${dpkBehaald}/${dpkTotaal}`;
+            dpkStats.style.color = dpkPct === 100 ? '#059669' : '#94A3B8';
           }
+
+          const dpkBadge = document.querySelector(`[data-dpk-badge="${dpkKey}"]`);
+          if (dpkBadge) dpkBadge.style.display = dpkPct === 100 ? 'inline' : 'none';
         });
 
         const bkPct = bkTotaal > 0 ? Math.round((bkBehaald / bkTotaal) * 100) : 0;
 
-        // BK balk
         const bkBar = document.querySelector(`[data-bk-bar="${bkKey}"]`);
         if (bkBar) {
           bkBar.style.width = bkPct + '%';
           bkBar.classList.toggle('partial', bkPct < 100);
         }
-        // BK stats tekst
+
         const bkStats = document.querySelector(`[data-bk-stats="${bkKey}"]`);
         if (bkStats) {
-          bkStats.textContent = `${bkBehaald}/${bkTotaal} (${bkPct}%)`;
-          bkStats.classList.toggle('text-success', bkPct === 100);
-          bkStats.classList.toggle('text-primary',  bkPct < 100);
+          bkStats.textContent = `${bkBehaald}/${bkTotaal}`;
+          bkStats.style.color = bkPct === 100 ? '#059669' : '#475569';
         }
+
+        const bkBadge = document.querySelector(`[data-bk-badge="${bkKey}"]`);
+        if (bkBadge) bkBadge.style.display = bkPct === 100 ? 'inline-flex' : 'none';
       });
     }
 
-    // --- Toast ---
+    // Toast
     let _toastTimer = null;
     function showToast(tekst, type) {
       const el = document.getElementById('toast');
       el.textContent = tekst;
       el.className   = 'show ' + type;
-
       clearTimeout(_toastTimer);
-      _toastTimer = setTimeout(() => {
-        el.classList.remove('show');
-      }, 2800);
+      _toastTimer = setTimeout(() => { el.classList.remove('show'); }, 2800);
     }
   </script>
+
 <%- include("../partials/footer") %>

@@ -1,124 +1,141 @@
 <%- include('../partials/head', { title: 'CSV importeren — ' + klas.naam, activePage: 'klassen' }) %>
 
 <!-- ── Breadcrumb ── -->
-<div class="mb-2 flex items-center gap-2 text-sm text-slate-500">
-  <a href="/klassen" class="text-primary font-semibold hover:underline">Klassen</a>
-  <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+<div style="margin-bottom:8px; display:flex; align-items:center; gap:6px; font-size:13px; color:#475569;">
+  <a href="/klassen" style="font-weight:600; color:#1E3A8A; text-decoration:none;"
+     onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">Klassen</a>
+  <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="#94A3B8">
     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
   </svg>
-  <a href="/klassen/<%= klas.id %>" class="text-primary font-semibold hover:underline"><%= klas.naam %></a>
-  <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <a href="/klassen/<%= klas.id %>" style="font-weight:600; color:#1E3A8A; text-decoration:none;"
+     onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'"><%= klas.naam %></a>
+  <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="#94A3B8">
     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
   </svg>
   <span>CSV importeren</span>
 </div>
 
-<div class="max-w-2xl">
-  <h1 class="font-heading text-4xl font-bold text-ink mb-1">CSV importeren</h1>
-  <p class="text-slate-500 mb-8">
-    Importeer leerlingen voor <strong><%= klas.naam %></strong> via een puntkomma-gescheiden bestand.
+<!-- ── Flash messages ── -->
+<% if (typeof flash !== 'undefined' && flash) { %>
+  <% if (flash.success) { %>
+    <div class="alert alert-success" style="margin-bottom:16px; max-width:680px;"><%= flash.success %></div>
+  <% } %>
+  <% if (flash.error) { %>
+    <div class="alert alert-error" style="margin-bottom:16px; max-width:680px;"><%= flash.error %></div>
+  <% } %>
+<% } %>
+
+<div style="max-width:680px;">
+  <h1 style="font-size:24px; font-weight:700; color:#0F172A; margin:0 0 4px 0;">CSV importeren</h1>
+  <p style="font-size:14px; color:#475569; margin:0 0 24px 0;">
+    Importeer leerlingen voor <strong style="color:#0F172A;"><%= klas.naam %></strong> via een puntkomma-gescheiden bestand.
   </p>
 
   <!-- ── Uitlegkaart ── -->
-  <div class="clay-card p-6 mb-6" style="background: linear-gradient(135deg, #EFF6FF 0%, #F0FDF4 100%);">
-    <div class="flex items-start gap-4">
-      <div class="w-10 h-10 bg-blue-100 rounded-clays flex items-center justify-center flex-shrink-0">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M12 2a10 10 0 100 20A10 10 0 0012 2z" />
+  <div class="card" style="padding:18px 20px; margin-bottom:20px; background:#F8FAFF; border-left:3px solid #1E3A8A;">
+    <div style="display:flex; align-items:flex-start; gap:14px;">
+      <div style="width:36px; height:36px; background:#EFF6FF; border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" fill="none" viewBox="0 0 24 24" stroke="#1E3A8A">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M13 16h-1v-4h-1m1-4h.01M12 2a10 10 0 100 20A10 10 0 0012 2z" />
         </svg>
       </div>
       <div>
-        <h3 class="font-heading text-lg font-semibold text-ink mb-2">Verwacht formaat</h3>
-        <p class="text-slate-600 text-sm mb-3">
-          Het bestand moet puntkomma-gescheiden zijn (<code class="bg-white px-1 rounded text-xs">.csv</code>)
-          met een header-rij en minstens de kolommen <code class="bg-white px-1 rounded text-xs font-mono">naam</code>
-          en <code class="bg-white px-1 rounded text-xs font-mono">voornaam</code>.
+        <h3 style="font-size:14px; font-weight:700; color:#0F172A; margin:0 0 6px 0;">Verwacht bestandsformaat</h3>
+        <p style="font-size:13px; color:#475569; margin:0 0 10px 0;">
+          Puntkomma-gescheiden <code style="background:#EFF6FF; padding:1px 5px; border-radius:4px; font-size:12px; color:#1E3A8A;">.csv</code>
+          met minstens de kolommen
+          <code style="background:#EFF6FF; padding:1px 5px; border-radius:4px; font-size:12px; font-family:monospace; color:#1E3A8A;">naam</code> en
+          <code style="background:#EFF6FF; padding:1px 5px; border-radius:4px; font-size:12px; font-family:monospace; color:#1E3A8A;">voornaam</code>.
+          Bestaande leerlingen worden <strong>overschreven</strong>.
         </p>
-        <div class="bg-white rounded-xl p-3 font-mono text-xs text-slate-700 border border-slate-200">
-          <div class="text-slate-400 mb-1"># voorbeeld.csv</div>
-          <div class="font-bold text-primary">naam;voornaam</div>
-          <div>Janssen;Lars</div>
-          <div>Peeters;Emma</div>
-          <div>De Smedt;Nathalie</div>
+        <div style="background:#FFFFFF; border:1px solid #E2E8F0; border-radius:8px; padding:10px 14px; font-family:monospace; font-size:12px; color:#334155; line-height:1.8;">
+          <span style="color:#94A3B8;"># voorbeeld.csv</span><br>
+          <span style="font-weight:700; color:#1E3A8A;">naam;voornaam</span><br>
+          Janssen;Lars<br>
+          Peeters;Emma<br>
+          De Smedt;Nathalie
         </div>
-        <p class="text-slate-500 text-xs mt-2">
+        <p style="font-size:12px; color:#64748B; margin:8px 0 0 0;">
           Kolommen mogen in willekeurige volgorde staan. Extra kolommen worden genegeerd.
-          Bestaande leerlingen van deze klas worden <strong>overschreven</strong>.
         </p>
       </div>
     </div>
   </div>
 
   <!-- ── Upload formulier ── -->
-  <div class="clay-card p-8">
+  <div class="card" style="padding:24px;">
 
+    <!-- Foutmelding -->
     <% if (typeof error !== 'undefined' && error) { %>
-      <div class="mb-6 p-3 bg-red-50 border-2 border-red-100 rounded-xl flex items-center gap-3">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-red-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-        </svg>
-        <span class="text-red-700 font-semibold text-sm"><%= error %></span>
+      <div class="alert alert-error" style="margin-bottom:20px;">
+        <%= error %>
       </div>
     <% } %>
 
     <form action="/klassen/<%= klas.id %>/importeer" method="POST" enctype="multipart/form-data" id="import-form">
 
       <!-- Tab keuze -->
-      <div class="flex rounded-xl bg-slate-100 p-1 mb-6" role="tablist">
+      <div style="display:flex; background:#F1F5F9; border-radius:10px; padding:4px; margin-bottom:22px;" role="tablist">
         <button type="button" id="tab-file" role="tab"
-                class="flex-1 py-2 px-4 rounded-lg text-sm font-bold transition-all tab-active"
                 onclick="switchTab('file')"
-                style="background:white; color:#2563EB; box-shadow: 0 2px 6px rgba(37,99,235,0.15);">
+                style="flex:1; padding:9px 16px; border-radius:7px; font-size:13px; font-weight:600; border:none; cursor:pointer; transition:all 0.15s; background:#FFFFFF; color:#1E3A8A; box-shadow:0 1px 4px rgba(0,0,0,0.1);">
           Bestand uploaden
         </button>
         <button type="button" id="tab-text" role="tab"
-                class="flex-1 py-2 px-4 rounded-lg text-sm font-bold transition-all"
                 onclick="switchTab('text')"
-                style="background:transparent; color:#64748B;">
+                style="flex:1; padding:9px 16px; border-radius:7px; font-size:13px; font-weight:600; border:none; cursor:pointer; transition:all 0.15s; background:transparent; color:#64748B; box-shadow:none;">
           Tekst plakken
         </button>
       </div>
 
-      <!-- Bestand upload -->
+      <!-- Bestand upload panel -->
       <div id="panel-file">
-        <label for="csv_file" class="block text-sm font-bold text-slate-700 mb-2">
+        <label for="csv_file" style="display:block; font-size:13px; font-weight:600; color:#0F172A; margin-bottom:8px;">
           CSV-bestand
         </label>
         <div id="drop-zone"
-             class="border-2 border-dashed border-slate-300 rounded-xl p-8 text-center cursor-pointer transition-all hover:border-primary hover:bg-blue-50"
-             onclick="document.getElementById('csv_file').click()">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-slate-400 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+             onclick="document.getElementById('csv_file').click()"
+             style="border:2px dashed #CBD5E1; border-radius:10px; padding:36px 24px; text-align:center; cursor:pointer; transition:border-color 0.15s, background 0.15s;"
+             onmouseover="this.style.borderColor='#1E3A8A'; this.style.background='#F0F6FF';"
+             onmouseout="if(!this.classList.contains('actief')) { this.style.borderColor='#CBD5E1'; this.style.background=''; }">
+          <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="none" viewBox="0 0 24 24" stroke="#94A3B8"
+               style="display:block; margin:0 auto 12px auto;">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                  d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
           </svg>
-          <p class="text-slate-600 font-semibold text-sm mb-1">Klik om een bestand te kiezen</p>
-          <p class="text-slate-400 text-xs">of sleep het hiernaartoe</p>
-          <p id="file-name" class="mt-3 text-primary text-sm font-semibold hidden"></p>
+          <p style="font-size:14px; font-weight:600; color:#334155; margin:0 0 4px 0;">Klik om een bestand te kiezen</p>
+          <p style="font-size:12px; color:#94A3B8; margin:0;">of sleep het hiernaartoe &mdash; .csv of .txt</p>
+          <p id="file-name" style="margin:10px 0 0 0; font-size:13px; font-weight:600; color:#1E3A8A; display:none;"></p>
         </div>
-        <input type="file" id="csv_file" name="csv_file" accept=".csv,.txt" class="hidden" onchange="showFileName(this)" />
+        <input type="file" id="csv_file" name="csv_file" accept=".csv,.txt" style="display:none;" onchange="showFileName(this)" />
       </div>
 
-      <!-- Tekst plakken -->
-      <div id="panel-text" class="hidden">
-        <label for="csv_text" class="block text-sm font-bold text-slate-700 mb-2">
+      <!-- Tekst plakken panel -->
+      <div id="panel-text" style="display:none;">
+        <label for="csv_text" style="display:block; font-size:13px; font-weight:600; color:#0F172A; margin-bottom:8px;">
           CSV-inhoud
         </label>
         <textarea
           id="csv_text"
           name="csv_text"
-          class="clay-input font-mono text-sm"
+          class="input"
           rows="10"
           placeholder="naam;voornaam&#10;Janssen;Lars&#10;Peeters;Emma"
-          style="resize: vertical;"
+          style="font-family:monospace; font-size:13px; resize:vertical; min-height:180px;"
         ></textarea>
+        <p style="font-size:12px; color:#94A3B8; margin:5px 0 0 0;">Plak de volledige CSV-inhoud inclusief de headerrij.</p>
       </div>
 
-      <div class="flex gap-3 mt-8">
-        <a href="/klassen/<%= klas.id %>" class="clay-btn clay-btn-secondary flex-1 justify-center">
+      <!-- Actieknoppen -->
+      <div style="display:flex; gap:10px; margin-top:24px;">
+        <a href="/klassen/<%= klas.id %>" class="btn btn-secondary" style="flex:1; min-height:44px; justify-content:center;">
           Annuleer
         </a>
-        <button type="submit" class="clay-btn clay-btn-cta flex-1 justify-center">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+        <button type="submit" class="btn btn-primary" style="flex:1; min-height:44px; justify-content:center; gap:8px;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
           </svg>
           Importeer leerlingen
         </button>
@@ -135,49 +152,51 @@
     const fileTab   = document.getElementById('tab-file');
     const textTab   = document.getElementById('tab-text');
 
+    const actief = { background: '#FFFFFF', color: '#1E3A8A', boxShadow: '0 1px 4px rgba(0,0,0,0.1)' };
+    const inactief = { background: 'transparent', color: '#64748B', boxShadow: 'none' };
+
     if (tab === 'file') {
-      filePanel.classList.remove('hidden');
-      textPanel.classList.add('hidden');
-      fileTab.style.background = 'white';
-      fileTab.style.color = '#2563EB';
-      fileTab.style.boxShadow = '0 2px 6px rgba(37,99,235,0.15)';
-      textTab.style.background = 'transparent';
-      textTab.style.color = '#64748B';
-      textTab.style.boxShadow = 'none';
+      filePanel.style.display = '';
+      textPanel.style.display = 'none';
+      Object.assign(fileTab.style, actief);
+      Object.assign(textTab.style, inactief);
     } else {
-      filePanel.classList.add('hidden');
-      textPanel.classList.remove('hidden');
-      textTab.style.background = 'white';
-      textTab.style.color = '#2563EB';
-      textTab.style.boxShadow = '0 2px 6px rgba(37,99,235,0.15)';
-      fileTab.style.background = 'transparent';
-      fileTab.style.color = '#64748B';
-      fileTab.style.boxShadow = 'none';
+      filePanel.style.display = 'none';
+      textPanel.style.display = '';
+      Object.assign(textTab.style, actief);
+      Object.assign(fileTab.style, inactief);
     }
   }
 
   function showFileName(input) {
-    const label = document.getElementById('file-name');
+    const label   = document.getElementById('file-name');
+    const dropZone = document.getElementById('drop-zone');
     if (input.files && input.files[0]) {
       label.textContent = input.files[0].name;
-      label.classList.remove('hidden');
-      document.getElementById('drop-zone').style.borderColor = '#2563EB';
-      document.getElementById('drop-zone').style.background = '#EFF6FF';
+      label.style.display = 'block';
+      dropZone.style.borderColor = '#1E3A8A';
+      dropZone.style.background  = '#EFF6FF';
+      dropZone.classList.add('actief');
     }
   }
 
-  // Drag & drop
+  /* Drag & drop */
   const dropZone = document.getElementById('drop-zone');
-  dropZone.addEventListener('dragover', function(e) {
+
+  dropZone.addEventListener('dragover', function (e) {
     e.preventDefault();
-    dropZone.style.borderColor = '#2563EB';
-    dropZone.style.background = '#EFF6FF';
+    dropZone.style.borderColor = '#1E3A8A';
+    dropZone.style.background  = '#EFF6FF';
   });
-  dropZone.addEventListener('dragleave', function() {
-    dropZone.style.borderColor = '#CBD5E1';
-    dropZone.style.background = '';
+
+  dropZone.addEventListener('dragleave', function () {
+    if (!dropZone.classList.contains('actief')) {
+      dropZone.style.borderColor = '#CBD5E1';
+      dropZone.style.background  = '';
+    }
   });
-  dropZone.addEventListener('drop', function(e) {
+
+  dropZone.addEventListener('drop', function (e) {
     e.preventDefault();
     const fileInput = document.getElementById('csv_file');
     fileInput.files = e.dataTransfer.files;

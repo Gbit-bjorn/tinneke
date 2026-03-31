@@ -1,174 +1,289 @@
 <%- include('../partials/head', { title: klas.naam, activePage: 'klassen' }) %>
 
-<!-- ── Breadcrumb & header ── -->
-<div class="mb-2">
-  <a href="/klassen" class="text-primary text-sm font-semibold hover:underline inline-flex items-center gap-1">
-    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+<!-- ── Breadcrumb ── -->
+<div style="margin-bottom:8px;">
+  <a href="/klassen" style="font-size:13px; font-weight:600; color:#1E3A8A; text-decoration:none; display:inline-flex; align-items:center; gap:4px;"
+     onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">
+    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
     </svg>
     Alle klassen
   </a>
 </div>
 
-<div class="mb-8 flex items-start justify-between flex-wrap gap-4">
+<!-- ── Flash messages ── -->
+<% if (typeof flash !== 'undefined' && flash) { %>
+  <% if (flash.success) { %>
+    <div class="alert alert-success" style="margin-bottom:16px;"><%= flash.success %></div>
+  <% } %>
+  <% if (flash.error) { %>
+    <div class="alert alert-error" style="margin-bottom:16px;"><%= flash.error %></div>
+  <% } %>
+<% } %>
+
+<!-- ── Pagina-header ── -->
+<div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:12px; margin-bottom:24px;">
   <div>
-    <div class="flex items-center gap-3 flex-wrap">
-      <h1 class="font-heading text-4xl font-bold text-ink"><%= klas.naam %></h1>
-      <span class="clay-badge clay-badge-blue">
-        <%= klas.schooljaar %>&ndash;<%= klas.schooljaar + 1 %>
-      </span>
+    <div style="display:flex; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:6px;">
+      <h1 style="font-size:24px; font-weight:700; color:#0F172A; margin:0;"><%= klas.naam %></h1>
+      <span class="badge badge-blue"><%= klas.schooljaar %>&ndash;<%= klas.schooljaar + 1 %></span>
       <% if (klas.richting) { %>
-        <span class="clay-badge clay-badge-gray"><%= klas.richting %></span>
+        <span class="badge badge-gray"><%= klas.richting %></span>
       <% } %>
     </div>
-    <p class="text-slate-500 mt-2">
-      <strong class="text-ink"><%= leerlingen.length %></strong>
+    <p style="font-size:13px; color:#475569; margin:0;">
+      <strong style="color:#0F172A;"><%= leerlingen.length %></strong>
       leerling<%= leerlingen.length !== 1 ? 'en' : '' %>
     </p>
   </div>
-
-  <div class="flex items-center gap-3 flex-wrap">
-    <a href="/klassen/<%= klas.id %>/importeer" class="clay-btn clay-btn-secondary">
-      <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-      </svg>
-      Importeer CSV
-    </a>
-    <a href="/attestering/<%= klas.id %>" class="clay-btn clay-btn-cta">
-      <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806..." />
-      </svg>
-      Attesteer klas
-    </a>
-  </div>
+  <a href="/klassen/<%= klas.id %>/importeer" class="btn btn-secondary" style="min-height:44px; display:inline-flex; align-items:center; gap:8px;">
+    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+    </svg>
+    Importeer CSV
+  </a>
 </div>
 
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+<!-- ── 2-kolom layout ── -->
+<div style="display:grid; grid-template-columns:1fr; gap:20px;">
 
-  <!-- ── Leerlingentabel ── -->
-  <div class="lg:col-span-2">
-    <div class="clay-card overflow-hidden">
-      <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
-        <h2 class="font-heading text-xl font-semibold text-ink">Leerlingen</h2>
-        <span class="clay-badge clay-badge-gray"><%= leerlingen.length %></span>
+  <!-- Responsive: sidebar stacked op mobiel, naast op desktop -->
+  <div style="display:grid; grid-template-columns:1fr; gap:20px;" id="detail-grid">
+
+    <!-- ── Leerlingentabel ── -->
+    <div class="card" style="overflow:hidden; grid-column:1;">
+
+      <div style="padding:16px 20px; border-bottom:1px solid #E2E8F0; display:flex; align-items:center; justify-content:space-between;">
+        <h2 style="font-size:16px; font-weight:700; color:#0F172A; margin:0;">Leerlingen</h2>
+        <span class="badge badge-gray" id="leerling-teller"><%= leerlingen.length %></span>
       </div>
 
       <% if (leerlingen.length === 0) { %>
-        <div class="p-12 text-center">
-          <div class="w-14 h-14 bg-blue-50 rounded-clay flex items-center justify-center mx-auto mb-4">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <div style="padding:48px 24px; text-align:center;">
+          <div style="width:52px; height:52px; background:#EFF6FF; border-radius:10px; display:flex; align-items:center; justify-content:center; margin:0 auto 16px auto;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="#1E3A8A">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                     d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1z" />
             </svg>
           </div>
-          <h3 class="font-heading text-lg text-ink mb-2">Geen leerlingen</h3>
-          <p class="text-slate-500 text-sm mb-6">Importeer leerlingen via een CSV-bestand.</p>
-          <a href="/klassen/<%= klas.id %>/importeer" class="clay-btn clay-btn-primary">
-            CSV importeren
-          </a>
+          <h3 style="font-size:16px; font-weight:600; color:#0F172A; margin:0 0 8px 0;">Geen leerlingen</h3>
+          <p style="font-size:13px; color:#475569; margin:0 0 20px 0;">Importeer leerlingen via een CSV-bestand.</p>
+          <a href="/klassen/<%= klas.id %>/importeer" class="btn btn-primary btn-sm">CSV importeren</a>
         </div>
       <% } else { %>
-        <div class="overflow-x-auto">
-          <table class="clay-table">
+
+        <!-- Zoekbalk -->
+        <div style="padding:12px 20px; border-bottom:1px solid #E2E8F0;">
+          <div style="position:relative;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="#94A3B8"
+                 style="position:absolute; left:11px; top:50%; transform:translateY(-50%); pointer-events:none;">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0" />
+            </svg>
+            <input
+              type="text"
+              id="zoek-leerling"
+              class="input"
+              style="padding-left:34px;"
+              placeholder="Zoek leerling&hellip;"
+              autocomplete="off"
+            />
+          </div>
+        </div>
+
+        <!-- Tabel -->
+        <div style="overflow-x:auto;">
+          <table class="table" id="leerlingen-tabel">
             <thead>
               <tr>
-                <th>#</th>
+                <th style="width:40px;">#</th>
                 <th>Naam</th>
                 <th>Voornaam</th>
-                <th class="text-right">Actie</th>
+                <th style="text-align:right;">Actie</th>
               </tr>
             </thead>
             <tbody>
               <% leerlingen.forEach(function(leerling, i) { %>
-                <tr>
-                  <td class="text-slate-400 text-sm w-10"><%= i + 1 %></td>
-                  <td class="font-semibold"><%= leerling.naam %></td>
-                  <td class="text-slate-600"><%= leerling.voornaam %></td>
-                  <td class="text-right">
-                    <a href="/attestering/<%= klas.id %>?leerling=<%= leerling.id %>"
-                       class="clay-btn clay-btn-primary clay-btn-sm">
-                      Attesteer
-                    </a>
+                <tr class="leerling-rij">
+                  <td style="color:#94A3B8; font-size:12px;"><%= i + 1 %></td>
+                  <td style="font-weight:600;" class="leerling-naam"><%= leerling.naam %></td>
+                  <td style="color:#475569;" class="leerling-voornaam"><%= leerling.voornaam %></td>
+                  <td style="text-align:right;">
+                    <a href="/attestering/<%= leerling.id %>" class="btn btn-primary btn-sm">Attesteer</a>
                   </td>
                 </tr>
               <% }); %>
             </tbody>
           </table>
+          <div id="geen-resultaten" style="display:none; padding:28px; text-align:center; font-size:13px; color:#475569;">
+            Geen leerlingen gevonden voor deze zoekterm.
+          </div>
         </div>
+
       <% } %>
-    </div>
-  </div>
-
-  <!-- ── Zijpaneel ── -->
-  <div class="flex flex-col gap-6">
-
-    <!-- Leerplan koppelen -->
-    <div class="clay-card p-6">
-      <h2 class="font-heading text-xl font-semibold text-ink mb-1">Leerplan</h2>
-      <p class="text-slate-500 text-sm mb-4">
-        Koppel een LLinkid-leerplan aan deze klas voor attestering.
-      </p>
-
-      <% if (typeof leerplanUuid !== 'undefined' && leerplanUuid) { %>
-        <div class="mb-4 p-3 bg-green-50 border-2 border-green-100 rounded-xl">
-          <p class="text-xs font-semibold text-green-700 mb-1">Gekoppeld leerplan</p>
-          <p class="text-xs text-green-600 font-mono break-all"><%= leerplanUuid %></p>
-        </div>
-      <% } %>
-
-      <form action="/klassen/<%= klas.id %>/leerplan" method="POST">
-        <div class="mb-3">
-          <label for="leerplan_uuid" class="block text-sm font-bold text-slate-700 mb-1">
-            LLinkid UUID
-          </label>
-          <input
-            type="text"
-            id="leerplan_uuid"
-            name="leerplan_uuid"
-            class="clay-input"
-            placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-            value="<%= typeof leerplanUuid !== 'undefined' && leerplanUuid ? leerplanUuid : '' %>"
-            required
-          />
-        </div>
-        <button type="submit" class="clay-btn clay-btn-primary w-full justify-center">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-          </svg>
-          <%= (typeof leerplanUuid !== 'undefined' && leerplanUuid) ? 'Leerplan bijwerken' : 'Leerplan koppelen' %>
-        </button>
-      </form>
-
-      <div class="mt-4 pt-4 border-t border-slate-100">
-        <a href="/llinkid" class="text-primary text-sm font-semibold hover:underline inline-flex items-center gap-1">
-          LLinkid verkennen
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-          </svg>
-        </a>
-      </div>
-    </div>
-
-    <!-- Snelle acties -->
-    <div class="clay-card p-6">
-      <h2 class="font-heading text-xl font-semibold text-ink mb-4">Acties</h2>
-      <div class="flex flex-col gap-3">
-        <a href="/klassen/<%= klas.id %>/importeer" class="clay-btn clay-btn-secondary justify-center">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-          </svg>
-          CSV importeren
-        </a>
-        <a href="/export/<%= klas.id %>" class="clay-btn clay-btn-secondary justify-center">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4 4l4 4m0 0l4-4m-4 4V4" />
-          </svg>
-          Exporteer resultaten
-        </a>
-      </div>
     </div>
 
   </div>
 </div>
+
+<!-- ── Zijpaneel (sidebar) ── -->
+<div style="display:grid; grid-template-columns:1fr; gap:20px; margin-top:20px;" id="sidebar-sectie">
+
+  <!-- Leerplan koppelen -->
+  <div class="card" style="padding:20px;">
+    <h2 style="font-size:16px; font-weight:700; color:#0F172A; margin:0 0 4px 0;">Leerplan</h2>
+    <p style="font-size:13px; color:#475569; margin:0 0 16px 0;">
+      Koppel een LLinkid-leerplan aan deze klas voor attestering.
+    </p>
+
+    <% if (typeof leerplanUuid !== 'undefined' && leerplanUuid) { %>
+      <div style="margin-bottom:14px; padding:10px 12px; background:#F0FDF4; border:1px solid #BBF7D0; border-radius:8px;">
+        <p style="font-size:11px; font-weight:700; color:#15803D; margin:0 0 3px 0; text-transform:uppercase; letter-spacing:0.5px;">Gekoppeld leerplan</p>
+        <p style="font-size:11px; color:#16A34A; font-family:monospace; word-break:break-all; margin:0;"><%= leerplanUuid %></p>
+      </div>
+    <% } %>
+
+    <form action="/klassen/<%= klas.id %>/leerplan" method="POST">
+      <div style="margin-bottom:10px;">
+        <label for="leerplan_uuid" style="display:block; font-size:13px; font-weight:600; color:#0F172A; margin-bottom:5px;">
+          LLinkid UUID
+        </label>
+        <input
+          type="text"
+          id="leerplan_uuid"
+          name="leerplan_uuid"
+          class="input"
+          placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+          value="<%= typeof leerplanUuid !== 'undefined' && leerplanUuid ? leerplanUuid : '' %>"
+          required
+        />
+      </div>
+      <button type="submit" class="btn btn-primary btn-full" style="min-height:44px; justify-content:center; gap:8px;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+        </svg>
+        <%= (typeof leerplanUuid !== 'undefined' && leerplanUuid) ? 'Leerplan bijwerken' : 'Leerplan koppelen' %>
+      </button>
+    </form>
+
+    <div style="margin-top:14px; padding-top:14px; border-top:1px solid #E2E8F0;">
+      <a href="/llinkid" style="font-size:13px; font-weight:600; color:#1E3A8A; text-decoration:none; display:inline-flex; align-items:center; gap:4px;"
+         onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">
+        LLinkid verkennen
+        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+        </svg>
+      </a>
+    </div>
+  </div>
+
+  <!-- Snelle acties -->
+  <div class="card" style="padding:20px;">
+    <h2 style="font-size:16px; font-weight:700; color:#0F172A; margin:0 0 14px 0;">Acties</h2>
+    <div style="display:flex; flex-direction:column; gap:10px;">
+      <a href="/wisa/sync" class="btn btn-secondary btn-full" style="min-height:44px; justify-content:center; gap:8px;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+        </svg>
+        WISA synchroniseren
+      </a>
+      <a href="/klassen/<%= klas.id %>/importeer" class="btn btn-secondary btn-full" style="min-height:44px; justify-content:center; gap:8px;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+        </svg>
+        CSV importeren
+      </a>
+      <a href="/export/klas/<%= klas.id %>/excel" class="btn btn-secondary btn-full" style="min-height:44px; justify-content:center; gap:8px;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4 4l4 4m0 0l4-4m-4 4V4" />
+        </svg>
+        Exporteer naar Excel
+      </a>
+    </div>
+  </div>
+
+</div>
+
+<!-- Desktop: sidebar naast leerlingentabel -->
+<style>
+  @media (min-width: 900px) {
+    #detail-grid {
+      grid-template-columns: 1fr !important;
+    }
+    /* Herpositioneer naar 2-kolom layout op desktop */
+    .detail-wrapper {
+      display: grid !important;
+      grid-template-columns: 1fr 320px !important;
+      gap: 20px !important;
+    }
+    #sidebar-sectie {
+      margin-top: 0 !important;
+    }
+  }
+</style>
+
+<script>
+  /* Desktop 2-kolom layout */
+  (function () {
+    function maakLayout() {
+      const wrapper      = document.getElementById('detail-grid').parentElement;
+      const tabel        = document.getElementById('detail-grid');
+      const sidebar      = document.getElementById('sidebar-sectie');
+      const isDesktop    = window.innerWidth >= 900;
+
+      if (isDesktop) {
+        if (!wrapper.classList.contains('detail-wrapper')) {
+          wrapper.classList.add('detail-wrapper');
+          wrapper.style.display        = 'grid';
+          wrapper.style.gridTemplateColumns = '1fr 320px';
+          wrapper.style.gap            = '20px';
+          wrapper.style.alignItems     = 'start';
+          tabel.style.gridColumn       = '1';
+          sidebar.style.marginTop      = '0';
+          // Sidebar injecteren als tweede kolom
+          wrapper.appendChild(sidebar);
+        }
+      }
+    }
+    maakLayout();
+    window.addEventListener('resize', maakLayout);
+  })();
+
+  /* Live zoekfunctie */
+  (function () {
+    const invoer        = document.getElementById('zoek-leerling');
+    if (!invoer) return;
+
+    const rijen         = document.querySelectorAll('#leerlingen-tabel .leerling-rij');
+    const geenResultaten = document.getElementById('geen-resultaten');
+    const teller        = document.getElementById('leerling-teller');
+    const totaal        = rijen.length;
+
+    invoer.addEventListener('input', function () {
+      const zoekterm = invoer.value.trim().toLowerCase();
+      let aantalZichtbaar = 0;
+
+      rijen.forEach(function (rij) {
+        const naam     = rij.querySelector('.leerling-naam').textContent.toLowerCase();
+        const voornaam = rij.querySelector('.leerling-voornaam').textContent.toLowerCase();
+        const gevonden = naam.includes(zoekterm) || voornaam.includes(zoekterm);
+
+        rij.style.display = gevonden ? '' : 'none';
+        if (gevonden) aantalZichtbaar++;
+      });
+
+      teller.textContent = zoekterm === '' ? totaal : aantalZichtbaar + '/' + totaal;
+
+      if (geenResultaten) {
+        geenResultaten.style.display = (aantalZichtbaar === 0 && zoekterm !== '') ? 'block' : 'none';
+      }
+    });
+  })();
+</script>
 
 <%- include('../partials/footer') %>

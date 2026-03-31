@@ -5,237 +5,411 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title><%= typeof title !== 'undefined' ? title + ' — Tinneke' : 'Tinneke' %></title>
 
-  <!-- Google Fonts -->
+  <!-- Google Fonts: Inter -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet" />
-
-  <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: {
-            heading: ['Fredoka', 'sans-serif'],
-            body:    ['Nunito', 'sans-serif'],
-          },
-          colors: {
-            primary:   '#2563EB',
-            secondary: '#3B82F6',
-            cta:       '#F97316',
-            surface:   '#FFFFFF',
-            bg:        '#F8FAFC',
-            ink:       '#1E293B',
-            success:   '#22C55E',
-            warning:   '#F59E0B',
-            danger:    '#EF4444',
-          },
-          borderRadius: {
-            clay:  '20px',
-            clayl: '24px',
-            clays: '14px',
-          },
-        },
-      },
-    };
-  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
   <style>
-    * { font-family: 'Nunito', sans-serif; }
-    h1, h2, h3, .font-heading { font-family: 'Fredoka', sans-serif; }
-    body { background-color: #F8FAFC; color: #1E293B; }
+    /* ── Reset & base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    /* ── Clay kaart ── */
-    .clay-card {
-      background: white;
-      border-radius: 20px;
-      box-shadow:
-        6px 6px 12px rgba(37, 99, 235, 0.10),
-        -2px -2px 6px rgba(255, 255, 255, 0.80),
-        inset 0 1px 0 rgba(255, 255, 255, 0.90);
-      border: 2px solid rgba(255, 255, 255, 0.60);
-    }
-    .clay-card-hover:hover {
-      box-shadow:
-        8px 8px 18px rgba(37, 99, 235, 0.15),
-        -2px -2px 8px rgba(255, 255, 255, 0.90),
-        inset 0 1px 0 rgba(255, 255, 255, 0.95);
-      transform: translateY(-2px);
-      transition: all 200ms ease-out;
+    html { font-size: 15px; -webkit-text-size-adjust: 100%; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+      color: #0F172A;
+      background: #F1F5F9;
+      min-height: 100vh;
     }
 
-    /* ── Clay knoppen ── */
-    .clay-btn {
-      border-radius: 14px;
-      font-family: 'Nunito', sans-serif;
-      font-weight: 600;
-      padding: 10px 20px;
+    a { color: #3B82F6; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ── Design tokens ── */
+    :root {
+      --color-primary:        #1E3A8A;
+      --color-primary-hover:  #1E40AF;
+      --color-accent:         #3B82F6;
+      --color-success:        #059669;
+      --color-warning:        #D97706;
+      --color-danger:         #DC2626;
+      --color-bg:             #F1F5F9;
+      --color-surface:        #FFFFFF;
+      --color-border:         #E2E8F0;
+      --color-text:           #0F172A;
+      --color-text-secondary: #475569;
+      --color-text-muted:     #94A3B8;
+      --radius-sm:  6px;
+      --radius-md:  8px;
+      --radius-lg:  12px;
+      --radius-xl:  16px;
+      --shadow-sm:  0 1px 3px rgba(0,0,0,0.06);
+      --shadow-md:  0 4px 12px rgba(30,58,138,0.08);
+    }
+
+    /* ── Cards ── */
+    .card {
+      background: #fff;
+      border: 1px solid #E2E8F0;
+      border-radius: 12px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+    .card-hover {
+      transition: box-shadow 200ms ease, transform 200ms ease;
       cursor: pointer;
-      transition: all 200ms ease-out;
-      border: none;
+    }
+    .card-hover:hover {
+      box-shadow: 0 4px 12px rgba(30,58,138,0.08);
+      transform: translateY(-1px);
+    }
+
+    /* ── Buttons ── */
+    .btn {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 150ms ease;
+      border: none;
       text-decoration: none;
+      min-height: 44px;
+      touch-action: manipulation;
+      white-space: nowrap;
     }
-    .clay-btn:hover { transform: translateY(-1px); }
-    .clay-btn:active { transform: translateY(0); }
+    .btn:hover { text-decoration: none; }
 
-    .clay-btn-primary {
-      background: #2563EB;
-      color: white;
-      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.30);
-    }
-    .clay-btn-primary:hover { box-shadow: 0 6px 16px rgba(37, 99, 235, 0.40); }
+    .btn-primary { background: #1E3A8A; color: #fff; }
+    .btn-primary:hover { background: #1E40AF; color: #fff; }
 
-    .clay-btn-secondary {
-      background: white;
-      color: #2563EB;
-      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
-      border: 2px solid rgba(37, 99, 235, 0.20);
+    .btn-secondary {
+      background: #fff;
+      color: #1E3A8A;
+      border: 1.5px solid #E2E8F0;
     }
-    .clay-btn-secondary:hover { box-shadow: 0 6px 16px rgba(37, 99, 235, 0.22); }
+    .btn-secondary:hover { background: #F1F5F9; border-color: #CBD5E1; }
 
-    .clay-btn-cta {
-      background: #F97316;
-      color: white;
-      box-shadow: 0 4px 12px rgba(249, 115, 22, 0.30);
-    }
-    .clay-btn-cta:hover { box-shadow: 0 6px 16px rgba(249, 115, 22, 0.40); }
+    .btn-success { background: #059669; color: #fff; }
+    .btn-success:hover { background: #047857; color: #fff; }
 
-    .clay-btn-danger {
-      background: #EF4444;
-      color: white;
-      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.30);
-    }
-    .clay-btn-sm { padding: 6px 14px; font-size: 0.875rem; border-radius: 10px; }
+    .btn-danger { background: #DC2626; color: #fff; }
+    .btn-danger:hover { background: #B91C1C; color: #fff; }
 
-    /* ── Clay input ── */
-    .clay-input {
-      border-radius: 12px;
-      border: 2px solid #e2e8f0;
-      padding: 10px 14px;
-      font-family: 'Nunito', sans-serif;
-      font-size: 1rem;
-      width: 100%;
-      background: white;
-      transition: border-color 200ms, box-shadow 200ms;
-      outline: none;
-    }
-    .clay-input:focus {
-      border-color: #2563EB;
-      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
-    }
+    .btn-ghost { background: transparent; color: #475569; }
+    .btn-ghost:hover { background: #F1F5F9; color: #0F172A; }
 
-    /* ── Clay badge ── */
-    .clay-badge {
+    .btn-sm { padding: 6px 14px; font-size: 13px; min-height: 36px; }
+    .btn-full { width: 100%; justify-content: center; }
+
+    /* ── Badges ── */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
       border-radius: 999px;
-      padding: 3px 12px;
-      font-size: 0.75rem;
-      font-weight: 700;
-      font-family: 'Nunito', sans-serif;
-      display: inline-block;
+      font-size: 12px;
+      font-weight: 600;
+      line-height: 1.4;
     }
-    .clay-badge-blue   { background: rgba(37,99,235,0.12);  color: #1d4ed8; }
-    .clay-badge-orange { background: rgba(249,115,22,0.12); color: #c2410c; }
-    .clay-badge-green  { background: rgba(34,197,94,0.12);  color: #15803d; }
-    .clay-badge-gray   { background: rgba(100,116,139,0.10);color: #475569; }
+    .badge-blue    { background: #DBEAFE; color: #1E40AF; }
+    .badge-green   { background: #D1FAE5; color: #065F46; }
+    .badge-gray    { background: #F1F5F9; color: #475569; }
+    .badge-orange  { background: #FEF3C7; color: #92400E; }
+    .badge-red     { background: #FEE2E2; color: #991B1B; }
 
-    /* ── Navbar ── */
-    .clay-navbar {
-      background: white;
-      border-bottom: 2px solid rgba(37, 99, 235, 0.08);
-      box-shadow: 0 2px 12px rgba(37, 99, 235, 0.08);
+    /* ── Form inputs ── */
+    .input {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1.5px solid #E2E8F0;
+      border-radius: 8px;
+      font-family: 'Inter', sans-serif;
+      font-size: 15px;
+      color: #0F172A;
+      background: #fff;
+      transition: border-color 150ms, box-shadow 150ms;
+      outline: none;
+      min-height: 44px;
+      touch-action: manipulation;
     }
+    .input:focus {
+      border-color: #3B82F6;
+      box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
+    }
+    .input::placeholder { color: #94A3B8; }
+
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: #475569;
+      margin-bottom: 6px;
+    }
+
+    /* ── Tables ── */
+    .table { width: 100%; border-collapse: collapse; }
+    .table th {
+      background: #F8FAFC;
+      padding: 10px 14px;
+      text-align: left;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #64748B;
+      border-bottom: 1px solid #E2E8F0;
+    }
+    .table td {
+      padding: 12px 14px;
+      border-bottom: 1px solid #F1F5F9;
+      color: #0F172A;
+      font-size: 14px;
+      vertical-align: middle;
+    }
+    .table tr:hover td { background: #F8FAFC; }
+    .table tr:last-child td { border-bottom: none; }
+
+    /* ── Progress bar ── */
+    .progress-track {
+      background: #E2E8F0;
+      border-radius: 999px;
+      height: 6px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      background: #1E3A8A;
+      height: 100%;
+      border-radius: 999px;
+      transition: width 300ms ease;
+    }
+    .progress-fill.partial { background: #93C5FD; }
+
+    /* ── Alerts ── */
+    .alert {
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    .alert-success { background: #D1FAE5; color: #065F46; border: 1px solid #A7F3D0; }
+    .alert-error   { background: #FEE2E2; color: #991B1B; border: 1px solid #FECACA; }
+    .alert-warning { background: #FEF3C7; color: #92400E; border: 1px solid #FDE68A; }
 
     /* ── Toast ── */
     .toast {
       position: fixed;
-      top: 1.25rem;
-      right: 1.25rem;
+      top: 1rem;
+      right: 1rem;
       z-index: 9999;
-      min-width: 280px;
-      max-width: 420px;
-      border-radius: 16px;
-      padding: 14px 18px;
-      font-family: 'Nunito', sans-serif;
+      padding: 12px 18px;
+      border-radius: 10px;
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
       font-weight: 600;
-      font-size: 0.95rem;
       display: flex;
       align-items: center;
       gap: 10px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.14);
-      animation: slideIn 300ms ease-out;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+      animation: slideIn 250ms ease-out;
+      min-width: 260px;
+      max-width: 400px;
     }
-    .toast-success { background: #22C55E; color: white; }
-    .toast-error   { background: #EF4444; color: white; }
-    .toast-warning { background: #F59E0B; color: white; }
+    .toast-success { background: #059669; color: #fff; }
+    .toast-error   { background: #DC2626; color: #fff; }
+    .toast-warning { background: #D97706; color: #fff; }
+
     @keyframes slideIn {
-      from { opacity: 0; transform: translateX(80px); }
+      from { opacity: 0; transform: translateX(60px); }
       to   { opacity: 1; transform: translateX(0); }
     }
-    @keyframes fadeOut {
-      to { opacity: 0; transform: translateX(80px); }
+    @keyframes slideOut {
+      from { opacity: 1; transform: translateX(0); }
+      to   { opacity: 0; transform: translateX(60px); }
     }
 
-    /* ── Tabel ── */
-    .clay-table { width: 100%; border-collapse: separate; border-spacing: 0; }
-    .clay-table thead th {
-      background: #F1F5F9;
-      padding: 12px 16px;
-      text-align: left;
-      font-weight: 700;
-      font-size: 0.8rem;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: #64748B;
+    /* ── Navbar ── */
+    .nav-link {
+      display: inline-flex;
+      align-items: center;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #475569;
+      text-decoration: none;
+      transition: all 150ms ease;
+      min-height: 40px;
+      touch-action: manipulation;
     }
-    .clay-table thead th:first-child { border-radius: 12px 0 0 12px; }
-    .clay-table thead th:last-child  { border-radius: 0 12px 12px 0; }
-    .clay-table tbody tr { border-bottom: 1px solid #F1F5F9; }
-    .clay-table tbody tr:hover { background: #F8FAFC; }
-    .clay-table tbody td { padding: 13px 16px; vertical-align: middle; }
+    .nav-link:hover { background: #F1F5F9; color: #0F172A; text-decoration: none; }
+    .nav-link.active { background: #EFF6FF; color: #1E3A8A; font-weight: 600; }
+
+    /* Hamburger + mobile menu */
+    .nav-hamburger {
+      display: none;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 8px;
+      border-radius: 8px;
+      color: #475569;
+      transition: background 150ms;
+      touch-action: manipulation;
+      min-width: 44px;
+      min-height: 44px;
+      align-items: center;
+      justify-content: center;
+    }
+    .nav-hamburger:hover { background: #F1F5F9; }
+
+    .nav-mobile-menu {
+      display: none;
+      flex-direction: column;
+      border-top: 1px solid #E2E8F0;
+      padding: 8px 16px 12px;
+      gap: 4px;
+    }
+    .nav-mobile-menu .nav-link {
+      width: 100%;
+    }
+    .nav-mobile-menu.open {
+      display: flex;
+    }
+
+    @media (max-width: 767px) {
+      .nav-desktop { display: none !important; }
+      .nav-hamburger { display: inline-flex; }
+    }
+
+    /* ── Layout helpers ── */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 16px;
+    }
+
+    .page-main {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 28px 16px 40px;
+    }
+
+    /* Heading helpers */
+    h1, h2, h3, h4, h5, h6 {
+      font-family: 'Inter', sans-serif;
+      font-weight: 700;
+      line-height: 1.3;
+      color: #0F172A;
+    }
+    h1 { font-size: 1.75rem; }
+    h2 { font-size: 1.375rem; }
+    h3 { font-size: 1.125rem; }
+
+    .text-secondary { color: #475569; }
+    .text-muted     { color: #94A3B8; }
+
+    /* Divider */
+    .divider {
+      border: none;
+      border-top: 1px solid #E2E8F0;
+      margin: 24px 0;
+    }
+
+    /* Spacing utilities (minimalistische set) */
+    .mt-1 { margin-top: 4px; }
+    .mt-2 { margin-top: 8px; }
+    .mt-3 { margin-top: 12px; }
+    .mt-4 { margin-top: 16px; }
+    .mt-6 { margin-top: 24px; }
+    .mt-8 { margin-top: 32px; }
+    .mb-1 { margin-bottom: 4px; }
+    .mb-2 { margin-bottom: 8px; }
+    .mb-3 { margin-bottom: 12px; }
+    .mb-4 { margin-bottom: 16px; }
+    .mb-6 { margin-bottom: 24px; }
+    .mb-8 { margin-bottom: 32px; }
+    .gap-2 { gap: 8px; }
+    .gap-3 { gap: 12px; }
+    .gap-4 { gap: 16px; }
+
+    .flex { display: flex; }
+    .flex-col { flex-direction: column; }
+    .items-center { align-items: center; }
+    .justify-between { justify-content: space-between; }
+    .flex-wrap { flex-wrap: wrap; }
+    .w-full { width: 100%; }
   </style>
 </head>
-<body class="bg-bg min-h-screen">
+<body>
 
 <!-- ── Navbar ── -->
-<nav class="clay-navbar sticky top-0 z-50">
-  <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+<nav style="background:#fff; border-bottom:1px solid #E2E8F0; position:sticky; top:0; z-index:100;">
+  <div style="max-width:1200px; margin:0 auto; padding:0 16px; height:60px; display:flex; align-items:center; justify-content:space-between;">
 
     <!-- Logo -->
-    <a href="/klassen" class="flex items-center gap-3 text-primary hover:opacity-80 transition-opacity">
-      <div class="w-9 h-9 bg-primary rounded-clays flex items-center justify-center shadow-md">
-        <span class="text-white font-heading text-lg leading-none">T</span>
+    <a href="/klassen" style="font-size:20px; font-weight:700; color:#1E3A8A; text-decoration:none; display:flex; align-items:center; gap:10px;">
+      <div style="width:36px; height:36px; background:#1E3A8A; border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+        <span style="color:#fff; font-size:16px; font-weight:700; line-height:1;">T</span>
       </div>
-      <span class="font-heading text-2xl text-ink">Tinneke</span>
+      Tinneke
     </a>
 
-    <!-- Nav links -->
-    <div class="flex items-center gap-2">
+    <!-- Desktop nav -->
+    <div class="nav-desktop" style="display:flex; align-items:center; gap:4px;">
       <a href="/klassen"
-         class="px-4 py-2 rounded-clays font-semibold text-sm transition-all
-                <%= typeof activePage !== 'undefined' && activePage === 'klassen'
-                    ? 'bg-primary text-white shadow-md'
-                    : 'text-ink hover:bg-blue-50' %>">
+         class="nav-link<%= typeof activePage !== 'undefined' && activePage === 'klassen' ? ' active' : '' %>">
         Klassen
       </a>
       <a href="/llinkid"
-         class="px-4 py-2 rounded-clays font-semibold text-sm transition-all
-                <%= typeof activePage !== 'undefined' && activePage === 'llinkid'
-                    ? 'bg-primary text-white shadow-md'
-                    : 'text-ink hover:bg-blue-50' %>">
+         class="nav-link<%= typeof activePage !== 'undefined' && activePage === 'llinkid' ? ' active' : '' %>">
         LLinkid
       </a>
+      <div style="width:1px; height:24px; background:#E2E8F0; margin:0 8px;"></div>
+      <form action="/auth/logout" method="POST" style="margin:0;">
+        <button type="submit" class="btn btn-secondary btn-sm" style="touch-action:manipulation;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h6a2 2 0 012 2v1" />
+          </svg>
+          Afmelden
+        </button>
+      </form>
     </div>
 
-    <!-- Logout -->
-    <form action="/auth/logout" method="POST">
-      <button type="submit" class="clay-btn clay-btn-secondary clay-btn-sm text-sm">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h6a2 2 0 012 2v1" />
+    <!-- Mobile hamburger -->
+    <button class="nav-hamburger" onclick="toggleMobileNav()" aria-label="Menu openen" aria-expanded="false" id="hamburger-btn">
+      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" id="hamburger-icon">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+      </svg>
+      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" id="close-icon" style="display:none;">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+
+  </div>
+
+  <!-- Mobile dropdown -->
+  <div class="nav-mobile-menu" id="mobile-nav">
+    <a href="/klassen"
+       class="nav-link<%= typeof activePage !== 'undefined' && activePage === 'klassen' ? ' active' : '' %>">
+      Klassen
+    </a>
+    <a href="/llinkid"
+       class="nav-link<%= typeof activePage !== 'undefined' && activePage === 'llinkid' ? ' active' : '' %>">
+      LLinkid
+    </a>
+    <form action="/auth/logout" method="POST" style="margin-top:4px;">
+      <button type="submit" class="btn btn-secondary btn-sm w-full" style="justify-content:center;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h6a2 2 0 012 2v1" />
         </svg>
         Afmelden
       </button>
@@ -243,29 +417,51 @@
   </div>
 </nav>
 
-<!-- ── Flash messages zone ── -->
+<script>
+  function toggleMobileNav() {
+    var menu = document.getElementById('mobile-nav');
+    var btn  = document.getElementById('hamburger-btn');
+    var icon = document.getElementById('hamburger-icon');
+    var close = document.getElementById('close-icon');
+    var isOpen = menu.classList.contains('open');
+
+    if (isOpen) {
+      menu.classList.remove('open');
+      btn.setAttribute('aria-expanded', 'false');
+      icon.style.display  = '';
+      close.style.display = 'none';
+    } else {
+      menu.classList.add('open');
+      btn.setAttribute('aria-expanded', 'true');
+      icon.style.display  = 'none';
+      close.style.display = '';
+    }
+  }
+</script>
+
+<!-- ── Flash messages / Toasts ── -->
 <div id="toast-container">
   <% if (typeof flash !== 'undefined') { %>
     <% if (flash.success) { %>
       <div class="toast toast-success" role="alert">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" style="flex-shrink:0;">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
         </svg>
         <span><%= flash.success %></span>
       </div>
     <% } %>
     <% if (flash.error) { %>
       <div class="toast toast-error" role="alert">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" style="flex-shrink:0;">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
         </svg>
         <span><%= flash.error %></span>
       </div>
     <% } %>
     <% if (flash.warning) { %>
       <div class="toast toast-warning" role="alert">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" style="flex-shrink:0;">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
         </svg>
         <span><%= flash.warning %></span>
       </div>
@@ -274,4 +470,4 @@
 </div>
 
 <!-- ── Pagina-inhoud start ── -->
-<main class="max-w-6xl mx-auto px-4 py-8">
+<main class="page-main">

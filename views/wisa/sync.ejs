@@ -1,0 +1,142 @@
+<%- include('../partials/head', { title: 'WISA Synchroniseren', activePage: 'klassen' }) %>
+
+<style>
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+  }
+</style>
+
+<!-- Breadcrumb -->
+<nav style="display:flex; align-items:center; gap:8px; font-size:0.875rem; color:#475569; margin-bottom:24px;" aria-label="Broodkruimelpad">
+  <a href="/klassen" style="display:inline-flex; align-items:center; gap:5px; color:#1E3A8A; font-weight:600; text-decoration:none;" onmouseover="this.style.color='#1E40AF'" onmouseout="this.style.color='#1E3A8A'">
+    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+    </svg>
+    Klassen
+  </a>
+  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="#CBD5E1" stroke-width="2">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+  </svg>
+  <span style="color:#0F172A; font-weight:600;">WISA synchroniseren</span>
+</nav>
+
+<!-- Paginatitel -->
+<div style="margin-bottom:28px;">
+  <div style="display:flex; align-items:center; gap:12px; margin-bottom:6px;">
+    <div style="width:44px; height:44px; background:#EFF6FF; border-radius:10px; display:flex; align-items:center; justify-content:center; flex-shrink:0; border:1px solid #DBEAFE;">
+      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="#1E3A8A" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+      </svg>
+    </div>
+    <h1 style="font-size:1.75rem; font-weight:700; color:#0F172A; letter-spacing:-0.3px;">WISA Synchroniseren</h1>
+  </div>
+  <p style="font-size:0.9rem; color:#475569; max-width:520px; line-height:1.6; margin-left:56px;">
+    Importeert klassen en leerlingen vanuit WISA voor de opgegeven werkdatum.
+    Bestaande gegevens worden bijgewerkt, nieuwe worden toegevoegd.
+  </p>
+</div>
+
+<!-- Foutmelding -->
+<% if (typeof error !== 'undefined' && error) { %>
+  <div class="alert alert-error" style="display:flex; align-items:flex-start; gap:12px; margin-bottom:20px; max-width:560px;">
+    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#DC2626" stroke-width="2" style="flex-shrink:0; margin-top:1px;">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+    </svg>
+    <div>
+      <p style="font-weight:600; color:#991B1B; font-size:0.875rem; margin-bottom:2px;">Synchronisatie mislukt</p>
+      <p style="color:#B91C1C; font-size:0.875rem;"><%= error %></p>
+    </div>
+  </div>
+<% } %>
+
+<!-- Flash bericht -->
+<% if (typeof flash !== 'undefined' && flash && flash.success) { %>
+  <div class="alert alert-success" style="display:flex; align-items:center; gap:12px; margin-bottom:20px; max-width:560px;">
+    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#059669" stroke-width="2" style="flex-shrink:0;">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+    </svg>
+    <span style="font-size:0.875rem; font-weight:600; color:#065F46;"><%= flash.success %></span>
+  </div>
+<% } %>
+
+<!-- Formulier -->
+<div style="max-width:520px;">
+  <div class="card" style="padding:28px 28px 24px;">
+
+    <!-- Uitlegkader -->
+    <div style="background:#F8FAFC; border:1px solid #E2E8F0; border-radius:8px; padding:14px 16px; margin-bottom:24px;">
+      <p style="font-size:0.8125rem; font-weight:600; color:#1E3A8A; margin-bottom:4px;">Wat gebeurt er?</p>
+      <ul style="font-size:0.8125rem; color:#475569; line-height:1.7; padding-left:16px; margin:0;">
+        <li>Klassen en leerlingen worden opgehaald uit WISA</li>
+        <li>Bestaande records worden bijgewerkt</li>
+        <li>Nieuwe leerlingen en klassen worden toegevoegd</li>
+        <li>De werkdatum bepaalt welke inschrijvingen actief zijn</li>
+      </ul>
+    </div>
+
+    <form method="POST" action="/wisa/sync" id="sync-form">
+
+      <!-- Werkdatum -->
+      <div style="margin-bottom:24px;">
+        <label for="werkdatum" style="display:block; font-size:0.8125rem; font-weight:600; color:#374151; margin-bottom:6px;">
+          Werkdatum
+        </label>
+        <p style="font-size:0.8125rem; color:#64748B; margin-bottom:8px; line-height:1.5;">
+          WISA haalt de klassenlijsten op voor deze datum. Gebruik normaal de datum van vandaag.
+        </p>
+        <input
+          type="date"
+          id="werkdatum"
+          name="werkdatum"
+          class="input"
+          style="max-width:220px;"
+          value="<%= new Date().toISOString().split('T')[0] %>"
+          required
+        />
+      </div>
+
+      <!-- Submit -->
+      <button type="submit" id="sync-btn" class="btn btn-primary" style="display:inline-flex; align-items:center; gap:8px; padding:13px 24px; font-size:0.9375rem; min-height:48px; width:100%; justify-content:center;">
+        <svg id="sync-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+        </svg>
+        <span id="sync-btn-tekst">Synchroniseer WISA</span>
+      </button>
+
+    </form>
+
+    <!-- Laatste synchronisatie -->
+    <% if (typeof lastSync !== 'undefined' && lastSync) { %>
+      <p style="display:flex; align-items:center; justify-content:center; gap:6px; font-size:0.75rem; color:#94A3B8; margin-top:16px;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        Laatste synchronisatie: <%= lastSync %>
+      </p>
+    <% } %>
+
+  </div>
+</div>
+
+<script>
+(function () {
+  const form     = document.getElementById('sync-form');
+  const btn      = document.getElementById('sync-btn');
+  const btnTekst = document.getElementById('sync-btn-tekst');
+  const icon     = document.getElementById('sync-icon');
+
+  if (!form || !btn) return;
+
+  form.addEventListener('submit', function () {
+    btn.disabled       = true;
+    btn.style.opacity  = '0.72';
+    btn.style.cursor   = 'not-allowed';
+
+    if (icon) icon.style.animation = 'spin 0.9s linear infinite';
+    if (btnTekst) btnTekst.textContent = 'Bezig met synchroniseren\u2026';
+  });
+})();
+</script>
+
+<%- include('../partials/footer') %>

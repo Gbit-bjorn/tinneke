@@ -217,11 +217,10 @@ router.post('/:id/leerplan', loginRequired, async (req, res) => {
     await db.setKlasLeerplan(klasId, uuid);
     flash(req, 'success', 'Leerplan succesvol gekoppeld.');
   } catch (err) {
-    const klasId = parseInt(req.params.id, 10);
     flash(req, 'error', 'Kon leerplan niet koppelen.');
   }
 
-  res.redirect(`/klassen/${parseInt(req.params.id, 10)}`);
+  res.redirect(`/klassen/${req.params.id}`);
 });
 
 module.exports = router;

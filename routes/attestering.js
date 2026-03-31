@@ -88,6 +88,7 @@ router.get('/:leerlingId', loginRequired, async (req, res) => {
   res.render('attestering/detail', {
     leerling:     { id: leerling.id, naam: leerling.naam, voornaam: leerling.voornaam },
     klas:         { naam: klas?.naam ?? '—', richting: klas?.richting ?? '' },
+    klasId:       leerling.klas_id,
     bkSecties,
     leerplanUuid: leerplanUuid ?? null,
   });

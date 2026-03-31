@@ -31,6 +31,7 @@ app.use('/klassen', require('./routes/klassen'));
 app.use('/attestering', require('./routes/attestering'));
 app.use('/llinkid', require('./routes/llinkid'));
 app.use('/export', require('./routes/export'));
+app.use('/wisa', require('./routes/wisa'));
 
 app.get('/', (req, res) => {
   if (req.session.loggedIn) {

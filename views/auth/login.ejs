@@ -7,115 +7,213 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
   <style>
-    * { font-family: 'Nunito', sans-serif; }
-    h1, h2, .font-heading { font-family: 'Fredoka', sans-serif; }
-    body { background-color: #F8FAFC; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    .clay-card {
-      background: white;
-      border-radius: 24px;
-      box-shadow:
-        8px 8px 20px rgba(37, 99, 235, 0.12),
-        -3px -3px 8px rgba(255, 255, 255, 0.85),
-        inset 0 1px 0 rgba(255, 255, 255, 0.95);
-      border: 2px solid rgba(255, 255, 255, 0.65);
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #1E3A8A 0%, #1E40AF 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 16px;
     }
-    .clay-input {
-      border-radius: 12px;
-      border: 2px solid #e2e8f0;
-      padding: 11px 14px;
-      font-family: 'Nunito', sans-serif;
-      font-size: 1rem;
+
+    .login-wrapper {
       width: 100%;
-      background: white;
-      transition: border-color 200ms, box-shadow 200ms;
-      outline: none;
+      max-width: 400px;
     }
-    .clay-input:focus {
-      border-color: #2563EB;
-      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+
+    /* Logo bovenaan */
+    .login-logo {
+      text-align: center;
+      margin-bottom: 28px;
     }
-    .clay-btn-cta {
+
+    .login-logo-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 56px;
+      height: 56px;
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.25);
       border-radius: 14px;
-      font-family: 'Nunito', sans-serif;
-      font-weight: 700;
-      padding: 13px 20px;
-      cursor: pointer;
-      transition: all 200ms ease-out;
-      border: none;
-      background: #F97316;
-      color: white;
-      box-shadow: 0 4px 14px rgba(249, 115, 22, 0.35);
-      font-size: 1rem;
-      width: 100%;
+      margin-bottom: 14px;
+      backdrop-filter: blur(4px);
     }
-    .clay-btn-cta:hover {
-      box-shadow: 0 6px 20px rgba(249, 115, 22, 0.45);
-      transform: translateY(-1px);
-    }
-    .clay-btn-cta:active { transform: translateY(0); }
 
-    /* Subtiel patroon achtergrond */
-    .login-bg {
-      background-color: #F8FAFC;
-      background-image: radial-gradient(circle at 20% 30%, rgba(37,99,235,0.06) 0%, transparent 50%),
-                        radial-gradient(circle at 80% 70%, rgba(249,115,22,0.05) 0%, transparent 45%);
+    .login-logo-icon span {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: #FFFFFF;
+      letter-spacing: -1px;
+    }
+
+    .login-logo h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #FFFFFF;
+      letter-spacing: -0.5px;
+      margin-bottom: 4px;
+    }
+
+    .login-logo p {
+      font-size: 0.875rem;
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    /* Kaart */
+    .login-card {
+      background: #FFFFFF;
+      border-radius: 16px;
+      padding: 36px 32px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25), 0 8px 24px rgba(0, 0, 0, 0.12);
+    }
+
+    .login-card-title {
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: #0F172A;
+      margin-bottom: 4px;
+    }
+
+    .login-card-sub {
+      font-size: 0.875rem;
+      color: #64748B;
+      margin-bottom: 24px;
+    }
+
+    /* Foutmelding */
+    .alert-error {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #FEF2F2;
+      border: 1px solid #FECACA;
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin-bottom: 20px;
+    }
+
+    .alert-error svg { flex-shrink: 0; }
+
+    .alert-error span {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: #DC2626;
+    }
+
+    /* Form velden */
+    .field { margin-bottom: 16px; }
+    .field:last-of-type { margin-bottom: 24px; }
+
+    .field label {
+      display: block;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 6px;
+    }
+
+    .input {
+      display: block;
+      width: 100%;
+      padding: 11px 13px;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9375rem;
+      color: #0F172A;
+      background: #FFFFFF;
+      border: 1px solid #E2E8F0;
+      border-radius: 8px;
+      outline: none;
+      transition: border-color 150ms, box-shadow 150ms;
+      min-height: 44px;
+    }
+
+    .input::placeholder { color: #94A3B8; }
+
+    .input:focus {
+      border-color: #3B82F6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+    }
+
+    /* Aanmelden knop */
+    .btn-aanmelden {
+      display: block;
+      width: 100%;
+      padding: 13px 20px;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9375rem;
+      font-weight: 600;
+      color: #FFFFFF;
+      background: #1E3A8A;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 150ms, box-shadow 150ms;
+      min-height: 48px;
+      letter-spacing: 0.01em;
+    }
+
+    .btn-aanmelden:hover { background: #1E40AF; box-shadow: 0 4px 12px rgba(30, 58, 138, 0.3); }
+    .btn-aanmelden:active { background: #1E3A8A; box-shadow: none; transform: translateY(1px); }
+
+    /* Footer tekst */
+    .login-footer {
+      text-align: center;
+      font-size: 0.75rem;
+      color: rgba(255, 255, 255, 0.45);
+      margin-top: 20px;
+      line-height: 1.5;
+    }
+
+    @media (max-width: 440px) {
+      .login-card { padding: 28px 20px; }
     }
   </style>
 </head>
-<body class="login-bg min-h-screen flex items-center justify-center px-4">
+<body>
 
-  <div class="w-full max-w-md">
+  <div class="login-wrapper">
 
-    <!-- Logo boven kaart -->
-    <div class="text-center mb-8">
-      <div class="inline-flex items-center justify-center w-16 h-16 bg-primary rounded-2xl shadow-lg mb-4"
-           style="background:#2563EB; border-radius:20px; box-shadow: 0 8px 24px rgba(37,99,235,0.35);">
-        <span style="font-family:'Fredoka',sans-serif; font-size:2rem; color:white; line-height:1;">T</span>
+    <!-- Logo -->
+    <div class="login-logo">
+      <div class="login-logo-icon">
+        <span>T</span>
       </div>
-      <h1 style="font-family:'Fredoka',sans-serif; font-size:2.5rem; font-weight:700; color:#1E293B; margin:0;">
-        Tinneke
-      </h1>
-      <p style="color:#64748B; font-size:0.95rem; margin-top:4px;">
-        Damiaaninstituut Aarschot
-      </p>
+      <h1>Tinneke</h1>
+      <p>Attestatietool — Damiaaninstituut</p>
     </div>
 
-    <!-- Login kaart -->
-    <div class="clay-card p-8">
+    <!-- Loginkaart -->
+    <div class="login-card">
 
-      <h2 style="font-family:'Fredoka',sans-serif; font-size:1.5rem; font-weight:600; color:#1E293B; margin:0 0 6px;">
-        Welkom terug
-      </h2>
-      <p style="color:#64748B; font-size:0.9rem; margin-bottom:28px;">
-        Meld je aan om verder te gaan.
-      </p>
+      <p class="login-card-title">Aanmelden</p>
+      <p class="login-card-sub">Voer je gegevens in om verder te gaan.</p>
 
       <!-- Foutmelding -->
       <% if (typeof error !== 'undefined' && error) { %>
-        <div style="background:rgba(239,68,68,0.08); border:2px solid rgba(239,68,68,0.25); border-radius:12px; padding:12px 14px; margin-bottom:20px; display:flex; align-items:center; gap:10px;">
-          <svg xmlns="http://www.w3.org/2000/svg" style="width:18px;height:18px;flex-shrink:0;color:#DC2626;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+        <div class="alert-error" role="alert">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#DC2626" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
           </svg>
-          <span style="color:#DC2626; font-weight:600; font-size:0.9rem;"><%= error %></span>
+          <span><%= error %></span>
         </div>
       <% } %>
 
       <form action="/auth/login" method="POST" autocomplete="on">
-        <!-- Gebruikersnaam -->
-        <div style="margin-bottom:18px;">
-          <label for="username" style="display:block; font-weight:700; font-size:0.875rem; color:#374151; margin-bottom:6px;">
-            Gebruikersnaam
-          </label>
+
+        <div class="field">
+          <label for="username">Gebruikersnaam</label>
           <input
+            class="input"
             type="text"
             id="username"
             name="username"
-            class="clay-input"
             placeholder="jouw.naam"
             autocomplete="username"
             required
@@ -123,32 +221,28 @@
           />
         </div>
 
-        <!-- Wachtwoord -->
-        <div style="margin-bottom:28px;">
-          <label for="password" style="display:block; font-weight:700; font-size:0.875rem; color:#374151; margin-bottom:6px;">
-            Wachtwoord
-          </label>
+        <div class="field">
+          <label for="password">Wachtwoord</label>
           <input
+            class="input"
             type="password"
             id="password"
             name="password"
-            class="clay-input"
             placeholder="••••••••"
             autocomplete="current-password"
             required
           />
         </div>
 
-        <button type="submit" class="clay-btn-cta">
-          Aanmelden
-        </button>
+        <button type="submit" class="btn-aanmelden">Aanmelden</button>
+
       </form>
     </div>
 
-    <!-- Subtiele footer tekst -->
-    <p style="text-align:center; color:#94A3B8; font-size:0.8rem; margin-top:24px;">
+    <p class="login-footer">
       Enkel toegankelijk voor medewerkers van het Damiaaninstituut
     </p>
+
   </div>
 
 </body>

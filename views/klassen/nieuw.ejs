@@ -1,98 +1,109 @@
 <%- include('../partials/head', { title: 'Nieuwe klas', activePage: 'klassen' }) %>
 
 <!-- ── Breadcrumb ── -->
-<div class="mb-2">
-  <a href="/klassen" class="text-primary text-sm font-semibold hover:underline inline-flex items-center gap-1">
-    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+<div style="margin-bottom:8px;">
+  <a href="/klassen" style="font-size:13px; font-weight:600; color:#1E3A8A; text-decoration:none; display:inline-flex; align-items:center; gap:4px;"
+     onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">
+    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
     </svg>
     Alle klassen
   </a>
 </div>
 
-<div class="max-w-lg">
-  <h1 class="font-heading text-4xl font-bold text-ink mb-2">Nieuwe klas</h1>
-  <p class="text-slate-500 mb-8">Vul de gegevens in om een nieuwe klas aan te maken.</p>
+<!-- ── Flash messages ── -->
+<% if (typeof flash !== 'undefined' && flash) { %>
+  <% if (flash.success) { %>
+    <div class="alert alert-success" style="margin-bottom:16px; max-width:520px;"><%= flash.success %></div>
+  <% } %>
+  <% if (flash.error) { %>
+    <div class="alert alert-error" style="margin-bottom:16px; max-width:520px;"><%= flash.error %></div>
+  <% } %>
+<% } %>
 
-  <div class="clay-card p-8">
+<div style="max-width:520px;">
+  <h1 style="font-size:24px; font-weight:700; color:#0F172A; margin:0 0 4px 0;">Nieuwe klas aanmaken</h1>
+  <p style="font-size:14px; color:#475569; margin:0 0 24px 0;">Vul de gegevens in om een klas toe te voegen.</p>
 
+  <div class="card" style="padding:28px;">
+
+    <!-- Foutmelding -->
     <% if (typeof error !== 'undefined' && error) { %>
-      <div class="mb-6 p-3 bg-red-50 border-2 border-red-100 rounded-xl flex items-center gap-3">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-red-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-        </svg>
-        <span class="text-red-700 font-semibold text-sm"><%= error %></span>
+      <div class="alert alert-error" style="margin-bottom:20px;">
+        <%= error %>
       </div>
     <% } %>
 
     <form action="/klassen/nieuw" method="POST" novalidate>
 
       <!-- Naam -->
-      <div class="mb-5">
-        <label for="naam" class="block text-sm font-bold text-slate-700 mb-1">
-          Klasnaam <span class="text-red-400">*</span>
+      <div style="margin-bottom:18px;">
+        <label for="naam" style="display:block; font-size:13px; font-weight:600; color:#0F172A; margin-bottom:5px;">
+          Klasnaam <span style="color:#EF4444;">*</span>
         </label>
         <input
           type="text"
           id="naam"
           name="naam"
-          class="clay-input"
+          class="input"
           placeholder="bijv. 3BEI"
           value="<%= typeof formData !== 'undefined' ? formData.naam || '' : '' %>"
           required
           maxlength="50"
+          autofocus
         />
-        <p class="text-xs text-slate-400 mt-1">De gebruikelijke klascode of naam.</p>
+        <p style="font-size:12px; color:#94A3B8; margin:4px 0 0 0;">De gebruikelijke klascode of naam.</p>
       </div>
 
       <!-- Richting -->
-      <div class="mb-5">
-        <label for="richting" class="block text-sm font-bold text-slate-700 mb-1">
+      <div style="margin-bottom:18px;">
+        <label for="richting" style="display:block; font-size:13px; font-weight:600; color:#0F172A; margin-bottom:5px;">
           Studierichting
         </label>
         <input
           type="text"
           id="richting"
           name="richting"
-          class="clay-input"
+          class="input"
           placeholder="bijv. Elektriciteit-Installatie"
           value="<%= typeof formData !== 'undefined' ? formData.richting || '' : '' %>"
           maxlength="100"
         />
-        <p class="text-xs text-slate-400 mt-1">Optioneel &mdash; de naam van de opleiding.</p>
+        <p style="font-size:12px; color:#94A3B8; margin:4px 0 0 0;">Optioneel &mdash; de naam van de opleiding.</p>
       </div>
 
       <!-- Schooljaar -->
-      <div class="mb-8">
-        <label for="schooljaar" class="block text-sm font-bold text-slate-700 mb-1">
-          Schooljaar <span class="text-red-400">*</span>
+      <div style="margin-bottom:28px;">
+        <label for="schooljaar" style="display:block; font-size:13px; font-weight:600; color:#0F172A; margin-bottom:5px;">
+          Schooljaar <span style="color:#EF4444;">*</span>
         </label>
         <input
           type="number"
           id="schooljaar"
           name="schooljaar"
-          class="clay-input"
+          class="input"
           placeholder="<%= new Date().getFullYear() %>"
           value="<%= typeof formData !== 'undefined' ? formData.schooljaar || new Date().getFullYear() : new Date().getFullYear() %>"
           min="2020"
           max="2040"
           required
         />
-        <p class="text-xs text-slate-400 mt-1">
+        <p style="font-size:12px; color:#94A3B8; margin:4px 0 0 0;">
           Vul het eerste jaar in, bijv. <strong><%= new Date().getFullYear() %></strong>
           voor schooljaar <%= new Date().getFullYear() %>&ndash;<%= new Date().getFullYear() + 1 %>.
         </p>
       </div>
 
-      <div class="flex gap-3">
-        <a href="/klassen" class="clay-btn clay-btn-secondary flex-1 justify-center">
+      <!-- Knoppen -->
+      <div style="display:flex; gap:10px;">
+        <a href="/klassen" class="btn btn-secondary" style="flex:1; min-height:44px; justify-content:center;">
           Annuleer
         </a>
-        <button type="submit" class="clay-btn clay-btn-cta flex-1 justify-center">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <button type="submit" class="btn btn-primary" style="flex:1; min-height:44px; justify-content:center; gap:8px;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
           </svg>
-          Klas aanmaken
+          Aanmaken
         </button>
       </div>
 
