@@ -20,18 +20,29 @@ function flash(req, type, message) {
   req.session.flash = { [type]: message };
 }
 
+// ── Hulpfunctie: bereken huidig schooljaar (september = start nieuw schooljaar) ─
+
+function huidigSchooljaar() {
+  const nu = new Date();
+  return nu.getMonth() >= 8 ? nu.getFullYear() : nu.getFullYear() - 1;
+}
+
 // ── GET /wisa/sync ────────────────────────────────────────────────────────────
 
 router.get('/sync', loginRequired, async (req, res) => {
   const flashData = req.session.flash || {};
   delete req.session.flash;
 
+  const huidig = huidigSchooljaar();
+
   res.render('wisa/sync', {
-    title:      'WISA synchronisatie',
-    activePage: 'klassen',
-    lastSync:   null,
-    error:      null,
-    flash:      flashData,
+    title:         'WISA synchronisatie',
+    activePage:    'klassen',
+    lastSync:      null,
+    error:         null,
+    flash:         flashData,
+    schooljaarOpties: [huidig - 1, huidig, huidig + 1],
+    huidigSchooljaar: huidig,
   });
 });
 
@@ -59,8 +70,12 @@ router.post('/sync', loginRequired, async (req, res) => {
       return res.redirect('/wisa/sync');
     }
 
-    // Bepaal schooljaar: gebruik huidig jaar als fallback
-    const schooljaar = new Date().getFullYear();
+    // Bepaal schooljaar: uit formulier of slim berekend op basis van werkdatum
+    let schooljaar = parseInt(req.body.schooljaar, 10);
+    if (!schooljaar || schooljaar < 2020 || schooljaar > 2040) {
+      const ref = werkdatum || new Date();
+      schooljaar = ref.getMonth() >= 8 ? ref.getFullYear() : ref.getFullYear() - 1;
+    }
 
     // Synchroniseer naar de database
     const resultaat = await db.syncWisaKlassenLeerlingen(rijen, schooljaar);

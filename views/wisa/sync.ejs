@@ -78,7 +78,7 @@
     <form method="POST" action="/wisa/sync" id="sync-form">
 
       <!-- Werkdatum -->
-      <div style="margin-bottom:24px;">
+      <div style="margin-bottom:20px;">
         <label for="werkdatum" style="display:block; font-size:0.8125rem; font-weight:600; color:#374151; margin-bottom:6px;">
           Werkdatum
         </label>
@@ -94,6 +94,23 @@
           value="<%= new Date().toISOString().split('T')[0] %>"
           required
         />
+      </div>
+
+      <!-- Schooljaar -->
+      <div style="margin-bottom:24px;">
+        <label for="schooljaar" style="display:block; font-size:0.8125rem; font-weight:600; color:#374151; margin-bottom:6px;">
+          Schooljaar
+        </label>
+        <p style="font-size:0.8125rem; color:#64748B; margin-bottom:8px; line-height:1.5;">
+          Het schooljaar waaronder de klassen en leerlingen worden opgeslagen.
+        </p>
+        <select id="schooljaar" name="schooljaar" class="input" style="max-width:220px;">
+          <% schooljaarOpties.forEach(jaar => { %>
+            <option value="<%= jaar %>" <%= jaar === huidigSchooljaar ? 'selected' : '' %>>
+              <%= jaar %>–<%= jaar + 1 %>
+            </option>
+          <% }); %>
+        </select>
       </div>
 
       <!-- Submit -->
