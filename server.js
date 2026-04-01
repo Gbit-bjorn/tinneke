@@ -5,7 +5,13 @@ const app    = require('./app');
 const PORT   = process.env.PORT || 3000;
 
 db.initTables()
-  .then(() => {
+  .then(async () => {
+    // Seed richting → leerplan mapping vanuit JSON (INSERT IGNORE, dus veilig bij herstart)
+    try {
+      const mapping = require('./richting_leerplan_mapping.json');
+      await db.seedRichtingLeerplan(mapping);
+    } catch { /* JSON niet aanwezig of al geseeded */ }
+
     app.listen(PORT, () => console.log(`Server draait op poort ${PORT}`));
   })
   .catch(err => {

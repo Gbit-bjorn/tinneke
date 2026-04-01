@@ -80,10 +80,13 @@ router.post('/sync', loginRequired, async (req, res) => {
     // Synchroniseer naar de database
     const resultaat = await db.syncWisaKlassenLeerlingen(rijen, schooljaar);
 
+    const koppelMsg = resultaat.gekoppeld > 0
+      ? `, ${resultaat.gekoppeld} leerplannen automatisch gekoppeld`
+      : '';
     flash(
       req,
       'success',
-      `Synchronisatie geslaagd: ${resultaat.klassen} klassen en ${resultaat.leerlingen} leerlingen geïmporteerd.`
+      `Synchronisatie geslaagd: ${resultaat.klassen} klassen en ${resultaat.leerlingen} leerlingen geïmporteerd${koppelMsg}.`
     );
     return res.redirect('/klassen');
 

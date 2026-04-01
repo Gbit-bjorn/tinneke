@@ -1,0 +1,99 @@
+{
+  "_info": "Mapping van richtingsnaam (uit WISA admin groep) naar LLinkid leerplan UUID. Automatisch gegenereerd op 2026-03-26. Bij nieuwe richtingen: zoek in LLinkid via de CLI of loader.",
+
+  "Bandenmonteur": {
+    "uuid": "f8351b0a-7af6-4b83-8d70-ae841dc55737",
+    "identifier": "II-Ban-a",
+    "graad": 2
+  },
+  "Binnen- en buitenschrijnwerk": {
+    "uuid": "1a5ca176-1254-40c9-9813-ff8083794f78",
+    "identifier": "III-BiBu-a",
+    "graad": 3
+  },
+  "Binnenschrijnwerk en interieur": {
+    "uuid": "125b0e46-2b74-4969-baf7-2c01e26a465e",
+    "identifier": "III-BiIn-a",
+    "graad": 3
+  },
+  "Dakwerker": {
+    "uuid": "91b8970e-3e7c-4832-93d8-e1599547aa63",
+    "identifier": "VII-Dakw",
+    "graad": 7
+  },
+  "Hoeknaadlasser": {
+    "uuid": "f68f6353-4cac-4538-8a9a-672cbd9816fe",
+    "identifier": "II-Hoe-a",
+    "graad": 2
+  },
+  "Interieurbouwer": {
+    "uuid": "d395540d-249c-45cc-87dd-e02fc30d3eb0",
+    "identifier": "VII-Int",
+    "graad": 7
+  },
+  "Keukenmedewerker": {
+    "uuid": "b8fbc7b7-1c66-4c97-a4ff-c31e443daa4e",
+    "identifier": "II-Keu a-",
+    "graad": 2
+  },
+  "Lassen-constructie": {
+    "uuid": "02f46c97-2b06-44dc-a19b-3fd82ec6ec64",
+    "identifier": "III-LaCo-a",
+    "graad": 3
+  },
+  "Medewerker hout": {
+    "uuid": "04a6474e-5ad2-40b6-9973-40e9a5d37cfc",
+    "identifier": "II-MeHo-a",
+    "graad": 2
+  },
+  "Medewerker ruwbouw": {
+    "uuid": "308158c7-8607-4e94-acce-669b003c481b",
+    "identifier": "II-MeRu-a",
+    "graad": 2
+  },
+  "Monteur sanitaire en verwarmingsinstallaties": {
+    "uuid": "272a2971-bbce-4bd6-a5bf-516ea1648b9b",
+    "identifier": "II-MSV-a",
+    "graad": 2
+  },
+  "Onderhoudsmechanica auto": {
+    "uuid": "1db3f49b-dcdf-4f52-81f0-9f1009bb7826",
+    "identifier": "III-Ond-a",
+    "graad": 3
+  },
+  "Onthaal, organisatie en sales": {
+    "uuid": "1481ca44-158d-4d02-bbc7-f401b6019614",
+    "identifier": "III-OOS-a",
+    "graad": 3
+  },
+  "Restaurant en keuken": {
+    "uuid": "9a33e840-11be-4718-b881-76c72c4e50b3",
+    "identifier": "III-ReKe-a",
+    "graad": 3
+  },
+  "Ruwbouw": {
+    "uuid": "2832d6d5-7e67-4e64-afde-abe8b031893e",
+    "identifier": "III-Ruw-a",
+    "graad": 3
+  },
+  "Sanitaire en verwarmingsinstallaties": {
+    "uuid": "128b65b8-72cc-4759-b675-c576f50b449b",
+    "identifier": "III-SaVe-a",
+    "graad": 3
+  },
+  "Schrijnwerker houtbouw": {
+    "uuid": "8a543a6f-56ce-47f2-9ed3-fca4ed31b985",
+    "identifier": "VII-ScHo",
+    "graad": 7
+  },
+  "Technicus installatietechnieken": {
+    "uuid": "dc192b7b-d0c4-403d-b9b4-956ecf0ecf21",
+    "identifier": "VII-TeIn",
+    "graad": 7
+  },
+  "Winkelmedewerker": {
+    "uuid": "05f31010-ec62-48e7-8d31-e89384863cde",
+    "identifier": "II-Win-a",
+    "graad": 2
+  }
+}
