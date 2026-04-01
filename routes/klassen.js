@@ -2,25 +2,9 @@
 
 const express = require('express');
 const router  = express.Router();
-const path    = require('path');
-const multer  = require('multer');
 
 const { loginRequired } = require('../middleware/auth');
 const { db }            = require('../lib');
-
-// Multer — bewaar upload tijdelijk in geheugen (max 2 MB)
-const upload = multer({
-  storage: multer.memoryStorage(),
-  limits:  { fileSize: 2 * 1024 * 1024 },
-  fileFilter: (_req, file, cb) => {
-    const ext = path.extname(file.originalname).toLowerCase();
-    if (ext === '.csv' || ext === '.txt' || file.mimetype === 'text/csv' || file.mimetype === 'text/plain') {
-      cb(null, true);
-    } else {
-      cb(new Error('Alleen .csv of .txt bestanden zijn toegestaan.'));
-    }
-  },
-});
 
 function flash(req, type, message) {
   req.session.flash = { [type]: message };
@@ -169,72 +153,6 @@ router.get('/:id', loginRequired, async (req, res) => {
     console.error('Klas detail fout:', err.message);
     res.status(500).send('Databasefout.');
   }
-});
-
-// ── GET /klassen/:id/importeer ────────────────────────────────────────────────
-router.get('/:id/importeer', loginRequired, async (req, res) => {
-  try {
-    const klasId = parseInt(req.params.id, 10);
-    const klas   = await db.getKlas(klasId);
-
-    if (!klas) return res.status(404).send('Klas niet gevonden.');
-
-    res.render('klassen/import_csv', {
-      title:      `CSV importeren — ${klas.naam}`,
-      activePage: 'klassen',
-      klas,
-      error:      null,
-      flash:      consumeFlash(req),
-    });
-  } catch (err) {
-    res.status(500).send('Databasefout.');
-  }
-});
-
-// ── POST /klassen/:id/importeer ───────────────────────────────────────────────
-router.post('/:id/importeer', loginRequired, (req, res, next) => {
-  upload.single('csv_file')(req, res, async (multerErr) => {
-    try {
-      const klasId = parseInt(req.params.id, 10);
-      const klas   = await db.getKlas(klasId);
-
-      if (!klas) return res.status(404).send('Klas niet gevonden.');
-
-      const renderError = (msg) => res.render('klassen/import_csv', {
-        title:      `CSV importeren — ${klas.naam}`,
-        activePage: 'klassen',
-        klas,
-        error:      msg,
-        flash:      {},
-      });
-
-      if (multerErr) return renderError(multerErr.message);
-
-      let csvContent = '';
-      if (req.file && req.file.buffer.length > 0) {
-        csvContent = req.file.buffer.toString('utf-8');
-      } else if (req.body.csv_text && req.body.csv_text.trim()) {
-        csvContent = req.body.csv_text;
-      } else {
-        return renderError('Kies een bestand of plak CSV-tekst.');
-      }
-
-      await db.deleteLeerlingen(klasId);
-      const aantal = await db.importLeerlingenCsv(csvContent, klasId);
-      flash(req, 'success', `${aantal} leerling${aantal !== 1 ? 'en' : ''} succesvol geïmporteerd.`);
-      res.redirect(`/klassen/${klasId}`);
-    } catch (err) {
-      const klasId = parseInt(req.params.id, 10);
-      const klas   = await db.getKlas(klasId).catch(() => null);
-      res.render('klassen/import_csv', {
-        title:      klas ? `CSV importeren — ${klas.naam}` : 'CSV importeren',
-        activePage: 'klassen',
-        klas:       klas || { id: klasId, naam: '?' },
-        error:      err.message || 'Fout bij het verwerken van de CSV.',
-        flash:      {},
-      });
-    }
-  });
 });
 
 // ── POST /klassen/:id/leerplan ────────────────────────────────────────────────
