@@ -19,6 +19,16 @@ router.get('/:leerlingId', loginRequired, async (req, res) => {
   const klas         = await db.getKlas(leerling.klas_id);
   const leerplanUuid = await db.getKlasLeerplan(leerling.klas_id);
 
+  // Vorige/volgende leerling in dezelfde klas
+  const klasgenoten      = await db.getLeerlingen(leerling.klas_id);
+  const huidigeIndex     = klasgenoten.findIndex(l => l.id === leerlingId);
+  const vorigeLeerling   = huidigeIndex > 0
+    ? { id: klasgenoten[huidigeIndex - 1].id, naam: klasgenoten[huidigeIndex - 1].voornaam + ' ' + klasgenoten[huidigeIndex - 1].naam }
+    : null;
+  const volgendeLeerling = huidigeIndex < klasgenoten.length - 1
+    ? { id: klasgenoten[huidigeIndex + 1].id, naam: klasgenoten[huidigeIndex + 1].voornaam + ' ' + klasgenoten[huidigeIndex + 1].naam }
+    : null;
+
   let bkSecties = [];
   let llinkidFout = null;
 
@@ -40,6 +50,8 @@ router.get('/:leerlingId', loginRequired, async (req, res) => {
     bkSecties,
     leerplanUuid: leerplanUuid ?? null,
     llinkidFout,
+    vorigeLeerling,
+    volgendeLeerling,
   });
 });
 

@@ -414,10 +414,18 @@
          class="nav-link<%= typeof activePage !== 'undefined' && activePage === 'klassen' ? ' active' : '' %>">
         Klassen
       </a>
+      <% if (typeof user !== 'undefined' && (user.rol === 'admin' || user.rol === 'superadmin')) { %>
       <a href="/llinkid"
          class="nav-link<%= typeof activePage !== 'undefined' && activePage === 'llinkid' ? ' active' : '' %>">
         LLinkid
       </a>
+      <% } %>
+      <% if (typeof user !== 'undefined' && user.rol === 'superadmin') { %>
+      <a href="/admin/gebruikers"
+         class="nav-link<%= typeof activePage !== 'undefined' && activePage === 'admin' ? ' active' : '' %>">
+        Beheer
+      </a>
+      <% } %>
       <div style="width:1px; height:24px; background:#E2E8F0; margin:0 8px;"></div>
       <img src="/images/avatar.png" alt="Tinneke" style="width:32px; height:32px; object-fit:contain; border-radius:50%; background:#EEF2FF; flex-shrink:0;" />
       <form action="/auth/logout" method="POST" style="margin:0;">
@@ -448,10 +456,18 @@
        class="nav-link<%= typeof activePage !== 'undefined' && activePage === 'klassen' ? ' active' : '' %>">
       Klassen
     </a>
+    <% if (typeof user !== 'undefined' && (user.rol === 'admin' || user.rol === 'superadmin')) { %>
     <a href="/llinkid"
        class="nav-link<%= typeof activePage !== 'undefined' && activePage === 'llinkid' ? ' active' : '' %>">
       LLinkid
     </a>
+    <% } %>
+    <% if (typeof user !== 'undefined' && user.rol === 'superadmin') { %>
+    <a href="/admin/gebruikers"
+       class="nav-link<%= typeof activePage !== 'undefined' && activePage === 'admin' ? ' active' : '' %>">
+      Beheer
+    </a>
+    <% } %>
     <form action="/auth/logout" method="POST" style="margin-top:4px;">
       <button type="submit" class="btn btn-secondary btn-sm w-full" style="justify-content:center;">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">

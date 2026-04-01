@@ -18,15 +18,18 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Globale flash + login status voor alle views
+// Globale flash + login status + user info voor alle views
 app.use((req, res, next) => {
-  res.locals.flash = res.locals.flash || req.session.flash || {};
+  res.locals.flash    = res.locals.flash || req.session.flash || {};
   res.locals.loggedIn = !!req.session.loggedIn;
+  res.locals.user     = req.session.user || null;
+  req.user            = req.session.user || null;
   delete req.session.flash;
   next();
 });
 
-app.use('/auth', require('./routes/auth'));
+app.use('/auth',  require('./routes/auth'));
+app.use('/admin', require('./routes/admin'));
 app.use('/klassen', require('./routes/klassen'));
 app.use('/attestering', require('./routes/attestering'));
 app.use('/llinkid', require('./routes/llinkid'));

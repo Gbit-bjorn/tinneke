@@ -19,6 +19,7 @@
       &mdash; <span id="klas-teller"><%= klassen.length %></span> klas<%= klassen.length !== 1 ? 'sen' : '' %>
     </p>
   </div>
+  <% if (typeof user !== 'undefined' && (user.rol === 'admin' || user.rol === 'superadmin')) { %>
   <a href="/wisa/sync" class="btn btn-primary" style="min-height:44px; display:inline-flex; align-items:center; gap:8px;">
     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -26,6 +27,7 @@
     </svg>
     WISA synchroniseren
   </a>
+  <% } %>
 </div>
 
 <% if (klassen.length === 0) { %>
@@ -42,6 +44,7 @@
     <p style="font-size:14px; color:#475569; margin:0 0 24px 0; max-width:360px; margin-left:auto; margin-right:auto;">
       Synchroniseer WISA om klassen en leerlingen te importeren, of maak een klas handmatig aan.
     </p>
+    <% if (typeof user !== 'undefined' && (user.rol === 'admin' || user.rol === 'superadmin')) { %>
     <a href="/wisa/sync" class="btn btn-primary" style="min-height:44px; display:inline-flex; align-items:center; gap:8px;">
       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -49,6 +52,7 @@
       </svg>
       WISA synchroniseren
     </a>
+    <% } %>
   </div>
 
 <% } else { %>

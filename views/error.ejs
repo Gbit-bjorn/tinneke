@@ -1,0 +1,14 @@
+<%- include('partials/head', { title: title || 'Fout', activePage: '' }) %>
+
+<div style="max-width:520px; margin:80px auto; text-align:center; padding:0 16px;">
+  <div style="width:64px; height:64px; background:#FEE2E2; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 24px auto;">
+    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="#DC2626" stroke-width="2">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+    </svg>
+  </div>
+  <h1 style="font-size:1.5rem; color:#0F172A; margin-bottom:12px;"><%= title || 'Fout' %></h1>
+  <p style="color:#475569; margin-bottom:32px;"><%= bericht || 'Er is een onbekende fout opgetreden.' %></p>
+  <a href="/klassen" class="btn btn-primary">Terug naar dashboard</a>
+</div>
+
+<%- include('partials/footer') %>

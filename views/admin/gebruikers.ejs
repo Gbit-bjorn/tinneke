@@ -1,0 +1,175 @@
+<%- include('../partials/head', { title: 'Gebruikersbeheer', activePage: 'admin' }) %>
+
+<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:28px; flex-wrap:wrap; gap:12px;">
+  <div>
+    <h1 style="margin-bottom:4px;">Gebruikersbeheer</h1>
+    <p class="text-secondary" style="font-size:14px;">Beheer accounts en rollen voor Tinneke.</p>
+  </div>
+  <button onclick="document.getElementById('modal-nieuw').style.display='flex'" class="btn btn-primary">
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+    </svg>
+    Nieuwe gebruiker
+  </button>
+</div>
+
+<!-- Gebruikerstabel -->
+<div class="card">
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Naam</th>
+        <th>Gebruikersnaam</th>
+        <th>Rol</th>
+        <th>Status</th>
+        <th>Acties</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% users.forEach(function(u) { %>
+      <tr>
+        <td>
+          <span style="font-weight:600;"><%= u.naam %></span>
+          <% if (user && user.id === u.id) { %>
+            <span class="badge badge-blue" style="margin-left:8px; font-size:11px;">jij</span>
+          <% } %>
+        </td>
+        <td style="font-family:monospace; font-size:13px; color:#475569;"><%= u.username %></td>
+        <td>
+          <form action="/admin/gebruikers/<%= u.id %>/rol" method="POST" style="display:inline;">
+            <select name="rol" onchange="this.form.submit()" class="input" style="width:auto; padding:4px 10px; min-height:34px; font-size:13px;">
+              <option value="leerkracht" <%= u.rol === 'leerkracht' ? 'selected' : '' %>>Leerkracht</option>
+              <option value="admin"      <%= u.rol === 'admin'      ? 'selected' : '' %>>Admin</option>
+              <option value="superadmin" <%= u.rol === 'superadmin' ? 'selected' : '' %>>Superadmin</option>
+            </select>
+          </form>
+        </td>
+        <td>
+          <% if (u.actief) { %>
+            <span class="badge badge-green">Actief</span>
+          <% } else { %>
+            <span class="badge badge-red">Inactief</span>
+          <% } %>
+        </td>
+        <td>
+          <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+            <!-- Actief/inactief toggling -->
+            <form action="/admin/gebruikers/<%= u.id %>/actief" method="POST" style="display:inline;">
+              <input type="hidden" name="actief" value="<%= u.actief ? '0' : '1' %>" />
+              <button type="submit" class="btn btn-sm <%= u.actief ? 'btn-secondary' : 'btn-success' %>"
+                      title="<%= u.actief ? 'Deactiveren' : 'Activeren' %>"
+                      <% if (user && user.id === u.id) { %> disabled title="Je kunt jezelf niet deactiveren" <% } %>>
+                <% if (u.actief) { %>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                  </svg>
+                  Deactiveer
+                <% } else { %>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
+                  Activeer
+                <% } %>
+              </button>
+            </form>
+
+            <!-- Wachtwoord reset -->
+            <button onclick="openWachtwoordModal(<%= u.id %>, '<%= u.naam %>')" class="btn btn-sm btn-secondary">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+              </svg>
+              Wachtwoord
+            </button>
+          </div>
+        </td>
+      </tr>
+      <% }); %>
+    </tbody>
+  </table>
+</div>
+
+<!-- ── Modal: nieuwe gebruiker ── -->
+<div id="modal-nieuw" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:1000; align-items:center; justify-content:center; padding:16px;">
+  <div class="card" style="width:100%; max-width:480px; padding:32px;">
+    <h2 style="margin-bottom:20px;">Nieuwe gebruiker</h2>
+    <form action="/admin/gebruikers/nieuw" method="POST">
+
+      <div style="margin-bottom:16px;">
+        <label for="new-naam">Naam</label>
+        <input type="text" id="new-naam" name="naam" class="input" placeholder="Voornaam Achternaam" required autofocus />
+      </div>
+
+      <div style="margin-bottom:16px;">
+        <label for="new-username">Gebruikersnaam</label>
+        <input type="text" id="new-username" name="username" class="input" placeholder="voornaam.achternaam" required autocomplete="off" />
+      </div>
+
+      <div style="margin-bottom:16px;">
+        <label for="new-rol">Rol</label>
+        <select id="new-rol" name="rol" class="input">
+          <option value="leerkracht">Leerkracht</option>
+          <option value="admin">Admin</option>
+          <option value="superadmin">Superadmin</option>
+        </select>
+      </div>
+
+      <div style="margin-bottom:24px;">
+        <label for="new-wachtwoord">Wachtwoord</label>
+        <input type="password" id="new-wachtwoord" name="wachtwoord" class="input" placeholder="Minimaal 4 tekens" required autocomplete="new-password" />
+      </div>
+
+      <div style="display:flex; gap:12px; justify-content:flex-end;">
+        <button type="button" onclick="document.getElementById('modal-nieuw').style.display='none'" class="btn btn-secondary">
+          Annuleren
+        </button>
+        <button type="submit" class="btn btn-primary">
+          Aanmaken
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ── Modal: wachtwoord wijzigen ── -->
+<div id="modal-wachtwoord" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:1000; align-items:center; justify-content:center; padding:16px;">
+  <div class="card" style="width:100%; max-width:400px; padding:32px;">
+    <h2 style="margin-bottom:8px;">Wachtwoord wijzigen</h2>
+    <p class="text-secondary" style="font-size:14px; margin-bottom:20px;">Wijzig het wachtwoord voor <strong id="modal-ww-naam"></strong>.</p>
+    <form id="modal-ww-form" action="" method="POST">
+
+      <div style="margin-bottom:20px;">
+        <label for="ww-nieuw">Nieuw wachtwoord</label>
+        <input type="password" id="ww-nieuw" name="wachtwoord" class="input" placeholder="Minimaal 4 tekens" required autocomplete="new-password" />
+      </div>
+
+      <div style="display:flex; gap:12px; justify-content:flex-end;">
+        <button type="button" onclick="document.getElementById('modal-wachtwoord').style.display='none'" class="btn btn-secondary">
+          Annuleren
+        </button>
+        <button type="submit" class="btn btn-primary">
+          Opslaan
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+function openWachtwoordModal(userId, naam) {
+  document.getElementById('modal-ww-naam').textContent = naam;
+  document.getElementById('modal-ww-form').action = '/admin/gebruikers/' + userId + '/wachtwoord';
+  document.getElementById('ww-nieuw').value = '';
+  document.getElementById('modal-wachtwoord').style.display = 'flex';
+  setTimeout(function() { document.getElementById('ww-nieuw').focus(); }, 50);
+}
+
+// Sluit modal bij klik buiten de kaart
+document.getElementById('modal-nieuw').addEventListener('click', function(e) {
+  if (e.target === this) this.style.display = 'none';
+});
+document.getElementById('modal-wachtwoord').addEventListener('click', function(e) {
+  if (e.target === this) this.style.display = 'none';
+});
+</script>
+
+<%- include('../partials/footer') %>

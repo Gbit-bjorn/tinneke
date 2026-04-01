@@ -122,71 +122,85 @@
 <!-- ── Zijpaneel (sidebar) ── -->
 <div style="display:grid; grid-template-columns:1fr; gap:20px; margin-top:20px;" id="sidebar-sectie">
 
-  <!-- Leerplan koppelen -->
+  <!-- Leerplan -->
   <div class="card" style="padding:20px;">
     <h2 style="font-size:16px; font-weight:700; color:#0F172A; margin:0 0 4px 0;">Leerplan</h2>
-    <p style="font-size:13px; color:#475569; margin:0 0 16px 0;">
-      Koppel een LLinkid-leerplan aan deze klas voor attestering.
-    </p>
 
-    <% if (typeof leerplanUuid !== 'undefined' && leerplanUuid) { %>
-      <div style="margin-bottom:14px; padding:10px 12px; background:#F0FDF4; border:1px solid #BBF7D0; border-radius:8px;">
-        <p style="font-size:11px; font-weight:700; color:#15803D; margin:0 0 3px 0; text-transform:uppercase; letter-spacing:0.5px;">Gekoppeld leerplan</p>
-        <p style="font-size:11px; color:#16A34A; font-family:monospace; word-break:break-all; margin:0;"><%= leerplanUuid %></p>
-      </div>
-    <% } %>
+    <% if (typeof user !== 'undefined' && (user.rol === 'admin' || user.rol === 'superadmin')) { %>
+      <!-- Admin/superadmin: volledige koppelformulier -->
+      <p style="font-size:13px; color:#475569; margin:0 0 16px 0;">
+        Koppel een LLinkid-leerplan aan deze klas voor attestering.
+      </p>
 
-    <form action="/klassen/<%= klas.id %>/leerplan" method="POST">
-      <div style="margin-bottom:10px;">
-        <label for="leerplan_zoek" style="display:block; font-size:13px; font-weight:600; color:#0F172A; margin-bottom:5px;">
-          Zoek leerplan
-        </label>
-        <div style="position:relative; margin-bottom:8px;">
+      <% if (typeof leerplanUuid !== 'undefined' && leerplanUuid) { %>
+        <div style="margin-bottom:14px; padding:10px 12px; background:#F0FDF4; border:1px solid #BBF7D0; border-radius:8px;">
+          <p style="font-size:11px; font-weight:700; color:#15803D; margin:0 0 3px 0; text-transform:uppercase; letter-spacing:0.5px;">Gekoppeld leerplan</p>
+          <p style="font-size:11px; color:#16A34A; font-family:monospace; word-break:break-all; margin:0;"><%= leerplanUuid %></p>
+        </div>
+      <% } %>
+
+      <form action="/klassen/<%= klas.id %>/leerplan" method="POST">
+        <div style="margin-bottom:10px;">
+          <label for="leerplan_zoek" style="display:block; font-size:13px; font-weight:600; color:#0F172A; margin-bottom:5px;">
+            Zoek leerplan
+          </label>
+          <div style="position:relative; margin-bottom:8px;">
+            <input
+              type="text"
+              id="leerplan_zoek"
+              class="input"
+              placeholder="Typ naam of identifier&hellip;"
+              autocomplete="off"
+            />
+          </div>
+          <label for="leerplan_uuid" style="display:block; font-size:13px; font-weight:600; color:#0F172A; margin-bottom:5px;">
+            LLinkid UUID
+          </label>
           <input
             type="text"
-            id="leerplan_zoek"
+            id="leerplan_uuid"
+            name="leerplan_uuid"
             class="input"
-            placeholder="Typ naam of identifier&hellip;"
-            autocomplete="off"
+            placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+            value="<%= typeof leerplanUuid !== 'undefined' && leerplanUuid ? leerplanUuid : '' %>"
+            required
           />
         </div>
-        <label for="leerplan_uuid" style="display:block; font-size:13px; font-weight:600; color:#0F172A; margin-bottom:5px;">
-          LLinkid UUID
-        </label>
-        <input
-          type="text"
-          id="leerplan_uuid"
-          name="leerplan_uuid"
-          class="input"
-          placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-          value="<%= typeof leerplanUuid !== 'undefined' && leerplanUuid ? leerplanUuid : '' %>"
-          required
-        />
-      </div>
-      <button type="submit" class="btn btn-primary btn-full" style="min-height:44px; justify-content:center; gap:8px;">
-        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-        </svg>
-        <%= (typeof leerplanUuid !== 'undefined' && leerplanUuid) ? 'Leerplan bijwerken' : 'Leerplan koppelen' %>
-      </button>
-    </form>
+        <button type="submit" class="btn btn-primary btn-full" style="min-height:44px; justify-content:center; gap:8px;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+          </svg>
+          <%= (typeof leerplanUuid !== 'undefined' && leerplanUuid) ? 'Leerplan bijwerken' : 'Leerplan koppelen' %>
+        </button>
+      </form>
 
-    <div style="margin-top:14px; padding-top:14px; border-top:1px solid #E2E8F0;">
-      <a href="/llinkid" style="font-size:13px; font-weight:600; color:#1E3A8A; text-decoration:none; display:inline-flex; align-items:center; gap:4px;"
-         onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">
-        LLinkid verkennen
-        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-        </svg>
-      </a>
-    </div>
+      <div style="margin-top:14px; padding-top:14px; border-top:1px solid #E2E8F0;">
+        <a href="/llinkid" style="font-size:13px; font-weight:600; color:#1E3A8A; text-decoration:none; display:inline-flex; align-items:center; gap:4px;"
+           onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">
+          LLinkid verkennen
+          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </a>
+      </div>
+    <% } else { %>
+      <!-- Leerkracht: alleen leerplannaam tonen (read-only) -->
+      <% if (typeof leerplanUuid !== 'undefined' && leerplanUuid) { %>
+        <p style="font-size:14px; color:#0F172A; margin:8px 0 0 0;">
+          <%= typeof leerplanTitel !== 'undefined' && leerplanTitel ? leerplanTitel : leerplanUuid %>
+        </p>
+      <% } else { %>
+        <p style="font-size:13px; color:#94A3B8; margin:8px 0 0 0;">Nog geen leerplan gekoppeld.</p>
+      <% } %>
+    <% } %>
   </div>
 
   <!-- Snelle acties -->
   <div class="card" style="padding:20px;">
     <h2 style="font-size:16px; font-weight:700; color:#0F172A; margin:0 0 14px 0;">Acties</h2>
     <div style="display:flex; flex-direction:column; gap:10px;">
+      <% if (typeof user !== 'undefined' && (user.rol === 'admin' || user.rol === 'superadmin')) { %>
       <a href="/wisa/sync" class="btn btn-secondary btn-full" style="min-height:44px; justify-content:center; gap:8px;">
         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -194,6 +208,7 @@
         </svg>
         WISA synchroniseren
       </a>
+      <% } %>
       <a href="/export/klas/<%= klas.id %>/excel" class="btn btn-secondary btn-full" style="min-height:44px; justify-content:center; gap:8px;">
         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -251,11 +266,11 @@
     window.addEventListener('resize', maakLayout);
   })();
 
-  /* Autocomplete voor leerplan-zoek → vult UUID-veld in */
+  /* Autocomplete voor leerplan-zoek → vult UUID-veld in (enkel admin/superadmin) */
   (function () {
     const zoekVeld = document.getElementById('leerplan_zoek');
     const uuidVeld = document.getElementById('leerplan_uuid');
-    if (!zoekVeld || !uuidVeld) return;
+    if (!zoekVeld || !uuidVeld) return; // niet aanwezig voor leerkrachten
 
     maakAutocomplete({
       inputEl:  zoekVeld,

@@ -1,7 +1,9 @@
 'use strict';
 
 const express = require('express');
+const bcrypt  = require('bcrypt');
 const router  = express.Router();
+const { db }  = require('../lib');
 
 // GET /auth/login
 router.get('/login', (req, res) => {
@@ -12,30 +14,69 @@ router.get('/login', (req, res) => {
 });
 
 // POST /auth/login
-router.post('/login', (req, res) => {
+router.post('/login', async (req, res) => {
   const { username, password } = req.body;
 
-  const expectedUser = process.env.APP_USERNAME;
-  const expectedPass = process.env.APP_PASSWORD;
+  try {
+    // Probeer eerst de database
+    const user = await db.getUserByUsername(username);
 
-  if (!expectedUser || !expectedPass) {
-    console.error('[auth] APP_USERNAME of APP_PASSWORD niet ingesteld in .env');
-    return res.render('auth/login', {
-      error:        'Serverconfiguratie ontbreekt. Contacteer de beheerder.',
+    if (user) {
+      // Gebruiker gevonden in DB
+      if (!user.actief) {
+        return res.render('auth/login', {
+          error:        'Je account is gedeactiveerd. Contacteer de beheerder.',
+          lastUsername: username || '',
+        });
+      }
+
+      const correct = await bcrypt.compare(password, user.password);
+      if (!correct) {
+        return res.render('auth/login', {
+          error:        'Ongeldige gebruikersnaam of wachtwoord.',
+          lastUsername: username || '',
+        });
+      }
+
+      // Sessie aanmaken
+      req.session.loggedIn = true;
+      req.session.user = {
+        id:       user.id,
+        username: user.username,
+        naam:     user.naam,
+        rol:      user.rol,
+      };
+      return res.redirect('/klassen');
+    }
+
+    // Geen gebruiker in DB → fallback op env vars (achterwaartse compatibiliteit)
+    const envUser = process.env.APP_USERNAME;
+    const envPass = process.env.APP_PASSWORD;
+
+    if (envUser && envPass && username === envUser && password === envPass) {
+      req.session.loggedIn = true;
+      req.session.user = {
+        id:       null,
+        username: username,
+        naam:     username,
+        rol:      'superadmin', // env-login krijgt superadmin-rechten
+      };
+      return res.redirect('/klassen');
+    }
+
+    // Niets gevonden
+    res.render('auth/login', {
+      error:        'Ongeldige gebruikersnaam of wachtwoord.',
+      lastUsername: username || '',
+    });
+
+  } catch (err) {
+    console.error('[auth] Login fout:', err.message);
+    res.render('auth/login', {
+      error:        'Er is een fout opgetreden. Probeer opnieuw.',
       lastUsername: username || '',
     });
   }
-
-  if (username === expectedUser && password === expectedPass) {
-    req.session.loggedIn  = true;
-    req.session.username  = username;
-    return res.redirect('/klassen');
-  }
-
-  res.render('auth/login', {
-    error:        'Ongeldige gebruikersnaam of wachtwoord.',
-    lastUsername: username || '',
-  });
 });
 
 // POST /auth/logout  (ook GET voor gemak)
