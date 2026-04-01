@@ -30,6 +30,27 @@ router.get('/', loginRequired, async (req, res) => {
 });
 
 // ---------------------------------------------------------------------------
+// GET /llinkid/api/suggesties?q=...
+// JSON autocomplete-endpoint: geeft tot 8 matching leerplannen terug
+// ---------------------------------------------------------------------------
+router.get('/api/suggesties', loginRequired, async (req, res) => {
+  const zoekterm = (req.query.q || '').trim();
+  if (zoekterm.length < 2) return res.json([]);
+  try {
+    const alle = await client.getLeerplannen(zoekterm);
+    const suggesties = alle.slice(0, 8).map(lp => ({
+      uuid:  lp.uuid,
+      titel: lp.titel || 'Naamloos leerplan',
+      identifier: lp.identifier || '',
+    }));
+    res.json(suggesties);
+  } catch (err) {
+    console.error('[LLinkid] suggesties fout:', err.message);
+    res.json([]);
+  }
+});
+
+// ---------------------------------------------------------------------------
 // GET /llinkid/api/doelen/:uuid
 // JSON endpoint voor AJAX (geen loginRequired-check nodig voor dezelfde sessie,
 // maar we houden login-check aan voor consistentie)

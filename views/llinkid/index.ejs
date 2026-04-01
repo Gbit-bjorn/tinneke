@@ -8,14 +8,17 @@
 
   <!-- Zoekbalk -->
   <form method="GET" action="/llinkid" style="display:flex; gap:8px; margin-bottom:20px; flex-wrap:wrap;">
-    <input
-      type="text"
-      name="q"
-      value="<%= zoekterm %>"
-      placeholder="Zoek op naam of identifier..."
-      class="input"
-      style="flex:1; min-width:200px;"
-    />
+    <div style="flex:1; min-width:200px; position:relative;">
+      <input
+        type="text"
+        id="llinkid-zoek"
+        name="q"
+        value="<%= zoekterm %>"
+        placeholder="Zoek op naam of identifier..."
+        class="input"
+        autocomplete="off"
+      />
+    </div>
     <button type="submit" class="btn btn-primary btn-sm" style="min-height:44px; padding:0 20px; white-space:nowrap;">
       Zoeken
     </button>
@@ -25,6 +28,29 @@
     </a>
     <% } %>
   </form>
+
+<script>
+(function () {
+  const input = document.getElementById('llinkid-zoek');
+  if (!input) return;
+
+  maakAutocomplete({
+    inputEl:  input,
+    endpoint: '/llinkid/api/suggesties?q=',
+    minLen:   2,
+    renderItem: function (item) {
+      return {
+        label: item.titel,
+        sub:   item.identifier || item.uuid,
+      };
+    },
+    onSelect: function (item) {
+      // Navigeer direct naar de detailpagina van het leerplan
+      window.location.href = '/llinkid/' + item.uuid;
+    },
+  });
+})();
+</script>
 
   <!-- Foutmelding -->
   <% if (error) { %>

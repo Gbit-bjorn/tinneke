@@ -347,6 +347,51 @@
     .justify-between { justify-content: space-between; }
     .flex-wrap { flex-wrap: wrap; }
     .w-full { width: 100%; }
+
+    /* ── Autocomplete dropdown ── */
+    .autocomplete-wrapper { position: relative; }
+    .autocomplete-dropdown {
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0;
+      right: 0;
+      background: #fff;
+      border: 1.5px solid #E2E8F0;
+      border-radius: 10px;
+      box-shadow: 0 8px 24px rgba(30,58,138,0.10), 0 2px 6px rgba(0,0,0,0.06);
+      z-index: 500;
+      overflow: hidden;
+      max-height: 320px;
+      overflow-y: auto;
+    }
+    .autocomplete-item {
+      padding: 10px 14px;
+      cursor: pointer;
+      font-size: 14px;
+      color: #0F172A;
+      border-bottom: 1px solid #F1F5F9;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      transition: background 100ms;
+    }
+    .autocomplete-item:last-child { border-bottom: none; }
+    .autocomplete-item:hover,
+    .autocomplete-item.active { background: #EFF6FF; }
+    .autocomplete-item-label {
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .autocomplete-item-sub {
+      font-size: 12px;
+      color: #94A3B8;
+      font-family: monospace;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
   </style>
 </head>
 <body>
@@ -438,6 +483,138 @@
       close.style.display = '';
     }
   }
+</script>
+
+<!-- ── Autocomplete helper ── -->
+<script>
+/**
+ * maakAutocomplete(config)
+ * Universele debounced autocomplete voor elke input.
+ *
+ * config = {
+ *   inputEl:    HTMLInputElement,
+ *   endpoint:   string (url met {q} als placeholder, bv. '/llinkid/api/suggesties?q='),
+ *   renderItem: function(item) → { label, sub }   // wat tonen in dropdown
+ *   onSelect:   function(item)                     // wat doen bij klik
+ *   minLen:     number (standaard 2)
+ *   debounce:   number ms (standaard 300)
+ * }
+ */
+function maakAutocomplete(config) {
+  const input    = config.inputEl;
+  const minLen   = config.minLen   ?? 2;
+  const wacht    = config.debounce ?? 300;
+
+  // Wrapper voor positionering
+  const parent = input.parentElement;
+  if (!parent.classList.contains('autocomplete-wrapper')) {
+    parent.classList.add('autocomplete-wrapper');
+  }
+
+  // Dropdown element
+  const dropdown = document.createElement('div');
+  dropdown.className = 'autocomplete-dropdown';
+  dropdown.style.display = 'none';
+  parent.appendChild(dropdown);
+
+  let timer    = null;
+  let huidigQ  = '';
+  let actief   = -1;
+  let items    = [];
+
+  function toonDropdown(resultaten) {
+    items  = resultaten;
+    actief = -1;
+    dropdown.innerHTML = '';
+
+    if (!resultaten.length) {
+      dropdown.style.display = 'none';
+      return;
+    }
+
+    resultaten.forEach(function (item, idx) {
+      const rendered = config.renderItem(item);
+      const el = document.createElement('div');
+      el.className = 'autocomplete-item';
+      el.innerHTML =
+        '<span class="autocomplete-item-label">' + _esc(rendered.label) + '</span>' +
+        (rendered.sub ? '<span class="autocomplete-item-sub">' + _esc(rendered.sub) + '</span>' : '');
+      el.addEventListener('mousedown', function (e) {
+        e.preventDefault(); // Voorkom blur vóór click
+        config.onSelect(item);
+        sluitDropdown();
+      });
+      dropdown.appendChild(el);
+    });
+
+    dropdown.style.display = 'block';
+  }
+
+  function sluitDropdown() {
+    dropdown.style.display = 'none';
+    actief = -1;
+    items  = [];
+  }
+
+  function markeerActief(idx) {
+    const els = dropdown.querySelectorAll('.autocomplete-item');
+    els.forEach(function (el, i) {
+      el.classList.toggle('active', i === idx);
+    });
+    actief = idx;
+  }
+
+  function _esc(str) {
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  input.addEventListener('input', function () {
+    clearTimeout(timer);
+    const q = input.value.trim();
+    if (q.length < minLen) { sluitDropdown(); return; }
+    if (q === huidigQ) return;
+
+    timer = setTimeout(async function () {
+      huidigQ = q;
+      try {
+        const resp = await fetch(config.endpoint + encodeURIComponent(q));
+        if (!resp.ok) return;
+        const data = await resp.json();
+        // Alleen tonen als de invoer nog steeds hetzelfde is
+        if (input.value.trim() === q) toonDropdown(data);
+      } catch (_) { /* stil falen */ }
+    }, wacht);
+  });
+
+  input.addEventListener('keydown', function (e) {
+    if (dropdown.style.display === 'none') return;
+    const max = items.length - 1;
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      markeerActief(Math.min(actief + 1, max));
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      markeerActief(Math.max(actief - 1, 0));
+    } else if (e.key === 'Enter' && actief >= 0) {
+      e.preventDefault();
+      config.onSelect(items[actief]);
+      sluitDropdown();
+    } else if (e.key === 'Escape') {
+      sluitDropdown();
+    }
+  });
+
+  input.addEventListener('blur', function () {
+    // Kleine vertraging zodat mousedown-click eerst kan vuren
+    setTimeout(sluitDropdown, 150);
+  });
+
+  return { sluit: sluitDropdown };
+}
 </script>
 
 <!-- ── Flash messages / Toasts ── -->

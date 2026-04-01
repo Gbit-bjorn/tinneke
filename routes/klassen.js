@@ -51,6 +51,32 @@ router.get('/', loginRequired, async (req, res) => {
   }
 });
 
+// ── GET /klassen/api/suggesties?q=... ────────────────────────────────────────
+// JSON autocomplete-endpoint: geeft matching klassen terug
+router.get('/api/suggesties', loginRequired, async (req, res) => {
+  const zoekterm = (req.query.q || '').trim().toLowerCase();
+  if (zoekterm.length < 1) return res.json([]);
+  try {
+    const alle = await db.getKlassen();
+    const matches = alle
+      .filter(k =>
+        k.naam.toLowerCase().includes(zoekterm) ||
+        (k.richting || '').toLowerCase().includes(zoekterm)
+      )
+      .slice(0, 6)
+      .map(k => ({
+        id:       k.id,
+        naam:     k.naam,
+        richting: k.richting || '',
+        schooljaar: k.schooljaar,
+      }));
+    res.json(matches);
+  } catch (err) {
+    console.error('[Klassen] suggesties fout:', err.message);
+    res.json([]);
+  }
+});
+
 // ── GET /klassen/nieuw ────────────────────────────────────────────────────────
 router.get('/nieuw', loginRequired, (req, res) => {
   res.render('klassen/nieuw', {

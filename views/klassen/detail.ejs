@@ -146,6 +146,18 @@
 
     <form action="/klassen/<%= klas.id %>/leerplan" method="POST">
       <div style="margin-bottom:10px;">
+        <label for="leerplan_zoek" style="display:block; font-size:13px; font-weight:600; color:#0F172A; margin-bottom:5px;">
+          Zoek leerplan
+        </label>
+        <div style="position:relative; margin-bottom:8px;">
+          <input
+            type="text"
+            id="leerplan_zoek"
+            class="input"
+            placeholder="Typ naam of identifier&hellip;"
+            autocomplete="off"
+          />
+        </div>
         <label for="leerplan_uuid" style="display:block; font-size:13px; font-weight:600; color:#0F172A; margin-bottom:5px;">
           LLinkid UUID
         </label>
@@ -252,6 +264,36 @@
     }
     maakLayout();
     window.addEventListener('resize', maakLayout);
+  })();
+
+  /* Autocomplete voor leerplan-zoek → vult UUID-veld in */
+  (function () {
+    const zoekVeld = document.getElementById('leerplan_zoek');
+    const uuidVeld = document.getElementById('leerplan_uuid');
+    if (!zoekVeld || !uuidVeld) return;
+
+    maakAutocomplete({
+      inputEl:  zoekVeld,
+      endpoint: '/llinkid/api/suggesties?q=',
+      minLen:   2,
+      renderItem: function (item) {
+        return {
+          label: item.titel,
+          sub:   item.identifier || item.uuid,
+        };
+      },
+      onSelect: function (item) {
+        uuidVeld.value = item.uuid;
+        zoekVeld.value = item.titel;
+        // Visuele bevestiging
+        uuidVeld.style.borderColor = '#059669';
+        uuidVeld.style.boxShadow   = '0 0 0 3px rgba(5,150,105,0.15)';
+        setTimeout(function () {
+          uuidVeld.style.borderColor = '';
+          uuidVeld.style.boxShadow   = '';
+        }, 1500);
+      },
+    });
   })();
 
   /* Live zoekfunctie */
