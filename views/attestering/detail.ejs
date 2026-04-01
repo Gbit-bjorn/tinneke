@@ -1,20 +1,21 @@
 <%- include('../partials/head', {title: leerling.naam + ' ' + leerling.voornaam + ' — Attestering', activePage: 'klassen'}) %>
 
   <style>
+    /* Progress bars */
     .progress-track { background: #E2E8F0; border-radius: 999px; height: 5px; overflow: hidden; }
-    .progress-fill { background: #1E3A8A; height: 100%; border-radius: 999px; transition: width 300ms ease; }
+    .progress-fill  { background: #2563EB; height: 100%; border-radius: 999px; transition: width 300ms ease; }
     .progress-fill.partial { background: #93C5FD; }
-    .lpd-label.behaald { text-decoration: line-through; color: #94A3B8; }
-    .bk-toggle-icon { transition: transform 200ms; display: inline-block; }
-    .bk-toggle-icon.open { transform: rotate(90deg); }
-    @media (max-width: 640px) { .attestering-header { flex-direction: column; gap: 12px; } }
 
+    /* LPD behaald state */
+    .lpd-label.behaald { text-decoration: line-through; color: #94A3B8; }
+
+    /* Toast */
     #toast {
       position: fixed;
       bottom: 24px;
       right: 24px;
       padding: 10px 18px;
-      border-radius: 8px;
+      border-radius: 12px;
       font-size: 14px;
       font-weight: 600;
       opacity: 0;
@@ -26,95 +27,35 @@
     #toast.ok  { background: #D1FAE5; color: #065F46; border: 1px solid #6EE7B7; }
     #toast.err { background: #FEE2E2; color: #991B1B; border: 1px solid #FCA5A5; }
 
-    /* ── Tab navigatie ── */
-    .tab-nav {
-      display: flex;
-      gap: 0;
-      border-bottom: 2px solid #E2E8F0;
-      margin-bottom: 20px;
-    }
-    .tab-btn {
-      padding: 9px 22px;
-      border: none;
-      border-bottom: 2px solid transparent;
-      background: transparent;
-      font-family: 'Inter', sans-serif;
-      font-size: 0.875rem;
-      font-weight: 600;
-      color: #64748B;
-      cursor: pointer;
-      margin-bottom: -2px;
-      transition: color 150ms, border-color 150ms;
-      white-space: nowrap;
-    }
-    .tab-btn:hover { color: #1E3A8A; }
-    .tab-btn.active {
-      color: #1E3A8A;
-      border-bottom-color: #1E3A8A;
-    }
-
-    /* ── LPD flat list ── */
-    .lpd-groep-header {
-      font-size: 0.75rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: #94A3B8;
-      padding: 10px 0 4px;
-      border-top: 1px solid #F1F5F9;
-      margin-top: 4px;
-    }
-    .lpd-groep-header:first-child {
-      border-top: none;
-      margin-top: 0;
-      padding-top: 4px;
-    }
-    .lpd-flat-item {
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-      padding: 7px 8px;
-      border-radius: 6px;
-      transition: background 100ms;
-    }
-    .lpd-flat-item:hover { background: #F8FAFC; }
-    .lpd-nr {
-      font-size: 0.75rem;
-      font-weight: 700;
-      color: #1E3A8A;
-      min-width: 28px;
-      text-align: right;
-      flex-shrink: 0;
-      padding-top: 1px;
-    }
+    /* Details toggle-icoon animatie */
+    details summary .toggle-icon { transition: transform 200ms; display: inline-block; }
+    details[open] summary .toggle-icon { transform: rotate(90deg); }
   </style>
 
-  <!-- Header -->
-  <div class="attestering-header" style="display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:24px; gap:16px; flex-wrap:wrap;">
+  <!-- ── Header ── -->
+  <div class="flex flex-wrap items-start justify-between gap-4 mb-6">
     <div>
-      <h1 style="font-size:1.75rem; font-weight:700; color:#0F172A; margin:0 0 4px;">
+      <h1 class="font-heading text-3xl font-bold text-textmain mb-1">
         <%= leerling.voornaam %> <%= leerling.naam %>
       </h1>
-      <p style="font-size:0.875rem; color:#475569; margin:0;">
-        <span style="font-weight:600; color:#1E3A8A;"><%= klas.naam %></span>
+      <p class="text-sm text-slate-500">
+        <span class="font-semibold text-primary"><%= klas.naam %></span>
         <% if (klas.richting) { %>
-          <span style="margin:0 6px; color:#CBD5E1;">&middot;</span><%= klas.richting %>
+          <span class="mx-2 text-slate-300">&middot;</span><%= klas.richting %>
         <% } %>
       </p>
     </div>
 
-    <div style="display:flex; gap:8px; flex-wrap:wrap;">
+    <div class="flex gap-2 flex-wrap">
       <a href="/export/<%= leerling.id %>"
-         class="btn btn-secondary btn-sm"
-         style="display:inline-flex; align-items:center; gap:6px; min-height:44px;">
+         class="clay-btn inline-flex items-center gap-2 px-4 py-2 bg-white border border-blue-100 text-primary text-sm font-semibold rounded-xl hover:bg-blue-50 transition-colors">
         <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
         </svg>
         Export
       </a>
       <a href="/klassen/<%= typeof klasId !== 'undefined' && klasId ? klasId : '' %>"
-         class="btn btn-secondary btn-sm"
-         style="display:inline-flex; align-items:center; gap:6px; min-height:44px;">
+         class="clay-btn inline-flex items-center gap-2 px-4 py-2 bg-white border border-blue-100 text-slate-500 text-sm font-semibold rounded-xl hover:bg-slate-50 transition-colors">
         <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
         </svg>
@@ -123,40 +64,49 @@
     </div>
   </div>
 
-  <!-- Geen leerplan -->
+  <!-- ── Fout-/leeg-states ── -->
   <% if (!leerplanUuid) { %>
-    <div class="card" style="padding:24px; color:#475569; font-size:0.9rem; display:flex; align-items:center; gap:12px;">
-      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="#94A3B8" stroke-width="2" style="flex-shrink:0;">
+    <div class="clay-card p-5 flex items-center gap-3 text-slate-500 text-sm">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="#94A3B8" stroke-width="2" class="shrink-0">
         <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
       </svg>
       <span>Geen leerplan gekoppeld aan deze klas. Koppel eerst een leerplan via het klassenbeheer.</span>
     </div>
   <% } else if (typeof llinkidFout !== 'undefined' && llinkidFout) { %>
-    <div class="card" style="padding:24px; color:#991B1B; background:#FEF2F2; font-size:0.9rem; display:flex; align-items:center; gap:12px;">
-      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="#DC2626" stroke-width="2" style="flex-shrink:0;">
+    <div class="clay-card p-5 flex items-center gap-3 bg-red-50 text-red-700 text-sm">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="#DC2626" stroke-width="2" class="shrink-0">
         <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
       </svg>
       <span>Fout bij ophalen doelen van LLinkid: <%= llinkidFout %></span>
     </div>
   <% } else if (bkSecties.length === 0) { %>
-    <div class="card" style="padding:24px; color:#475569; font-size:0.9rem; display:flex; align-items:center; gap:12px;">
-      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="#94A3B8" stroke-width="2" style="flex-shrink:0;">
+    <div class="clay-card p-5 flex items-center gap-3 text-slate-500 text-sm">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="#94A3B8" stroke-width="2" class="shrink-0">
         <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
       </svg>
       <span>Geen doelen gevonden voor dit leerplan.</span>
     </div>
   <% } else { %>
 
-  <!-- Tab navigatie -->
-  <div class="tab-nav">
-    <button type="button" class="tab-btn active" id="tab-btn-lpd" onclick="setTab('lpd')">LPD's</button>
-    <button type="button" class="tab-btn"        id="tab-btn-bk"  onclick="setTab('bk')">BK's</button>
+  <!-- ── Tab navigatie ── -->
+  <div class="flex gap-0 border-b-2 border-slate-200 mb-6">
+    <button type="button" id="tab-btn-lpd" onclick="setTab('lpd')"
+      class="px-6 py-2.5 font-heading font-semibold text-sm border-b-2 -mb-[2px] transition-colors whitespace-nowrap
+             text-primary border-primary">
+      LPD's
+    </button>
+    <button type="button" id="tab-btn-bk" onclick="setTab('bk')"
+      class="px-6 py-2.5 font-heading font-semibold text-sm border-b-2 -mb-[2px] transition-colors whitespace-nowrap
+             text-slate-400 border-transparent hover:text-slate-600">
+      BK's
+    </button>
   </div>
+
 
   <!-- ══════════════════════════════════════════════════ -->
   <!-- TAB 1: Platte LPD-lijst (werkweergave)            -->
   <!-- ══════════════════════════════════════════════════ -->
-  <div id="tab-lpd" class="card" style="padding:12px 16px;">
+  <div id="tab-lpd" class="clay-card p-5">
 
     <%
       /* Bouw een gesorteerde, platte lijst van alle LPDs op server-side.
@@ -164,24 +114,28 @@
          _herbereken() de checkboxes nog steeds kan vinden. */
     %>
 
-    <% bkSecties.forEach(function(bk) { %>
+    <% bkSecties.forEach(function(bk, bkIdx) { %>
 
-      <!-- BK-groepheader in de platte lijst -->
-      <div class="lpd-groep-header">
-        BK: <%= bk.titel || bk.key %>
+      <!-- BK-groepheader -->
+      <div class="<%= bkIdx > 0 ? 'mt-5 pt-4 border-t border-slate-100' : '' %>
+                  flex items-center gap-2 mb-2 pl-2 border-l-4 border-primary">
+        <span class="font-heading font-semibold text-sm uppercase tracking-wide text-primary">
+          BK: <%= bk.titel || bk.key %>
+        </span>
       </div>
 
       <% bk.dpkSecties.forEach(function(dpk) { %>
 
-        <!-- DPK-subheader (compact, ingesprongen) — verberg bij synthetische DPK (zelfde titel als BK) -->
+        <!-- DPK-subheader — verberg bij synthetische DPK -->
         <% if (!dpk.synthetic && (dpk.titel || dpk.key)) { %>
-          <div style="font-size:0.75rem; font-weight:600; color:#CBD5E1; padding:2px 0 2px 8px; margin-bottom:2px;">
-            <span style="margin-right:4px; color:#E2E8F0;">&#x2514;</span><%= dpk.titel || dpk.key %>
+          <div class="flex items-center gap-1.5 py-1 pl-5 mb-1">
+            <span class="text-slate-300 text-xs">&#x2514;</span>
+            <span class="text-xs font-semibold text-slate-400"><%= dpk.titel || dpk.key %></span>
           </div>
         <% } %>
 
         <% dpk.lpds.forEach(function(lpd) { %>
-          <div class="lpd-flat-item"
+          <div class="lpd-flat-item flex items-start gap-2.5 px-3 py-2 rounded-xl hover:bg-slate-50 transition-colors"
                data-lpd-key="<%= lpd.key %>"
                data-bk-key="<%= bk.key %>"
                data-dpk-key="<%= dpk.key %>">
@@ -189,17 +143,18 @@
             <input
               type="checkbox"
               id="lpd-flat-<%= lpd.key %>"
-              style="margin-top:2px; width:16px; height:16px; accent-color:#1E3A8A; cursor:pointer; flex-shrink:0;"
+              class="mt-0.5 w-4 h-4 accent-primary cursor-pointer shrink-0"
               <%= lpd.behaald ? 'checked' : '' %>
               onchange="toggleLpd(this, '<%= lpd.key %>', '<%= leerling.id %>')"
             />
 
-            <span class="lpd-nr"><%= lpd.nr %></span>
+            <span class="inline-flex items-center justify-center w-8 h-5 rounded-full text-xs font-semibold bg-blue-100 text-primary shrink-0 mt-0.5">
+              <%= lpd.nr %>
+            </span>
 
             <label
               for="lpd-flat-<%= lpd.key %>"
-              class="lpd-label<%= lpd.behaald ? ' behaald' : '' %>"
-              style="font-size:0.875rem; cursor:pointer; line-height:1.4; flex:1;">
+              class="lpd-label<%= lpd.behaald ? ' behaald' : '' %> text-sm text-textmain leading-snug cursor-pointer flex-1">
               <%= lpd.titel %>
             </label>
 
@@ -214,114 +169,119 @@
 
 
   <!-- ══════════════════════════════════════════════════ -->
-  <!-- TAB 2: BK-overzicht (leesweergave)               -->
+  <!-- TAB 2: BK-overzicht (met checkboxes)             -->
   <!-- ══════════════════════════════════════════════════ -->
-  <div id="tab-bk" style="display:none; flex-direction:column; gap:12px;">
+  <div id="tab-bk" style="display:none;" class="flex flex-col gap-4">
 
     <% bkSecties.forEach(function(bk) { %>
 
-      <div class="card" style="overflow:hidden;" data-bk-key="<%= bk.key %>">
+      <div class="clay-card overflow-hidden" data-bk-key="<%= bk.key %>">
 
-        <!-- BK header (klikbaar) -->
-        <button
-          type="button"
-          onclick="toggleBk(this)"
-          aria-expanded="true"
-          style="width:100%; display:flex; align-items:center; gap:10px; padding:14px 16px; background:#EFF6FF; border:none; cursor:pointer; text-align:left; border-bottom:1px solid #DBEAFE;"
-        >
-          <span class="bk-toggle-icon open" style="color:#1E3A8A; font-size:11px; flex-shrink:0;">&#9654;</span>
-          <span style="font-weight:600; color:#1E3A8A; flex:1; font-size:0.9375rem;">
-            BK: <%= bk.titel || bk.key %>
-          </span>
-          <!-- BK Behaald badge -->
-          <span
-            data-bk-badge="<%= bk.key %>"
-            style="display:<%= bk.stats.percentage === 100 ? 'inline-flex' : 'none' %>; align-items:center; background:#D1FAE5; color:#065F46; padding:3px 10px; border-radius:999px; font-size:11px; font-weight:700; white-space:nowrap; margin-right:8px;">
-            &#10003; Behaald
-          </span>
-          <!-- BK voortgangsindicator -->
-          <span
-            data-bk-stats="<%= bk.key %>"
-            style="font-size:13px; color:#475569; white-space:nowrap; flex-shrink:0;">
-            <%= bk.stats.behaald %>/<%= bk.stats.totaal %>
-          </span>
-        </button>
+        <!-- BK details/summary toggle -->
+        <details open>
+          <summary class="flex items-center gap-3 px-5 py-4 bg-blue-50 border-b border-blue-100 cursor-pointer list-none hover:bg-blue-100 transition-colors select-none">
+            <span class="toggle-icon text-primary text-xs shrink-0">&#9654;</span>
+            <span class="font-heading font-semibold text-base text-primary flex-1">
+              BK: <%= bk.titel || bk.key %>
+            </span>
+            <!-- BK behaald badge -->
+            <span
+              data-bk-badge="<%= bk.key %>"
+              class="<%= bk.stats.percentage === 100 ? 'inline-flex' : 'hidden' %> items-center gap-1 bg-emerald-100 text-emerald-700 text-xs font-bold px-2.5 py-1 rounded-full whitespace-nowrap mr-2">
+              &#10003; Behaald
+            </span>
+            <!-- BK voortgang teller -->
+            <span
+              data-bk-stats="<%= bk.key %>"
+              class="text-sm text-slate-500 font-semibold whitespace-nowrap shrink-0">
+              <%= bk.stats.behaald %>/<%= bk.stats.totaal %>
+            </span>
+          </summary>
 
-        <!-- BK voortgangsbalk -->
-        <div style="padding:0 16px 8px; background:#EFF6FF;">
-          <div class="progress-track" style="margin-top:6px;">
-            <div
-              class="progress-fill<%= bk.stats.percentage < 100 ? ' partial' : '' %>"
-              style="width:<%= bk.stats.percentage %>%"
-              data-bk-bar="<%= bk.key %>">
+          <!-- BK voortgangsbalk (altijd zichtbaar, net onder summary) -->
+          <div class="px-5 pt-2 pb-1 bg-blue-50 border-b border-blue-100">
+            <div class="progress-track">
+              <div
+                class="progress-fill<%= bk.stats.percentage < 100 ? ' partial' : '' %>"
+                style="width:<%= bk.stats.percentage %>%"
+                data-bk-bar="<%= bk.key %>">
+              </div>
             </div>
           </div>
-        </div>
 
-        <!-- BK body (collapsible) -->
-        <div class="bk-body" style="padding:16px; display:flex; flex-direction:column; gap:16px;">
+          <!-- BK body -->
+          <div class="bk-body p-5 flex flex-col gap-5">
 
-          <% bk.dpkSecties.forEach(function(dpk) { %>
-            <div data-dpk-key="<%= dpk.key %>">
+            <% bk.dpkSecties.forEach(function(dpk) { %>
+              <div data-dpk-key="<%= dpk.key %>">
 
-              <!-- DPK header — verberg bij synthetische DPK (zelfde titel als BK) -->
-              <% if (!dpk.synthetic) { %>
-              <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
-                <span style="color:#94A3B8; font-size:11px; flex-shrink:0;">&#x2523;</span>
-                <span style="font-weight:600; font-size:0.875rem; color:#0F172A; flex:1;">
-                  DPK: <%= dpk.titel || dpk.key %>
-                </span>
-                <!-- DPK behaald vink -->
-                <span
-                  data-dpk-badge="<%= dpk.key %>"
-                  style="display:<%= dpk.stats.percentage === 100 ? 'inline' : 'none' %>; color:#059669; font-size:13px; font-weight:700;">
-                  &#10003;
-                </span>
-                <span
-                  data-dpk-stats="<%= dpk.key %>"
-                  style="font-size:12px; font-weight:600; color:<%= dpk.stats.percentage === 100 ? '#059669' : '#94A3B8' %>; white-space:nowrap; flex-shrink:0;">
-                  <%= dpk.stats.behaald %>/<%= dpk.stats.totaal %>
-                </span>
-              </div>
-
-              <!-- DPK voortgangsbalk -->
-              <div class="progress-track" style="margin-bottom:10px; margin-left:16px;">
-                <div
-                  class="progress-fill<%= dpk.stats.percentage < 100 ? ' partial' : '' %>"
-                  style="width:<%= dpk.stats.percentage %>%"
-                  data-dpk-bar="<%= dpk.key %>">
+                <!-- DPK header — verberg bij synthetische DPK -->
+                <% if (!dpk.synthetic) { %>
+                <div class="flex items-center gap-2 mb-2">
+                  <span class="text-slate-300 text-xs shrink-0">&#x2523;</span>
+                  <span class="font-heading font-semibold text-sm text-textmain flex-1">
+                    DPK: <%= dpk.titel || dpk.key %>
+                  </span>
+                  <!-- DPK behaald vink -->
+                  <span
+                    data-dpk-badge="<%= dpk.key %>"
+                    class="<%= dpk.stats.percentage === 100 ? 'inline' : 'hidden' %> text-emerald-600 text-sm font-bold">
+                    &#10003;
+                  </span>
+                  <span
+                    data-dpk-stats="<%= dpk.key %>"
+                    class="text-xs font-semibold whitespace-nowrap shrink-0 <%= dpk.stats.percentage === 100 ? 'text-emerald-600' : 'text-slate-400' %>">
+                    <%= dpk.stats.behaald %>/<%= dpk.stats.totaal %>
+                  </span>
                 </div>
+
+                <!-- DPK voortgangsbalk -->
+                <div class="progress-track mb-3 ml-4">
+                  <div
+                    class="progress-fill<%= dpk.stats.percentage < 100 ? ' partial' : '' %>"
+                    style="width:<%= dpk.stats.percentage %>%"
+                    data-dpk-bar="<%= dpk.key %>">
+                  </div>
+                </div>
+                <% } %>
+
+                <!-- LPD regels -->
+                <div class="pl-4 border-l-2 border-blue-100 flex flex-col gap-1">
+                  <% dpk.lpds.forEach(function(lpd) { %>
+                    <div class="lpd-flat-item flex items-start gap-2.5 px-3 py-2 rounded-xl hover:bg-slate-50 transition-colors"
+                         data-lpd-key="<%= lpd.key %>"
+                         data-bk-key="<%= bk.key %>"
+                         data-dpk-key="<%= dpk.key %>">
+
+                      <input
+                        type="checkbox"
+                        id="lpd-bk-<%= lpd.key %>"
+                        class="mt-0.5 w-4 h-4 accent-primary cursor-pointer shrink-0"
+                        <%= lpd.behaald ? 'checked' : '' %>
+                        onchange="toggleLpd(this, '<%= lpd.key %>', '<%= leerling.id %>')"
+                      />
+
+                      <span class="inline-flex items-center justify-center w-8 h-5 rounded-full text-xs font-semibold bg-blue-100 text-primary shrink-0 mt-0.5">
+                        <%= lpd.nr %>
+                      </span>
+
+                      <label
+                        for="lpd-bk-<%= lpd.key %>"
+                        class="lpd-label<%= lpd.behaald ? ' behaald' : '' %> text-sm text-textmain leading-snug cursor-pointer flex-1">
+                        <%= lpd.titel %>
+                      </label>
+
+                    </div>
+                  <% }); %>
+                </div>
+
               </div>
-              <% } %>
+            <% }); %>
 
-              <!-- LPD regels (read-only, geen checkboxes) -->
-              <ul style="list-style:none; margin:0 0 0 16px; padding:0; display:flex; flex-direction:column; gap:5px;">
-                <% dpk.lpds.forEach(function(lpd) { %>
-                  <li style="display:flex; align-items:flex-start; gap:8px;"
-                      data-lpd-key="<%= lpd.key %>"
-                      data-bk-key="<%= bk.key %>"
-                      data-dpk-key="<%= dpk.key %>">
+          </div><!-- /bk-body -->
+        </details>
 
-                    <!-- Status-icoon (readonly) -->
-                    <span style="margin-top:2px; flex-shrink:0; width:16px; text-align:center; font-size:13px; color:<%= lpd.behaald ? '#059669' : '#CBD5E1' %>;">
-                      <%= lpd.behaald ? '✓' : '○' %>
-                    </span>
-
-                    <span
-                      class="lpd-label<%= lpd.behaald ? ' behaald' : '' %>"
-                      style="font-size:0.875rem; line-height:1.4;">
-                      <span style="font-weight:700; color:#1E3A8A; margin-right:4px;">LPD <%= lpd.nr %>:</span><%= lpd.titel %>
-                    </span>
-
-                  </li>
-                <% }); %>
-              </ul>
-
-            </div>
-          <% }); %>
-
-        </div><!-- /bk-body -->
-      </div><!-- /card -->
+      </div><!-- /clay-card -->
 
     <% }); %>
 
@@ -343,31 +303,21 @@
       if (naam === 'lpd') {
         tabLpd.style.display = '';
         tabBk.style.display  = 'none';
-        btnLpd.classList.add('active');
-        btnBk.classList.remove('active');
+        btnLpd.className = btnLpd.className
+          .replace('text-slate-400 border-transparent hover:text-slate-600', '')
+          + ' text-primary border-primary';
+        btnBk.className = btnBk.className
+          .replace('text-primary border-primary', '')
+          + ' text-slate-400 border-transparent hover:text-slate-600';
       } else {
         tabLpd.style.display = 'none';
         tabBk.style.display  = 'flex';
-        btnLpd.classList.remove('active');
-        btnBk.classList.add('active');
-      }
-    }
-
-    // Collapse / expand BK-sectie (alleen in tab BK's)
-    function toggleBk(btn) {
-      const card = btn.closest('[data-bk-key]');
-      const body = card.querySelector('.bk-body');
-      const icon = btn.querySelector('.bk-toggle-icon');
-      const open = btn.getAttribute('aria-expanded') === 'true';
-
-      if (open) {
-        body.style.display = 'none';
-        btn.setAttribute('aria-expanded', 'false');
-        icon.classList.remove('open');
-      } else {
-        body.style.display = '';
-        btn.setAttribute('aria-expanded', 'true');
-        icon.classList.add('open');
+        btnLpd.className = btnLpd.className
+          .replace('text-primary border-primary', '')
+          + ' text-slate-400 border-transparent hover:text-slate-600';
+        btnBk.className = btnBk.className
+          .replace('text-slate-400 border-transparent hover:text-slate-600', '')
+          + ' text-primary border-primary';
       }
     }
 
@@ -376,12 +326,15 @@
       const behaald = checkbox.checked;
 
       // Optimistisch UI — sync beide tabs
-      // Tab 1: label van de aangeklikte checkbox
-      const flatLabel = document.querySelector(`label[for="lpd-flat-${lpdUuid}"]`);
-      if (flatLabel) flatLabel.classList.toggle('behaald', behaald);
+      const andereId = checkbox.id.startsWith('lpd-flat-')
+        ? 'lpd-bk-'   + lpdUuid
+        : 'lpd-flat-' + lpdUuid;
+      const andereCheckbox = document.getElementById(andereId);
+      if (andereCheckbox) andereCheckbox.checked = behaald;
 
-      // Tab 2: read-only status-icoon en label
-      _syncBkTabStatus(lpdUuid, behaald);
+      // Labels in beide tabs bijwerken
+      document.querySelectorAll(`label[for="lpd-flat-${lpdUuid}"], label[for="lpd-bk-${lpdUuid}"]`)
+        .forEach(lbl => lbl.classList.toggle('behaald', behaald));
 
       try {
         const resp = await fetch(`/attestering/${leerlingId}/toggle`, {
@@ -400,28 +353,11 @@
       } catch (err) {
         // Rollback
         checkbox.checked = !behaald;
-        if (flatLabel) flatLabel.classList.toggle('behaald', !behaald);
-        _syncBkTabStatus(lpdUuid, !behaald);
+        if (andereCheckbox) andereCheckbox.checked = !behaald;
+        document.querySelectorAll(`label[for="lpd-flat-${lpdUuid}"], label[for="lpd-bk-${lpdUuid}"]`)
+          .forEach(lbl => lbl.classList.toggle('behaald', !behaald));
         showToast('Opslaan mislukt: ' + err.message, 'err');
       }
-    }
-
-    // Sync status-icoon + label in de read-only BK-tab
-    function _syncBkTabStatus(lpdUuid, behaald) {
-      // Zoek het LPD-item in tab-bk (geen checkbox, wél data-lpd-key)
-      const bkTab = document.getElementById('tab-bk');
-      if (!bkTab) return;
-      const lpdItem = bkTab.querySelector(`[data-lpd-key="${lpdUuid}"]`);
-      if (!lpdItem) return;
-
-      const icoon = lpdItem.querySelector('span:first-child');
-      const label = lpdItem.querySelector('.lpd-label');
-
-      if (icoon) {
-        icoon.innerHTML = behaald ? '&#10003;' : '&#9675;';
-        icoon.style.color = behaald ? '#059669' : '#CBD5E1';
-      }
-      if (label) label.classList.toggle('behaald', behaald);
     }
 
     // Herbereken voortgangsbalken op basis van server-resultaten.
@@ -472,7 +408,10 @@
           }
 
           const dpkBadge = document.querySelector(`[data-dpk-badge="${dpkKey}"]`);
-          if (dpkBadge) dpkBadge.style.display = dpkPct === 100 ? 'inline' : 'none';
+          if (dpkBadge) {
+            dpkBadge.classList.toggle('hidden',  dpkPct !== 100);
+            dpkBadge.classList.toggle('inline',  dpkPct === 100);
+          }
         });
 
         const bkPct = bkTotaal > 0 ? Math.round((bkBehaald / bkTotaal) * 100) : 0;
@@ -486,11 +425,14 @@
         const bkStats = document.querySelector(`[data-bk-stats="${bkKey}"]`);
         if (bkStats) {
           bkStats.textContent = `${bkBehaald}/${bkTotaal}`;
-          bkStats.style.color = bkPct === 100 ? '#059669' : '#475569';
+          bkStats.style.color = bkPct === 100 ? '#059669' : '#64748B';
         }
 
         const bkBadge = document.querySelector(`[data-bk-badge="${bkKey}"]`);
-        if (bkBadge) bkBadge.style.display = bkPct === 100 ? 'inline-flex' : 'none';
+        if (bkBadge) {
+          bkBadge.classList.toggle('hidden',       bkPct !== 100);
+          bkBadge.classList.toggle('inline-flex',  bkPct === 100);
+        }
       });
     }
 
