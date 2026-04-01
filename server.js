@@ -12,6 +12,10 @@ db.initTables()
       await db.seedRichtingLeerplan(mapping);
     } catch { /* JSON niet aanwezig of al geseeded */ }
 
+    // Koppel leerplannen aan klassen die er nog geen hebben
+    const gekoppeld = await db.koppelOntbrekendeLeerplannen();
+    if (gekoppeld > 0) console.log(`${gekoppeld} klassen alsnog aan leerplan gekoppeld`);
+
     app.listen(PORT, () => console.log(`Server draait op poort ${PORT}`));
   })
   .catch(err => {
