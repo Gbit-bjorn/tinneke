@@ -20,6 +20,7 @@ router.get('/:leerlingId', loginRequired, async (req, res) => {
   const leerplanUuid = await db.getKlasLeerplan(leerling.klas_id);
 
   let bkSecties = [];
+  let llinkidFout = null;
 
   if (leerplanUuid) {
     try {
@@ -28,6 +29,7 @@ router.get('/:leerlingId', loginRequired, async (req, res) => {
       bkSecties = berekenStats(doelen, resultaten);
     } catch (err) {
       console.error('LLinkid fout bij getDoelen:', err.message);
+      llinkidFout = err.message;
     }
   }
 
@@ -37,6 +39,7 @@ router.get('/:leerlingId', loginRequired, async (req, res) => {
     klasId:       leerling.klas_id,
     bkSecties,
     leerplanUuid: leerplanUuid ?? null,
+    llinkidFout,
   });
 });
 
@@ -108,3 +111,4 @@ router.get('/:leerlingId/status', loginRequired, async (req, res) => {
 });
 
 module.exports = router;
+

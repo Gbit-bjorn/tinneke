@@ -25,6 +25,68 @@
     #toast.show { opacity: 1; }
     #toast.ok  { background: #D1FAE5; color: #065F46; border: 1px solid #6EE7B7; }
     #toast.err { background: #FEE2E2; color: #991B1B; border: 1px solid #FCA5A5; }
+
+    /* ── Tab navigatie ── */
+    .tab-nav {
+      display: flex;
+      gap: 0;
+      border-bottom: 2px solid #E2E8F0;
+      margin-bottom: 20px;
+    }
+    .tab-btn {
+      padding: 9px 22px;
+      border: none;
+      border-bottom: 2px solid transparent;
+      background: transparent;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: #64748B;
+      cursor: pointer;
+      margin-bottom: -2px;
+      transition: color 150ms, border-color 150ms;
+      white-space: nowrap;
+    }
+    .tab-btn:hover { color: #1E3A8A; }
+    .tab-btn.active {
+      color: #1E3A8A;
+      border-bottom-color: #1E3A8A;
+    }
+
+    /* ── LPD flat list ── */
+    .lpd-groep-header {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #94A3B8;
+      padding: 10px 0 4px;
+      border-top: 1px solid #F1F5F9;
+      margin-top: 4px;
+    }
+    .lpd-groep-header:first-child {
+      border-top: none;
+      margin-top: 0;
+      padding-top: 4px;
+    }
+    .lpd-flat-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 7px 8px;
+      border-radius: 6px;
+      transition: background 100ms;
+    }
+    .lpd-flat-item:hover { background: #F8FAFC; }
+    .lpd-nr {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #1E3A8A;
+      min-width: 28px;
+      text-align: right;
+      flex-shrink: 0;
+      padding-top: 1px;
+    }
   </style>
 
   <!-- Header -->
@@ -69,6 +131,13 @@
       </svg>
       <span>Geen leerplan gekoppeld aan deze klas. Koppel eerst een leerplan via het klassenbeheer.</span>
     </div>
+  <% } else if (typeof llinkidFout !== 'undefined' && llinkidFout) { %>
+    <div class="card" style="padding:24px; color:#991B1B; background:#FEF2F2; font-size:0.9rem; display:flex; align-items:center; gap:12px;">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="#DC2626" stroke-width="2" style="flex-shrink:0;">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+      </svg>
+      <span>Fout bij ophalen doelen van LLinkid: <%= llinkidFout %></span>
+    </div>
   <% } else if (bkSecties.length === 0) { %>
     <div class="card" style="padding:24px; color:#475569; font-size:0.9rem; display:flex; align-items:center; gap:12px;">
       <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="#94A3B8" stroke-width="2" style="flex-shrink:0;">
@@ -78,8 +147,77 @@
     </div>
   <% } else { %>
 
-  <!-- BK-secties -->
-  <div id="bk-container" style="display:flex; flex-direction:column; gap:12px;">
+  <!-- Tab navigatie -->
+  <div class="tab-nav">
+    <button type="button" class="tab-btn active" id="tab-btn-lpd" onclick="setTab('lpd')">LPD's</button>
+    <button type="button" class="tab-btn"        id="tab-btn-bk"  onclick="setTab('bk')">BK's</button>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════ -->
+  <!-- TAB 1: Platte LPD-lijst (werkweergave)            -->
+  <!-- ══════════════════════════════════════════════════ -->
+  <div id="tab-lpd" class="card" style="padding:12px 16px;">
+
+    <%
+      /* Bouw een gesorteerde, platte lijst van alle LPDs op server-side.
+         Elk LPD krijgt bk.key + dpk.key mee als data-attributen zodat
+         _herbereken() de checkboxes nog steeds kan vinden. */
+    %>
+
+    <% bkSecties.forEach(function(bk) { %>
+
+      <!-- BK-groepheader in de platte lijst -->
+      <div class="lpd-groep-header">
+        BK: <%= bk.titel || bk.key %>
+      </div>
+
+      <% bk.dpkSecties.forEach(function(dpk) { %>
+
+        <!-- DPK-subheader (compact, ingesprongen) — verberg bij synthetische DPK (zelfde titel als BK) -->
+        <% if (!dpk.synthetic && (dpk.titel || dpk.key)) { %>
+          <div style="font-size:0.75rem; font-weight:600; color:#CBD5E1; padding:2px 0 2px 8px; margin-bottom:2px;">
+            <span style="margin-right:4px; color:#E2E8F0;">&#x2514;</span><%= dpk.titel || dpk.key %>
+          </div>
+        <% } %>
+
+        <% dpk.lpds.forEach(function(lpd) { %>
+          <div class="lpd-flat-item"
+               data-lpd-key="<%= lpd.key %>"
+               data-bk-key="<%= bk.key %>"
+               data-dpk-key="<%= dpk.key %>">
+
+            <input
+              type="checkbox"
+              id="lpd-flat-<%= lpd.key %>"
+              style="margin-top:2px; width:16px; height:16px; accent-color:#1E3A8A; cursor:pointer; flex-shrink:0;"
+              <%= lpd.behaald ? 'checked' : '' %>
+              onchange="toggleLpd(this, '<%= lpd.key %>', '<%= leerling.id %>')"
+            />
+
+            <span class="lpd-nr"><%= lpd.nr %></span>
+
+            <label
+              for="lpd-flat-<%= lpd.key %>"
+              class="lpd-label<%= lpd.behaald ? ' behaald' : '' %>"
+              style="font-size:0.875rem; cursor:pointer; line-height:1.4; flex:1;">
+              <%= lpd.titel %>
+            </label>
+
+          </div>
+        <% }); %>
+
+      <% }); %>
+
+    <% }); %>
+
+  </div><!-- /tab-lpd -->
+
+
+  <!-- ══════════════════════════════════════════════════ -->
+  <!-- TAB 2: BK-overzicht (leesweergave)               -->
+  <!-- ══════════════════════════════════════════════════ -->
+  <div id="tab-bk" style="display:none; flex-direction:column; gap:12px;">
+
     <% bkSecties.forEach(function(bk) { %>
 
       <div class="card" style="overflow:hidden;" data-bk-key="<%= bk.key %>">
@@ -126,7 +264,8 @@
           <% bk.dpkSecties.forEach(function(dpk) { %>
             <div data-dpk-key="<%= dpk.key %>">
 
-              <!-- DPK header -->
+              <!-- DPK header — verberg bij synthetische DPK (zelfde titel als BK) -->
+              <% if (!dpk.synthetic) { %>
               <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
                 <span style="color:#94A3B8; font-size:11px; flex-shrink:0;">&#x2523;</span>
                 <span style="font-weight:600; font-size:0.875rem; color:#0F172A; flex:1;">
@@ -153,29 +292,26 @@
                   data-dpk-bar="<%= dpk.key %>">
                 </div>
               </div>
+              <% } %>
 
-              <!-- LPD regels -->
-              <ul style="list-style:none; margin:0 0 0 16px; padding:0; display:flex; flex-direction:column; gap:6px;">
+              <!-- LPD regels (read-only, geen checkboxes) -->
+              <ul style="list-style:none; margin:0 0 0 16px; padding:0; display:flex; flex-direction:column; gap:5px;">
                 <% dpk.lpds.forEach(function(lpd) { %>
                   <li style="display:flex; align-items:flex-start; gap:8px;"
                       data-lpd-key="<%= lpd.key %>"
                       data-bk-key="<%= bk.key %>"
                       data-dpk-key="<%= dpk.key %>">
 
-                    <input
-                      type="checkbox"
-                      id="lpd-<%= lpd.key %>"
-                      style="margin-top:2px; width:16px; height:16px; accent-color:#1E3A8A; cursor:pointer; flex-shrink:0;"
-                      <%= lpd.behaald ? 'checked' : '' %>
-                      onchange="toggleLpd(this, '<%= lpd.key %>', '<%= leerling.id %>')"
-                    />
+                    <!-- Status-icoon (readonly) -->
+                    <span style="margin-top:2px; flex-shrink:0; width:16px; text-align:center; font-size:13px; color:<%= lpd.behaald ? '#059669' : '#CBD5E1' %>;">
+                      <%= lpd.behaald ? '✓' : '○' %>
+                    </span>
 
-                    <label
-                      for="lpd-<%= lpd.key %>"
+                    <span
                       class="lpd-label<%= lpd.behaald ? ' behaald' : '' %>"
-                      style="font-size:0.875rem; cursor:pointer; line-height:1.4;">
+                      style="font-size:0.875rem; line-height:1.4;">
                       <span style="font-weight:700; color:#1E3A8A; margin-right:4px;">LPD <%= lpd.nr %>:</span><%= lpd.titel %>
-                    </label>
+                    </span>
 
                   </li>
                 <% }); %>
@@ -188,7 +324,8 @@
       </div><!-- /card -->
 
     <% }); %>
-  </div><!-- /bk-container -->
+
+  </div><!-- /tab-bk -->
 
   <% } %>
 
@@ -196,7 +333,27 @@
   <div id="toast" role="status" aria-live="polite"></div>
 
   <script>
-    // Collapse / expand BK-sectie
+    // ── Tab-switching ──
+    function setTab(naam) {
+      var tabLpd = document.getElementById('tab-lpd');
+      var tabBk  = document.getElementById('tab-bk');
+      var btnLpd = document.getElementById('tab-btn-lpd');
+      var btnBk  = document.getElementById('tab-btn-bk');
+
+      if (naam === 'lpd') {
+        tabLpd.style.display = '';
+        tabBk.style.display  = 'none';
+        btnLpd.classList.add('active');
+        btnBk.classList.remove('active');
+      } else {
+        tabLpd.style.display = 'none';
+        tabBk.style.display  = 'flex';
+        btnLpd.classList.remove('active');
+        btnBk.classList.add('active');
+      }
+    }
+
+    // Collapse / expand BK-sectie (alleen in tab BK's)
     function toggleBk(btn) {
       const card = btn.closest('[data-bk-key]');
       const body = card.querySelector('.bk-body');
@@ -218,9 +375,13 @@
     async function toggleLpd(checkbox, lpdUuid, leerlingId) {
       const behaald = checkbox.checked;
 
-      // Optimistisch UI
-      const label = document.querySelector(`label[for="lpd-${lpdUuid}"]`);
-      if (label) label.classList.toggle('behaald', behaald);
+      // Optimistisch UI — sync beide tabs
+      // Tab 1: label van de aangeklikte checkbox
+      const flatLabel = document.querySelector(`label[for="lpd-flat-${lpdUuid}"]`);
+      if (flatLabel) flatLabel.classList.toggle('behaald', behaald);
+
+      // Tab 2: read-only status-icoon en label
+      _syncBkTabStatus(lpdUuid, behaald);
 
       try {
         const resp = await fetch(`/attestering/${leerlingId}/toggle`, {
@@ -239,14 +400,38 @@
       } catch (err) {
         // Rollback
         checkbox.checked = !behaald;
-        if (label) label.classList.toggle('behaald', !behaald);
+        if (flatLabel) flatLabel.classList.toggle('behaald', !behaald);
+        _syncBkTabStatus(lpdUuid, !behaald);
         showToast('Opslaan mislukt: ' + err.message, 'err');
       }
     }
 
-    // Herbereken voortgangsbalken op basis van server-resultaten
+    // Sync status-icoon + label in de read-only BK-tab
+    function _syncBkTabStatus(lpdUuid, behaald) {
+      // Zoek het LPD-item in tab-bk (geen checkbox, wél data-lpd-key)
+      const bkTab = document.getElementById('tab-bk');
+      if (!bkTab) return;
+      const lpdItem = bkTab.querySelector(`[data-lpd-key="${lpdUuid}"]`);
+      if (!lpdItem) return;
+
+      const icoon = lpdItem.querySelector('span:first-child');
+      const label = lpdItem.querySelector('.lpd-label');
+
+      if (icoon) {
+        icoon.innerHTML = behaald ? '&#10003;' : '&#9675;';
+        icoon.style.color = behaald ? '#059669' : '#CBD5E1';
+      }
+      if (label) label.classList.toggle('behaald', behaald);
+    }
+
+    // Herbereken voortgangsbalken op basis van server-resultaten.
+    // Leest LPD-data uit BEIDE tabs (platte lijst + BK-accordion).
+    // Omdat de platte lijst in tab-lpd en de accordion in tab-bk
+    // dezelfde data-bk-key / data-dpk-key / data-lpd-key dragen,
+    // is het voldoende om één van de twee te lezen — we lezen tab-bk
+    // (heeft altijd alle items, ook als tab-lpd verborgen is).
     function _herbereken(resultaten) {
-      const bkCards = document.querySelectorAll('[data-bk-key]');
+      const bkCards = document.querySelectorAll('#tab-bk [data-bk-key]');
 
       bkCards.forEach(card => {
         const bkKey  = card.dataset.bkKey;
