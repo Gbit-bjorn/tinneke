@@ -105,8 +105,8 @@
   <!-- ── Klassen grid ── -->
   <div id="klassen-grid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:16px;">
     <% klassen.forEach(function(klas) { %>
-      <div class="card card-hover klas-kaart"
-           style="padding:20px; display:flex; flex-direction:column; gap:0;"
+      <a href="/klassen/<%= klas.id %>" class="card card-hover klas-kaart"
+           style="padding:20px; display:flex; flex-direction:column; gap:0; text-decoration:none; color:inherit;"
            data-naam="<%= klas.naam.toLowerCase() %>"
            data-richting="<%= (klas.richting || '').toLowerCase() %>"
            data-schooljaar="<%= klas.schooljaar %>">
@@ -138,10 +138,10 @@
 
         <!-- Actie -->
         <div style="margin-top:auto;">
-          <a href="/klassen/<%= klas.id %>" class="btn btn-primary btn-sm btn-full">Bekijk klas</a>
+          <span class="btn btn-primary btn-sm btn-full">Bekijk klas</span>
         </div>
 
-      </div>
+      </a>
     <% }); %>
   </div>
 

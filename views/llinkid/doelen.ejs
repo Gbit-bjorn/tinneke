@@ -1,117 +1,145 @@
 <%- include('../partials/head', {title: 'Leerplandoelen', activePage: 'llinkid', flash: {}}) %>
-    <!-- Broodkruimel -->
-    <nav class="text-sm text-slate-400">
-      <a href="/llinkid" class="hover:text-primary transition-colors">LLinkid</a>
-      <span class="mx-2">/</span>
-      <% if (detail) { %>
-      <a href="/llinkid/<%= detail.uuid %>" class="hover:text-primary transition-colors"><%= detail.titel %></a>
-      <span class="mx-2">/</span>
-      <% } %>
-      <span class="text-textmain font-medium">Doelen</span>
-    </nav>
 
-    <% if (error) { %>
-    <div class="bg-red-50 border border-red-200 text-red-700 rounded-[20px] px-4 py-3 text-sm"><%= error %></div>
-    <% } %>
-
-    <!-- Header -->
+  <!-- Broodkruimel -->
+  <nav style="font-size:0.875rem; color:#94A3B8; margin-bottom:20px; display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+    <a href="/llinkid" style="color:#94A3B8; text-decoration:none;">LLinkid</a>
+    <span>/</span>
     <% if (detail) { %>
-    <div class="clay-card p-5 flex flex-wrap items-center justify-between gap-4">
-      <div>
-        <h1 class="text-2xl font-heading font-bold text-primary"><%= detail.titel || 'Leerplan' %></h1>
-        <% if (detail.identifier) { %>
-        <span class="inline-block mt-1 text-xs font-mono bg-blue-50 text-primary px-2 py-0.5 rounded-full"><%= detail.identifier %></span>
-        <% } %>
-      </div>
-      <div class="text-sm text-slate-400">
-        <span class="font-semibold text-textmain"><%= doelen.length %></span> items
-      </div>
-    </div>
+    <a href="/llinkid/<%= detail.uuid %>" style="color:#94A3B8; text-decoration:none;"><%= detail.titel %></a>
+    <span>/</span>
     <% } %>
+    <span style="color:#0F172A; font-weight:500;">Doelen</span>
+  </nav>
 
-    <!-- Doelen boom -->
-    <div class="clay-card p-6" id="doelenBoom">
-      <% if (!doelen || doelen.length === 0) { %>
-      <p class="text-slate-400 text-sm">Geen doelen gevonden voor dit leerplan.</p>
-      <% } else { %>
+  <% if (error) { %>
+  <div class="alert alert-error" style="margin-bottom:20px;">
+    <%= error %>
+  </div>
+  <% } %>
 
-      <%
-      // Bouw een boom-structuur uit de platte lijst
-      // We groeperen sections en hun kinderen
-
-      // Maak een map van parentKey -> children
-      const childrenMap = {};
-      const roots = [];
-
-      doelen.forEach(doel => {
-        if (!childrenMap[doel.key]) childrenMap[doel.key] = [];
-        if (doel.parentKey) {
-          if (!childrenMap[doel.parentKey]) childrenMap[doel.parentKey] = [];
-          childrenMap[doel.parentKey].push(doel);
-        } else {
-          roots.push(doel);
-        }
-      });
-
-      // Recursieve render-functie als string
-      function renderNode(node, depth) {
-        const children = childrenMap[node.key] || [];
-        const hasChildren = children.length > 0;
-        const indent = `depth-${Math.min(depth, 4)}`;
-        const nrLabel = node.nr ? `<span class="inline-flex items-center justify-center w-8 h-5 rounded-full text-xs font-semibold bg-blue-100 text-primary shrink-0">${node.nr}</span>` : '';
-
-        if (node.is_section) {
-          const childrenHtml = children.map(c => renderNode(c, depth + 1)).join('');
-          return `
-            <details class="${indent} mb-1" open>
-              <summary class="flex items-center gap-2 py-2 px-3 rounded-xl hover:bg-slate-50 transition-colors">
-                <span class="toggle-icon text-sm">▶</span>
-                <span class="font-heading font-semibold text-sm text-textmain">${node.titel || '(sectie)'}</span>
-                ${children.length ? `<span class="text-xs text-slate-400 ml-auto">${children.length} items</span>` : ''}
-              </summary>
-              <div class="pl-4 border-l-2 border-blue-100 ml-3 mt-1 space-y-0.5">
-                ${childrenHtml}
-              </div>
-            </details>
-          `;
-        } else {
-          // Doel-node
-          const goalBadge = node.goalType === 'MINIMUM'
-            ? `<span class="shrink-0 text-xs px-1.5 py-0.5 rounded-full bg-orange-100 text-orange-700 font-semibold">min</span>`
-            : '';
-          return `
-            <div class="${indent} flex items-start gap-3 py-2 px-3 rounded-xl hover:bg-slate-50 transition-colors">
-              ${nrLabel}
-              <span class="text-sm text-textmain leading-snug flex-1">${node.titel || '(geen beschrijving)'}</span>
-              ${goalBadge}
-            </div>
-          `;
-        }
-      }
-
-      // Als er geen roots zijn (alle nodes hebben een parent die niet in de lijst staat),
-      // toon dan alle nodes plat gesorteerd op nr
-      const teLadenNodes = roots.length > 0 ? roots : doelen;
-      %>
-
-      <div class="space-y-1">
-        <% teLadenNodes.forEach(node => { %>
-        <%- renderNode(node, 0) %>
-        <% }) %>
-      </div>
-
+  <!-- Header -->
+  <% if (detail) { %>
+  <div class="card" style="padding:20px 24px; margin-bottom:20px; display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:16px;">
+    <div>
+      <h1 style="font-size:1.5rem; font-weight:700; color:#1E3A8A; margin-bottom:6px;">
+        <%= detail.titel || 'Leerplan' %>
+      </h1>
+      <% if (detail.identifier) { %>
+      <span class="badge badge-blue" style="font-family:monospace; font-size:11px;">
+        <%= detail.identifier %>
+      </span>
       <% } %>
     </div>
+    <span class="text-secondary" style="font-size:0.875rem;">
+      <strong style="color:#0F172A; font-weight:600;"><%= doelen.length %></strong> items
+    </span>
+  </div>
+  <% } %>
 
-  </main>
+  <!-- Uitklap-knoppen -->
+  <% if (doelen && doelen.length > 0) { %>
+  <div style="display:flex; gap:8px; margin-bottom:16px;">
+    <button id="btnAllesUitklappen" class="btn btn-secondary btn-sm">
+      ▼ Alles uitklappen
+    </button>
+    <button id="btnAllesInklappen" class="btn btn-secondary btn-sm">
+      ▶ Alles inklappen
+    </button>
+  </div>
+  <% } %>
+
+  <!-- Doelen boom -->
+  <div class="card" style="padding:24px;" id="doelenBoom">
+    <% if (!doelen || doelen.length === 0) { %>
+    <p class="text-secondary" style="font-size:0.875rem;">Geen doelen gevonden voor dit leerplan.</p>
+    <% } else { %>
+
+    <%
+    // Bouw een boom-structuur uit de platte lijst
+    const childrenMap = {};
+    const roots = [];
+
+    doelen.forEach(doel => {
+      if (!childrenMap[doel.key]) childrenMap[doel.key] = [];
+      if (doel.parentKey) {
+        if (!childrenMap[doel.parentKey]) childrenMap[doel.parentKey] = [];
+        childrenMap[doel.parentKey].push(doel);
+      } else {
+        roots.push(doel);
+      }
+    });
+
+    // Recursieve render-functie als string
+    function renderNode(node, depth) {
+      const children = childrenMap[node.key] || [];
+      const paddingLeft = Math.min(depth, 4) * 16;
+      const nrLabel = node.nr
+        ? `<span style="display:inline-flex;align-items:center;justify-content:center;min-width:32px;height:20px;border-radius:999px;font-size:11px;font-weight:600;background:#DBEAFE;color:#1E40AF;flex-shrink:0;padding:0 6px;">${node.nr}</span>`
+        : '';
+
+      if (node.is_section) {
+        const childrenHtml = children.map(c => renderNode(c, depth + 1)).join('');
+        return `
+          <details style="margin-bottom:4px;" open>
+            <summary style="display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;cursor:pointer;list-style:none;user-select:none;margin-left:${paddingLeft}px;">
+              <span style="font-size:0.75rem;color:#94A3B8;flex-shrink:0;">▶</span>
+              <span style="font-weight:600;font-size:0.875rem;color:#0F172A;">${node.titel || '(sectie)'}</span>
+              ${children.length ? `<span style="font-size:0.75rem;color:#94A3B8;margin-left:auto;">${children.length} items</span>` : ''}
+            </summary>
+            <div style="border-left:2px solid #DBEAFE;margin-left:${paddingLeft + 20}px;padding-left:8px;margin-top:2px;">
+              ${childrenHtml}
+            </div>
+          </details>
+        `;
+      } else {
+        const goalBadge = node.goalType === 'MINIMUM'
+          ? `<span style="flex-shrink:0;font-size:11px;padding:2px 6px;border-radius:999px;background:#FEF3C7;color:#92400E;font-weight:600;">min</span>`
+          : '';
+        return `
+          <div style="display:flex;align-items:flex-start;gap:10px;padding:8px 12px;border-radius:8px;margin-left:${paddingLeft}px;margin-bottom:2px;">
+            ${nrLabel}
+            <span style="font-size:0.875rem;color:#0F172A;line-height:1.5;flex:1;">${node.titel || '(geen beschrijving)'}</span>
+            ${goalBadge}
+          </div>
+        `;
+      }
+    }
+
+    // Als er geen roots zijn, toon alle nodes plat
+    const teLadenNodes = roots.length > 0 ? roots : doelen;
+    %>
+
+    <div>
+      <% teLadenNodes.forEach(node => { %>
+      <%- renderNode(node, 0) %>
+      <% }) %>
+    </div>
+
+    <% } %>
+  </div>
 
   <script>
     // Alles uit/inklappen
-    document.getElementById('btnAllesUitklappen').addEventListener('click', () => {
-      document.querySelectorAll('#doelenBoom details').forEach(d => d.open = true);
-    });
-    document.getElementById('btnAllesInklappen').addEventListener('click', () => {
-      document.querySelectorAll('#doelenBoom details').forEach(d => d.open = false);
+    var btnUit = document.getElementById('btnAllesUitklappen');
+    var btnIn  = document.getElementById('btnAllesInklappen');
+
+    if (btnUit) {
+      btnUit.addEventListener('click', function () {
+        document.querySelectorAll('#doelenBoom details').forEach(function (d) { d.open = true; });
+      });
+    }
+    if (btnIn) {
+      btnIn.addEventListener('click', function () {
+        document.querySelectorAll('#doelenBoom details').forEach(function (d) { d.open = false; });
+      });
+    }
+
+    // Roteer pijltje in summary bij open/dicht
+    document.querySelectorAll('#doelenBoom details').forEach(function (details) {
+      details.addEventListener('toggle', function () {
+        var arrow = details.querySelector('summary > span:first-child');
+        if (arrow) arrow.textContent = details.open ? '▼' : '▶';
+      });
     });
   </script>
 <%- include("../partials/footer") %>

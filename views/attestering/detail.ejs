@@ -161,7 +161,8 @@
       min-width: 130px;
       overflow: hidden;
     }
-    .export-dropdown:hover .export-dropdown-menu { display: block; }
+    .export-dropdown:hover .export-dropdown-menu,
+    .export-dropdown.open .export-dropdown-menu { display: block; }
     .export-dropdown-item {
       display: flex;
       align-items: center;
@@ -179,7 +180,7 @@
   </style>
 
   <!-- ── Header ── -->
-  <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+  <div style="display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:16px; margin-bottom:24px;">
     <div>
 
       <!-- Vorige/volgende leerling -->
@@ -226,7 +227,7 @@
       </p>
     </div>
 
-    <div class="flex gap-2 flex-wrap">
+    <div style="display:flex; gap:8px; flex-wrap:wrap;">
       <!-- Export dropdown: HTML of Excel -->
       <div class="export-dropdown">
         <button type="button" class="btn btn-secondary btn-sm">
@@ -444,7 +445,7 @@
                 </div>
 
                 <!-- DPK voortgangsbalk -->
-                <div class="progress-track mb-3" style="margin-left: 16px;">
+                <div class="progress-track" style="margin-left: 16px; margin-bottom: 12px;">
                   <div
                     class="progress-fill<%= dpk.stats.percentage < 100 ? ' partial' : '' %>"
                     style="width:<%= dpk.stats.percentage %>%"
@@ -503,6 +504,18 @@
   <div id="toast" role="status" aria-live="polite"></div>
 
   <script>
+    // ── Export dropdown click (mobiel/touch) ──
+    (function() {
+      var dd = document.querySelector('.export-dropdown');
+      if (!dd) return;
+      var btn = dd.querySelector('button');
+      if (btn) btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        dd.classList.toggle('open');
+      });
+      document.addEventListener('click', function() { dd.classList.remove('open'); });
+    })();
+
     // ── Tab-switching ──
     function setTab(naam) {
       var tabLpd = document.getElementById('tab-lpd');
@@ -569,7 +582,7 @@
     // is het voldoende om één van de twee te lezen — we lezen tab-bk
     // (heeft altijd alle items, ook als tab-lpd verborgen is).
     function _herbereken(resultaten) {
-      const bkCards = document.querySelectorAll('#tab-bk [data-bk-key]');
+      const bkCards = document.querySelectorAll('#tab-bk > .card[data-bk-key]');
 
       bkCards.forEach(card => {
         const bkKey  = card.dataset.bkKey;

@@ -43,7 +43,7 @@ router.post('/gebruikers/nieuw', async (req, res) => {
 
     const hash = await bcrypt.hash(wachtwoord, 12);
     await db.createUser(username, hash, naam, rol);
-    req.session.flash = { succes: `Gebruiker '${naam}' aangemaakt.` };
+    req.session.flash = { success: `Gebruiker '${naam}' aangemaakt.` };
     res.redirect('/admin/gebruikers');
   } catch (err) {
     console.error('[admin] Fout bij aanmaken user:', err.message);
@@ -74,7 +74,7 @@ router.post('/gebruikers/:id/rol', async (req, res) => {
 
   try {
     await db.updateUserRol(id, rol);
-    req.session.flash = { succes: 'Rol bijgewerkt.' };
+    req.session.flash = { success: 'Rol bijgewerkt.' };
     res.redirect('/admin/gebruikers');
   } catch (err) {
     console.error('[admin] Fout bij wijzigen rol:', err.message);
@@ -96,7 +96,7 @@ router.post('/gebruikers/:id/actief', async (req, res) => {
 
   try {
     await db.updateUserActief(id, actief);
-    req.session.flash = { succes: actief ? 'Gebruiker geactiveerd.' : 'Gebruiker gedeactiveerd.' };
+    req.session.flash = { success: actief ? 'Gebruiker geactiveerd.' : 'Gebruiker gedeactiveerd.' };
     res.redirect('/admin/gebruikers');
   } catch (err) {
     console.error('[admin] Fout bij wijzigen actief-status:', err.message);
@@ -118,7 +118,7 @@ router.post('/gebruikers/:id/wachtwoord', async (req, res) => {
   try {
     const hash = await bcrypt.hash(wachtwoord, 12);
     await db.updateUserPassword(id, hash);
-    req.session.flash = { succes: 'Wachtwoord bijgewerkt.' };
+    req.session.flash = { success: 'Wachtwoord bijgewerkt.' };
     res.redirect('/admin/gebruikers');
   } catch (err) {
     console.error('[admin] Fout bij reset wachtwoord:', err.message);

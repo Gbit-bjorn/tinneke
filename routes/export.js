@@ -7,6 +7,48 @@ const { berekenStats, flattenBkHierarchy } = require('../lib/stats');
 const { genereerHtmlAttest, genereerExcelAttest, genereerExcelKlas } = require('../lib/export');
 
 // ─────────────────────────────────────────────────────────────────────────────
+// GET /export/klas/:klasId/excel  (MOET BOVEN wildcard-routes staan!)
+// ─────────────────────────────────────────────────────────────────────────────
+
+router.get('/klas/:klasId/excel', loginRequired, async (req, res) => {
+  try {
+    const klasId = parseInt(req.params.klasId, 10);
+    if (isNaN(klasId)) return res.status(400).send('Ongeldig klas-id');
+
+    const klas = await db.getKlas(klasId);
+    if (!klas) return res.status(404).send('Klas niet gevonden');
+
+    const leerplanUuid = await db.getKlasLeerplan(klasId);
+    if (!leerplanUuid) return res.status(400).send('Geen leerplan gekoppeld aan deze klas');
+
+    const doelen     = await llinkid.getDoelen(leerplanUuid);
+    const leerlingen = await db.getLeerlingen(klasId);
+
+    const bkStructuur = berekenStats(doelen, {});
+
+    const leerlingenMetStats = [];
+    for (const leerling of leerlingen) {
+      const resultaten = await db.getLpdResultaten(leerling.id);
+      const bkSecties  = berekenStats(doelen, resultaten);
+      const bkStats    = {};
+      for (const bk of bkSecties) {
+        bkStats[bk.titel] = bk.stats.percentage;
+      }
+      leerlingenMetStats.push({ ...leerling, bkStats });
+    }
+
+    const buffer = await genereerExcelKlas(klas, leerlingenMetStats, bkStructuur);
+
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.setHeader('Content-Disposition', `attachment; filename="klasoverzicht_${klas.naam}.xlsx"`);
+    res.send(buffer);
+  } catch (error) {
+    console.error('Export klas Excel error:', error);
+    res.status(500).send(`Fout bij genereren Excel: ${error.message}`);
+  }
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
 // GET /export/:leerlingId/html
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -68,50 +110,6 @@ router.get('/:leerlingId/excel', loginRequired, async (req, res) => {
     res.send(buffer);
   } catch (error) {
     console.error('Export Excel error:', error);
-    res.status(500).send(`Fout bij genereren Excel: ${error.message}`);
-  }
-});
-
-// ─────────────────────────────────────────────────────────────────────────────
-// GET /export/klas/:klasId/excel
-// ─────────────────────────────────────────────────────────────────────────────
-
-router.get('/klas/:klasId/excel', loginRequired, async (req, res) => {
-  try {
-    const klasId = parseInt(req.params.klasId, 10);
-    if (isNaN(klasId)) return res.status(400).send('Ongeldig klas-id');
-
-    const klas = await db.getKlas(klasId);
-    if (!klas) return res.status(404).send('Klas niet gevonden');
-
-    const leerplanUuid = await db.getKlasLeerplan(klasId);
-    if (!leerplanUuid) return res.status(400).send('Geen leerplan gekoppeld aan deze klas');
-
-    const doelen     = await llinkid.getDoelen(leerplanUuid);
-    const leerlingen = await db.getLeerlingen(klasId);
-
-    // Gebruik berekenStats met lege resultaten om de BK-structuur te bepalen
-    const bkStructuur = berekenStats(doelen, {});
-
-    const leerlingenMetStats = [];
-    for (const leerling of leerlingen) {
-      const resultaten = await db.getLpdResultaten(leerling.id);
-      const bkSecties  = berekenStats(doelen, resultaten);
-      const bkStats    = {};
-      for (const bk of bkSecties) {
-        bkStats[bk.titel] = bk.stats.percentage;
-      }
-      leerlingenMetStats.push({ ...leerling, bkStats });
-    }
-
-    // Geef bkStructuur door als "bkNodes" voor kolomkoppen
-    const buffer = await genereerExcelKlas(klas, leerlingenMetStats, bkStructuur);
-
-    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-    res.setHeader('Content-Disposition', `attachment; filename="klasoverzicht_${klas.naam}.xlsx"`);
-    res.send(buffer);
-  } catch (error) {
-    console.error('Export klas Excel error:', error);
     res.status(500).send(`Fout bij genereren Excel: ${error.message}`);
   }
 });
