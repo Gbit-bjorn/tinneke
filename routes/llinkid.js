@@ -2,10 +2,7 @@
 
 const router = require('express').Router();
 const { loginRequired } = require('../middleware/auth');
-const { LLinkidClient } = require('../lib/llinkid');
-
-// Gedeelde client-instantie (cache leeft mee met het process)
-const client = new LLinkidClient();
+const { llinkid: client } = require('../lib');
 
 // ---------------------------------------------------------------------------
 // GET /llinkid/
