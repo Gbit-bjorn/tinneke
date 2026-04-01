@@ -77,6 +77,20 @@ router.get('/api/suggesties', loginRequired, async (req, res) => {
   }
 });
 
+// ── GET /klassen/api/leerlingen?q=... ────────────────────────────────────────
+// JSON autocomplete-endpoint: geeft matching leerlingen terug
+router.get('/api/leerlingen', loginRequired, async (req, res) => {
+  const zoekterm = (req.query.q || '').trim();
+  if (zoekterm.length < 1) return res.json([]);
+  try {
+    const matches = await db.zoekLeerlingen(zoekterm);
+    res.json(matches);
+  } catch (err) {
+    console.error('[Leerlingen] zoek fout:', err.message);
+    res.json([]);
+  }
+});
+
 // ── GET /klassen/nieuw ────────────────────────────────────────────────────────
 router.get('/nieuw', loginRequired, (req, res) => {
   res.render('klassen/nieuw', {

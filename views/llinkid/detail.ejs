@@ -108,6 +108,39 @@
   </main>
 
   <script>
+    /* Autocomplete op klasId-input → vult het veld met het klas-ID */
+    (function () {
+      const input = document.getElementById('klasId');
+      if (!input) return;
+
+      // Wrapper moet position:relative hebben voor de dropdown
+      const wrapper = input.parentElement;
+      wrapper.style.position = 'relative';
+
+      maakAutocomplete({
+        inputEl:  input,
+        endpoint: '/klassen/api/suggesties?q=',
+        minLen:   1,
+        debounce: 200,
+        renderItem: function (item) {
+          return {
+            label: item.naam,
+            sub:   item.richting || '',
+          };
+        },
+        onSelect: function (item) {
+          input.value = item.id;
+          // Visuele bevestiging
+          input.style.borderColor = '#059669';
+          input.style.boxShadow   = '0 0 0 3px rgba(5,150,105,0.15)';
+          setTimeout(function () {
+            input.style.borderColor = '';
+            input.style.boxShadow   = '';
+          }, 1500);
+        },
+      });
+    })();
+
     document.getElementById('koppelForm').addEventListener('submit', async function(e) {
       e.preventDefault();
       const klasId = document.getElementById('klasId').value.trim();

@@ -70,6 +70,21 @@
         autocomplete="off"
       />
     </div>
+    <div style="flex:1; min-width:220px; position:relative;">
+      <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="#94A3B8"
+           style="position:absolute; left:12px; top:50%; transform:translateY(-50%); pointer-events:none; z-index:1;">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+      </svg>
+      <input
+        id="zoek-leerling-input"
+        type="search"
+        placeholder="Zoek leerling op naam&hellip;"
+        class="input"
+        style="padding-left:36px;"
+        autocomplete="off"
+      />
+    </div>
     <div style="min-width:180px;">
       <select id="schooljaar-filter" class="input">
         <option value="">Alle schooljaren</option>
@@ -159,6 +174,28 @@
     },
     onSelect: function (item) {
       window.location.href = '/klassen/' + item.id;
+    },
+  });
+})();
+
+/* Dashboard: autocomplete voor leerling-zoek → navigeer naar attestering */
+(function () {
+  const input = document.getElementById('zoek-leerling-input');
+  if (!input) return;
+
+  maakAutocomplete({
+    inputEl:  input,
+    endpoint: '/klassen/api/leerlingen?q=',
+    minLen:   2,
+    debounce: 250,
+    renderItem: function (item) {
+      return {
+        label: item.voornaam + ' ' + item.naam,
+        sub:   item.klas_naam || '',
+      };
+    },
+    onSelect: function (item) {
+      window.location.href = '/attestering/' + item.id;
     },
   });
 })();

@@ -296,6 +296,28 @@
     });
   })();
 
+  /* Autocomplete op zoek-leerling → navigeer naar attestering (cross-klas) */
+  (function () {
+    const invoer = document.getElementById('zoek-leerling');
+    if (!invoer) return;
+
+    maakAutocomplete({
+      inputEl:  invoer,
+      endpoint: '/klassen/api/leerlingen?q=',
+      minLen:   2,
+      debounce: 250,
+      renderItem: function (item) {
+        return {
+          label: item.voornaam + ' ' + item.naam,
+          sub:   item.klas_naam || '',
+        };
+      },
+      onSelect: function (item) {
+        window.location.href = '/attestering/' + item.id;
+      },
+    });
+  })();
+
   /* Live zoekfunctie */
   (function () {
     const invoer        = document.getElementById('zoek-leerling');
