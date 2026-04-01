@@ -68,7 +68,7 @@
             <%= doel.nr || '—' %>
           </span>
           <% } %>
-          <span class="text-sm text-textmain leading-snug"><%= doel.titel || '(geen beschrijving)' %></span>
+          <span class="text-sm text-textmain leading-snug"><%- (doel.titel || '(geen beschrijving)').replace(/<br\s*\/?>/g, ' ') %></span>
         </div>
         <% }) %>
         <% if (doelen.length > 10) { %>
