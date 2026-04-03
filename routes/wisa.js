@@ -10,7 +10,7 @@
 const express = require('express');
 const router  = express.Router();
 
-const { loginRequired } = require('../middleware/auth');
+const { loginRequired, adminRequired } = require('../middleware/auth');
 const { WisaClient }    = require('../lib/wisa');
 const { db }            = require('../lib');
 
@@ -29,7 +29,7 @@ function huidigSchooljaar() {
 
 // ── GET /wisa/sync ────────────────────────────────────────────────────────────
 
-router.get('/sync', loginRequired, async (req, res) => {
+router.get('/sync', loginRequired, adminRequired, async (req, res) => {
   const flashData = req.session.flash || {};
   delete req.session.flash;
 
@@ -48,7 +48,7 @@ router.get('/sync', loginRequired, async (req, res) => {
 
 // ── POST /wisa/sync ───────────────────────────────────────────────────────────
 
-router.post('/sync', loginRequired, async (req, res) => {
+router.post('/sync', loginRequired, adminRequired, async (req, res) => {
   try {
     // Haal werkdatum op uit formulier, of gebruik vandaag
     let werkdatum = null;

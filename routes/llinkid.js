@@ -1,14 +1,14 @@
 'use strict';
 
 const router = require('express').Router();
-const { loginRequired } = require('../middleware/auth');
+const { loginRequired, adminRequired } = require('../middleware/auth');
 const { llinkid: client } = require('../lib');
 
 // ---------------------------------------------------------------------------
 // GET /llinkid/
 // Leerplannen-browser met optionele zoekbalk
 // ---------------------------------------------------------------------------
-router.get('/', loginRequired, async (req, res) => {
+router.get('/', loginRequired, adminRequired, async (req, res) => {
   const zoekterm = req.query.q || '';
   try {
     const leerplannen = await client.getLeerplannen(zoekterm || null);
@@ -33,7 +33,7 @@ router.get('/', loginRequired, async (req, res) => {
 // GET /llinkid/api/suggesties?q=...
 // JSON autocomplete-endpoint: geeft tot 8 matching leerplannen terug
 // ---------------------------------------------------------------------------
-router.get('/api/suggesties', loginRequired, async (req, res) => {
+router.get('/api/suggesties', loginRequired, adminRequired, async (req, res) => {
   const zoekterm = (req.query.q || '').trim();
   if (zoekterm.length < 2) return res.json([]);
   try {
@@ -55,7 +55,7 @@ router.get('/api/suggesties', loginRequired, async (req, res) => {
 // JSON endpoint voor AJAX (geen loginRequired-check nodig voor dezelfde sessie,
 // maar we houden login-check aan voor consistentie)
 // ---------------------------------------------------------------------------
-router.get('/api/doelen/:uuid', loginRequired, async (req, res) => {
+router.get('/api/doelen/:uuid', loginRequired, adminRequired, async (req, res) => {
   const { uuid } = req.params;
   try {
     const doelen = await client.getDoelen(uuid);
@@ -70,7 +70,7 @@ router.get('/api/doelen/:uuid', loginRequired, async (req, res) => {
 // GET /llinkid/:uuid
 // Detailpagina van één leerplan (metadata + preview)
 // ---------------------------------------------------------------------------
-router.get('/:uuid', loginRequired, async (req, res) => {
+router.get('/:uuid', loginRequired, adminRequired, async (req, res) => {
   const { uuid } = req.params;
   try {
     const [detail, doelen] = await Promise.all([
@@ -98,7 +98,7 @@ router.get('/:uuid', loginRequired, async (req, res) => {
 // GET /llinkid/:uuid/doelen
 // Volledige hiërarchische doelen-pagina
 // ---------------------------------------------------------------------------
-router.get('/:uuid/doelen', loginRequired, async (req, res) => {
+router.get('/:uuid/doelen', loginRequired, adminRequired, async (req, res) => {
   const { uuid } = req.params;
   try {
     const [detail, doelen] = await Promise.all([
@@ -127,7 +127,7 @@ router.get('/:uuid/doelen', loginRequired, async (req, res) => {
 // Koppel een leerplan aan een klas
 // Body: { klasId }
 // ---------------------------------------------------------------------------
-router.post('/:uuid/koppel', loginRequired, async (req, res) => {
+router.post('/:uuid/koppel', loginRequired, adminRequired, async (req, res) => {
   const { uuid } = req.params;
   const { klasId } = req.body;
 

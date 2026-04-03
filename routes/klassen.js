@@ -3,7 +3,7 @@
 const express = require('express');
 const router  = express.Router();
 
-const { loginRequired } = require('../middleware/auth');
+const { loginRequired, adminRequired } = require('../middleware/auth');
 const { db }            = require('../lib');
 
 function flash(req, type, message) {
@@ -156,7 +156,7 @@ router.get('/:id', loginRequired, async (req, res) => {
 });
 
 // ── POST /klassen/:id/leerplan ────────────────────────────────────────────────
-router.post('/:id/leerplan', loginRequired, async (req, res) => {
+router.post('/:id/leerplan', loginRequired, adminRequired, async (req, res) => {
   try {
     const klasId = parseInt(req.params.id, 10);
     const klas   = await db.getKlas(klasId);

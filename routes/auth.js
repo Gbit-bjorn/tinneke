@@ -49,21 +49,6 @@ router.post('/login', async (req, res) => {
       return res.redirect('/klassen');
     }
 
-    // Geen gebruiker in DB → fallback op env vars (achterwaartse compatibiliteit)
-    const envUser = process.env.APP_USERNAME;
-    const envPass = process.env.APP_PASSWORD;
-
-    if (envUser && envPass && username === envUser && password === envPass) {
-      req.session.loggedIn = true;
-      req.session.user = {
-        id:       null,
-        username: username,
-        naam:     username,
-        rol:      'superadmin', // env-login krijgt superadmin-rechten
-      };
-      return res.redirect('/klassen');
-    }
-
     // Niets gevonden
     res.render('auth/login', {
       error:        'Ongeldige gebruikersnaam of wachtwoord.',

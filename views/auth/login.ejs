@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Aanmelden — Tinneke</title>
+  <title>Aanmelden — <%= appNaam %></title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -196,12 +196,12 @@
   <div class="login-wrapper">
 
     <!-- Avatar -->
-    <img src="/images/avatar.png" alt="Tinneke" class="login-avatar" />
+    <img src="/images/avatar.png" alt="<%= appNaam %>" class="login-avatar" />
 
     <!-- Logo -->
     <div class="login-logo">
-      <h1>Tinneke</h1>
-      <p>Attestatietool — Damiaaninstituut</p>
+      <h1><%= appNaam %></h1>
+      <p>Attestatietool — <%= schoolNaam %></p>
     </div>
 
     <!-- Loginkaart -->
@@ -256,7 +256,7 @@
     </div>
 
     <p class="login-footer">
-      Enkel toegankelijk voor medewerkers van het Damiaaninstituut
+      Enkel toegankelijk voor medewerkers van <%= schoolNaam %>
     </p>
 
   </div>

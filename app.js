@@ -20,10 +20,12 @@ app.use(express.urlencoded({ extended: true }));
 
 // Globale flash + login status + user info voor alle views
 app.use((req, res, next) => {
-  res.locals.flash    = res.locals.flash || req.session.flash || {};
-  res.locals.loggedIn = !!req.session.loggedIn;
-  res.locals.user     = req.session.user || null;
-  req.user            = req.session.user || null;
+  res.locals.flash      = res.locals.flash || req.session.flash || {};
+  res.locals.loggedIn   = !!req.session.loggedIn;
+  res.locals.user       = req.session.user || null;
+  res.locals.appNaam    = process.env.APP_NAAM || 'Tinneke';
+  res.locals.schoolNaam = process.env.SCHOOL_NAAM || 'Damiaaninstituut Aarschot';
+  req.user              = req.session.user || null;
   delete req.session.flash;
   next();
 });
