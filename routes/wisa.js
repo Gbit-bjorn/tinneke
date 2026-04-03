@@ -13,18 +13,12 @@ const router  = express.Router();
 const { loginRequired, adminRequired } = require('../middleware/auth');
 const { WisaClient }    = require('../lib/wisa');
 const { db }            = require('../lib');
+const { huidigSchooljaar } = require('../lib/schooljaar');
 
 // ── Hulpfunctie: flash-bericht instellen ─────────────────────────────────────
 
 function flash(req, type, message) {
   req.session.flash = { [type]: message };
-}
-
-// ── Hulpfunctie: bereken huidig schooljaar (september = start nieuw schooljaar) ─
-
-function huidigSchooljaar() {
-  const nu = new Date();
-  return nu.getMonth() >= 8 ? nu.getFullYear() : nu.getFullYear() - 1;
 }
 
 // ── GET /wisa/sync ────────────────────────────────────────────────────────────

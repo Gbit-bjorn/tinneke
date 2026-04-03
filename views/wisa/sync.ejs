@@ -145,7 +145,13 @@
 
   if (!form || !btn) return;
 
-  form.addEventListener('submit', function () {
+  form.addEventListener('submit', function (e) {
+    // Vraag bevestiging voordat bestaande attesteringsdata overschreven wordt
+    if (!confirm('Let op: synchroniseren vervangt bestaande leerlinggegevens en attesteringsdata voor de gesynchroniseerde klassen. Wil je doorgaan?')) {
+      e.preventDefault();
+      return;
+    }
+
     btn.disabled       = true;
     btn.style.opacity  = '0.72';
     btn.style.cursor   = 'not-allowed';

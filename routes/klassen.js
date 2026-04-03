@@ -5,6 +5,7 @@ const router  = express.Router();
 
 const { loginRequired, adminRequired } = require('../middleware/auth');
 const { db }            = require('../lib');
+const { huidigSchooljaar } = require('../lib/schooljaar');
 
 function flash(req, type, message) {
   req.session.flash = { [type]: message };
@@ -20,13 +21,12 @@ function consumeFlash(req) {
 router.get('/', loginRequired, async (req, res) => {
   try {
     const klassen   = await db.getKlassen();
-    const huidigJaar = new Date().getFullYear();
 
     res.render('dashboard', {
       title:      'Dashboard',
       activePage: 'klassen',
       klassen,
-      schooljaar: huidigJaar,
+      schooljaar: huidigSchooljaar(),
       flash:      consumeFlash(req),
     });
   } catch (err) {
@@ -82,6 +82,7 @@ router.get('/nieuw', loginRequired, (req, res) => {
     activePage: 'klassen',
     error:      null,
     formData:   {},
+    huidigSchooljaar: huidigSchooljaar(),
     flash:      consumeFlash(req),
   });
 });
@@ -92,22 +93,24 @@ router.post('/nieuw', loginRequired, async (req, res) => {
 
   if (!naam || !naam.trim()) {
     return res.render('klassen/nieuw', {
-      title:      'Nieuwe klas',
-      activePage: 'klassen',
-      error:      'Klasnaam is verplicht.',
-      formData:   req.body,
-      flash:      {},
+      title:            'Nieuwe klas',
+      activePage:       'klassen',
+      error:            'Klasnaam is verplicht.',
+      formData:         req.body,
+      huidigSchooljaar: huidigSchooljaar(),
+      flash:            {},
     });
   }
 
   const jaar = parseInt(schooljaar, 10);
   if (!jaar || jaar < 2020 || jaar > 2040) {
     return res.render('klassen/nieuw', {
-      title:      'Nieuwe klas',
-      activePage: 'klassen',
-      error:      'Voer een geldig schooljaar in (bijv. 2024).',
-      formData:   req.body,
-      flash:      {},
+      title:            'Nieuwe klas',
+      activePage:       'klassen',
+      error:            'Voer een geldig schooljaar in (bijv. 2024).',
+      formData:         req.body,
+      huidigSchooljaar: huidigSchooljaar(),
+      flash:            {},
     });
   }
 
@@ -121,11 +124,12 @@ router.post('/nieuw', loginRequired, async (req, res) => {
       : 'Er is iets misgegaan bij het aanmaken van de klas.';
 
     res.render('klassen/nieuw', {
-      title:      'Nieuwe klas',
-      activePage: 'klassen',
-      error:      boodschap,
-      formData:   req.body,
-      flash:      {},
+      title:            'Nieuwe klas',
+      activePage:       'klassen',
+      error:            boodschap,
+      formData:         req.body,
+      huidigSchooljaar: huidigSchooljaar(),
+      flash:            {},
     });
   }
 });

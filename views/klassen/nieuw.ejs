@@ -82,15 +82,15 @@
           id="schooljaar"
           name="schooljaar"
           class="input"
-          placeholder="<%= new Date().getFullYear() %>"
-          value="<%= typeof formData !== 'undefined' ? formData.schooljaar || new Date().getFullYear() : new Date().getFullYear() %>"
+          placeholder="<%= huidigSchooljaar %>"
+          value="<%= typeof formData !== 'undefined' && formData.schooljaar ? formData.schooljaar : huidigSchooljaar %>"
           min="2020"
           max="2040"
           required
         />
         <p style="font-size:12px; color:#94A3B8; margin:4px 0 0 0;">
-          Vul het eerste jaar in, bijv. <strong><%= new Date().getFullYear() %></strong>
-          voor schooljaar <%= new Date().getFullYear() %>&ndash;<%= new Date().getFullYear() + 1 %>.
+          Vul het eerste jaar in, bijv. <strong><%= huidigSchooljaar %></strong>
+          voor schooljaar <%= huidigSchooljaar %>&ndash;<%= huidigSchooljaar + 1 %>.
         </p>
       </div>
 
