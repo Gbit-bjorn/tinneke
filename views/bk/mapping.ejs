@@ -1,0 +1,644 @@
+<%- include('../partials/head', { title: 'LPD-mapping — ' + bk.code, activePage: 'bk', flash: flash || {} }) %>
+
+  <style>
+    /* ── Split-view layout ── */
+    .mapping-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+    @media (max-width: 900px) {
+      .mapping-container { grid-template-columns: 1fr; }
+    }
+
+    /* ── Paneel (linker / rechter kolom) ── */
+    .mapping-paneel {
+      background: #fff;
+      border: 1.5px solid #E2E8F0;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .mapping-paneel-header {
+      padding: 14px 18px;
+      background: #F8FAFC;
+      border-bottom: 1.5px solid #E2E8F0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .mapping-paneel-header h2 {
+      font-size: 14px;
+      font-weight: 700;
+      color: #0F172A;
+      margin: 0;
+    }
+    .mapping-paneel-body {
+      overflow-y: auto;
+      max-height: calc(100vh - 320px);
+      min-height: 300px;
+    }
+
+    /* ── LPD rijen ── */
+    .lpd-rij {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px 16px;
+      border-bottom: 1px solid #F1F5F9;
+      transition: background 100ms;
+    }
+    .lpd-rij:last-child { border-bottom: none; }
+    .lpd-rij:hover { background: #F8FAFC; }
+    .lpd-rij.gemapped { background: #F0FDF4; }
+    .lpd-rij.gemapped:hover { background: #DCFCE7; }
+
+    /* ── Competentie rijen ── */
+    .comp-rij {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 10px 16px;
+      border-bottom: 1px solid #F1F5F9;
+      font-size: 13px;
+      transition: background 100ms;
+    }
+    .comp-rij:last-child { border-bottom: none; }
+    .comp-rij:hover { background: #F8FAFC; }
+
+    /* ── DBK sectie header ── */
+    .dbk-sectie-header {
+      padding: 8px 16px;
+      background: #EFF6FF;
+      border-bottom: 1px solid #BFDBFE;
+      font-size: 12px;
+      font-weight: 700;
+      color: #1E3A8A;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* ── Checkbox stijl ── */
+    .mapping-checkbox {
+      width: 18px;
+      min-width: 18px;
+      height: 18px;
+      border: 2px solid #CBD5E1;
+      border-radius: 4px;
+      appearance: none;
+      -webkit-appearance: none;
+      cursor: pointer;
+      position: relative;
+      transition: background 150ms, border-color 150ms;
+      margin-top: 2px;
+    }
+    .mapping-checkbox:checked {
+      background: #1E3A8A;
+      border-color: #1E3A8A;
+    }
+    .mapping-checkbox:checked::after {
+      content: '';
+      position: absolute;
+      left: 3px;
+      top: 0px;
+      width: 5px;
+      height: 9px;
+      border: 2px solid #fff;
+      border-top: none;
+      border-left: none;
+      transform: rotate(45deg);
+    }
+    .mapping-checkbox:focus {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(30,58,138,0.15);
+    }
+
+    /* ── LPD sectie label ── */
+    .lpd-sectie-label {
+      padding: 8px 16px;
+      background: #F8FAFC;
+      border-bottom: 1px solid #E2E8F0;
+      font-size: 12px;
+      font-weight: 700;
+      color: #64748B;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* ── Sticky opslaan footer ── */
+    .opslaan-footer {
+      position: sticky;
+      bottom: 0;
+      background: #fff;
+      border-top: 1.5px solid #E2E8F0;
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      z-index: 50;
+      box-shadow: 0 -4px 12px rgba(0,0,0,0.06);
+    }
+
+    /* ── Inline toast (ipv fixed) ── */
+    #mapping-status {
+      font-size: 14px;
+      font-weight: 500;
+      padding: 8px 14px;
+      border-radius: 8px;
+      display: none;
+    }
+    #mapping-status.ok  { background: #D1FAE5; color: #065F46; border: 1px solid #A7F3D0; }
+    #mapping-status.err { background: #FEE2E2; color: #991B1B; border: 1px solid #FECACA; }
+
+    /* ── Zoekbalk in paneel ── */
+    .paneel-zoek {
+      padding: 10px 16px;
+      border-bottom: 1px solid #E2E8F0;
+      background: #fff;
+    }
+  </style>
+
+  <!-- Broodkruimel -->
+  <nav style="font-size:0.875rem; color:#94A3B8; margin-bottom:20px; display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+    <a href="/bk" style="color:#94A3B8; text-decoration:none;" onmouseover="this.style.color='#475569'" onmouseout="this.style.color='#94A3B8'">
+      Beroepskwalificaties
+    </a>
+    <svg width="12" height="12" fill="none" stroke="#CBD5E1" viewBox="0 0 24 24" stroke-width="2.5">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+    </svg>
+    <a href="/bk/<%= bk.id %>" style="color:#94A3B8; text-decoration:none;" onmouseover="this.style.color='#475569'" onmouseout="this.style.color='#94A3B8'">
+      <%= bk.code %> &mdash; <%= bk.naam %>
+    </a>
+    <svg width="12" height="12" fill="none" stroke="#CBD5E1" viewBox="0 0 24 24" stroke-width="2.5">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+    </svg>
+    <span style="color:#0F172A; font-weight:500;">LPD-mapping</span>
+  </nav>
+
+  <!-- Paginaheader -->
+  <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:12px; margin-bottom:20px;">
+    <div>
+      <h1 style="font-size:22px; font-weight:700; color:#0F172A; margin:0 0 4px 0;">
+        LPD-mapping
+        <span style="font-family:monospace; font-size:16px; font-weight:600; color:#1E3A8A; background:#EFF6FF; border-radius:6px; padding:2px 10px; margin-left:8px;"><%= bk.code %></span>
+      </h1>
+      <p style="font-size:14px; color:#475569; margin:0;">
+        Koppel LLinkid-doelen aan competentiecomponenten &mdash;
+        <strong style="color:#0F172A;"><%= aantalKoppelingen || 0 %></strong>
+        koppeling<%= (aantalKoppelingen || 0) !== 1 ? 'en' : '' %> opgeslagen
+      </p>
+    </div>
+    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+      <a href="/bk/<%= bk.id %>" class="btn btn-secondary btn-sm" style="gap:6px;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+        Terug naar BK
+      </a>
+      <button id="alles-opslaan-btn" class="btn btn-primary btn-sm" style="gap:6px;" onclick="opslaanMapping()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+        </svg>
+        Mapping opslaan
+      </button>
+    </div>
+  </div>
+
+  <!-- Legenda -->
+  <div style="display:flex; gap:16px; align-items:center; flex-wrap:wrap; margin-bottom:16px; font-size:13px; color:#475569;">
+    <div style="display:flex; align-items:center; gap:6px;">
+      <div style="width:14px; height:14px; background:#D1FAE5; border:1.5px solid #6EE7B7; border-radius:3px;"></div>
+      <span>Reeds gekoppeld</span>
+    </div>
+    <div style="display:flex; align-items:center; gap:6px;">
+      <div style="width:14px; height:14px; background:#fff; border:2px solid #CBD5E1; border-radius:3px;"></div>
+      <span>Niet gekoppeld</span>
+    </div>
+    <div style="display:flex; align-items:center; gap:6px;">
+      <div style="width:14px; height:14px; background:#1E3A8A; border:2px solid #1E3A8A; border-radius:3px;"></div>
+      <span>Geselecteerd (nog niet opgeslagen)</span>
+    </div>
+  </div>
+
+  <!-- Split-view container -->
+  <form id="mapping-form">
+    <div class="mapping-container">
+
+      <!-- ── Linker kolom: LPD-doelen ── -->
+      <div>
+        <div class="mapping-paneel">
+          <div class="mapping-paneel-header">
+            <h2>LPD-doelen (LLinkid)</h2>
+            <span class="badge badge-blue" style="font-size:12px;">
+              <%= lpds ? lpds.length : 0 %> doelen
+            </span>
+          </div>
+
+          <!-- Zoekbalk -->
+          <div class="paneel-zoek">
+            <div style="position:relative;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="#94A3B8"
+                   style="position:absolute; left:10px; top:50%; transform:translateY(-50%); pointer-events:none;">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z" />
+              </svg>
+              <input
+                id="zoek-lpd"
+                type="search"
+                placeholder="Filter doelen&hellip;"
+                class="input"
+                style="padding-left:30px; font-size:13px; min-height:36px;"
+                oninput="filterLpds(this.value)"
+              />
+            </div>
+          </div>
+
+          <div class="mapping-paneel-body" id="lpd-lijst">
+            <% if (lpds && lpds.length > 0) { %>
+              <%
+                // Groepeer op sectie als die beschikbaar is
+                let huidigeSectie = null;
+              %>
+              <% lpds.forEach(function(lpd, lpdIdx) { %>
+                <% if (lpd.sectie && lpd.sectie !== huidigeSectie) { %>
+                  <div class="lpd-sectie-label"><%= lpd.sectie %></div>
+                  <% huidigeSectie = lpd.sectie; %>
+                <% } %>
+                <div class="lpd-rij <%= lpd.gemapped ? 'gemapped' : '' %>"
+                     data-lpd-tekst="<%= (lpd.titel || lpd.tekst || '').toLowerCase().replace(/"/g, '&quot;') %>"
+                     data-lpd-nr="<%= (lpd.nr || '').toLowerCase() %>"
+                     id="lpd-rij-<%= lpdIdx %>">
+
+                  <!-- Gemapped indicator -->
+                  <div style="flex-shrink:0; margin-top:3px;">
+                    <% if (lpd.gemapped) { %>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#059669" stroke-width="2.5">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                    <% } else { %>
+                    <div style="width:16px; height:16px;"></div>
+                    <% } %>
+                  </div>
+
+                  <!-- Nummer badge -->
+                  <span style="flex-shrink:0; font-family:monospace; font-size:11px; font-weight:700; color:#1E3A8A; background:#DBEAFE; border-radius:4px; padding:1px 6px; margin-top:2px; white-space:nowrap;">
+                    <%= lpd.nr || (lpdIdx + 1) %>
+                  </span>
+
+                  <!-- Tekst -->
+                  <div style="flex:1; min-width:0;">
+                    <p style="font-size:13px; color:#0F172A; line-height:1.5; margin:0;">
+                      <%- (lpd.titel || lpd.tekst || '(geen tekst)').replace(/<br\s*\/?>/g, ' ') %>
+                    </p>
+                    <% if (lpd.aantalKoppelingen > 0) { %>
+                    <span style="font-size:11px; color:#059669; font-weight:600; margin-top:2px; display:inline-block;">
+                      <%= lpd.aantalKoppelingen %> koppeling<%= lpd.aantalKoppelingen !== 1 ? 'en' : '' %>
+                    </span>
+                    <% } %>
+                  </div>
+
+                  <!-- Selecteerknop -->
+                  <button type="button"
+                          class="btn btn-sm btn-secondary lpd-selecteer-btn"
+                          style="flex-shrink:0; padding:4px 10px; min-height:30px; font-size:12px;"
+                          data-lpd-id="<%= lpd.id || lpd.uuid %>"
+                          data-lpd-nr="<%= lpd.nr %>"
+                          onclick="selecteerLpd(this)"
+                          title="Selecteer dit doel om te koppelen">
+                    Selecteer
+                  </button>
+                </div>
+              <% }) %>
+            <% } else { %>
+            <div style="padding:32px 20px; text-align:center;">
+              <p style="font-size:14px; color:#94A3B8; margin:0;">Geen LPD-doelen beschikbaar.</p>
+              <p style="font-size:13px; color:#94A3B8; margin:8px 0 0 0;">Koppel eerst een leerplan aan deze klas via LLinkid.</p>
+            </div>
+            <% } %>
+          </div>
+        </div>
+
+        <!-- Geselecteerd LPD info -->
+        <div id="geselecteerd-lpd-info" style="display:none; margin-top:12px;">
+          <div style="padding:14px 16px; background:#EFF6FF; border:1.5px solid #BFDBFE; border-radius:10px;">
+            <p style="font-size:12px; font-weight:700; color:#1E3A8A; text-transform:uppercase; letter-spacing:0.05em; margin:0 0 6px 0;">Geselecteerd doel</p>
+            <p id="geselecteerd-lpd-tekst" style="font-size:14px; color:#0F172A; margin:0; line-height:1.5;"></p>
+            <p style="font-size:12px; color:#64748B; margin:6px 0 0 0;">Vink rechts de competentiecomponenten aan om te koppelen.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Rechter kolom: competentiecomponenten ── -->
+      <div>
+        <div class="mapping-paneel">
+          <div class="mapping-paneel-header">
+            <h2>Competentiecomponenten</h2>
+            <span class="badge badge-gray" style="font-size:12px;" id="gesel-teller">
+              0 geselecteerd
+            </span>
+          </div>
+
+          <div class="mapping-paneel-body" id="comp-lijst">
+            <% if (dbks && dbks.length > 0) { %>
+              <% dbks.forEach(function(dbk, dbkIdx) { %>
+              <div class="dbk-sectie-header">
+                <% if (dbk.code) { %><span style="font-family:monospace; margin-right:6px;"><%= dbk.code %></span><% } %>
+                <%= dbk.naam || 'DBK ' + (dbkIdx + 1) %>
+              </div>
+
+                <% if (dbk.competenties && dbk.competenties.length > 0) { %>
+                  <% dbk.competenties.forEach(function(comp, compIdx) { %>
+                  <div class="comp-rij" id="comp-rij-<%= dbk.id || dbkIdx %>-<%= compIdx %>">
+                    <input
+                      type="checkbox"
+                      class="mapping-checkbox comp-checkbox"
+                      id="comp-<%= dbk.id || dbkIdx %>-<%= comp.id || compIdx %>"
+                      name="koppelingen"
+                      value=""
+                      data-comp-id="<%= comp.id || compIdx %>"
+                      data-dbk-id="<%= dbk.id || dbkIdx %>"
+                      <% if (comp.gekoppeldeLpds && comp.gekoppeldeLpds.length > 0) { %> data-bestaande="<%= comp.gekoppeldeLpds.join(',') %>"<% } %>
+                      onchange="updateTeller()"
+                      disabled
+                    />
+                    <label for="comp-<%= dbk.id || dbkIdx %>-<%= comp.id || compIdx %>"
+                           style="font-size:13px; color:#0F172A; line-height:1.5; cursor:pointer; margin:0; font-weight:400; flex:1;">
+                      <span style="display:inline-flex; align-items:center; justify-content:center; width:20px; height:18px; background:#F1F5F9; border-radius:3px; font-size:11px; font-weight:700; color:#64748B; margin-right:6px; flex-shrink:0; vertical-align:middle;">
+                        <%= compIdx + 1 %>
+                      </span>
+                      <%= comp.omschrijving || comp.naam || comp %>
+                    </label>
+                    <!-- Koppelingsbadges -->
+                    <div class="comp-lpd-badges" id="badges-<%= dbk.id || dbkIdx %>-<%= compIdx %>"
+                         style="display:flex; flex-wrap:wrap; gap:4px; margin-top:4px; flex-shrink:0;">
+                      <% if (comp.gekoppeldeLpds && comp.gekoppeldeLpds.length > 0) { %>
+                        <% comp.gekoppeldeLpds.forEach(function(lpdNr) { %>
+                        <span class="badge badge-green" style="font-size:11px; font-family:monospace;"><%= lpdNr %></span>
+                        <% }) %>
+                      <% } %>
+                    </div>
+                  </div>
+                  <% }) %>
+                <% } else { %>
+                <div style="padding:12px 16px; font-size:13px; color:#94A3B8; font-style:italic;">
+                  Geen competenties voor deze DBK.
+                </div>
+                <% } %>
+              <% }) %>
+            <% } else { %>
+            <div style="padding:32px 20px; text-align:center;">
+              <p style="font-size:14px; color:#94A3B8; margin:0;">Geen DBK's beschikbaar.</p>
+            </div>
+            <% } %>
+          </div>
+        </div>
+
+        <!-- Info als geen LPD geselecteerd -->
+        <div id="comp-hint" style="margin-top:12px; padding:12px 16px; background:#FFFBEB; border:1.5px solid #FDE68A; border-radius:10px; display:flex; align-items:center; gap:10px;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#D97706" stroke-width="2" style="flex-shrink:0;">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+          </svg>
+          <span style="font-size:13px; color:#92400E;">Selecteer eerst een LPD-doel links om koppelingen te beheren.</span>
+        </div>
+      </div>
+
+    </div><!-- einde .mapping-container -->
+
+    <!-- Sticky opslaan-footer -->
+    <div class="opslaan-footer">
+      <div id="mapping-status"></div>
+      <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-left:auto;">
+        <span id="wijzigingen-teller" style="font-size:13px; color:#94A3B8;">Geen wijzigingen</span>
+        <button type="button" id="reset-btn" class="btn btn-secondary btn-sm" onclick="resetSelectie()" style="gap:6px; display:none;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+          Reset
+        </button>
+        <button type="button" id="opslaan-btn" class="btn btn-primary btn-sm" onclick="opslaanMapping()" style="gap:6px;" disabled>
+          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+          </svg>
+          Opslaan
+        </button>
+      </div>
+    </div>
+  </form>
+
+<script>
+(function () {
+  // ── State ──
+  let huidigLpdId  = null;
+  let huidigLpdNr  = null;
+  let wijzigingen  = {}; // { compId: { dbkId, lpdId, aangevinkt } }
+
+  // ── Selecteer een LPD ──
+  window.selecteerLpd = function (btn) {
+    const lpdId = btn.dataset.lpdId;
+    const lpdNr = btn.dataset.lpdNr;
+
+    // Onthighlight vorige
+    document.querySelectorAll('.lpd-rij').forEach(function (r) {
+      r.style.outline = '';
+    });
+    document.querySelectorAll('.lpd-selecteer-btn').forEach(function (b) {
+      b.classList.remove('btn-primary');
+      b.classList.add('btn-secondary');
+      b.textContent = 'Selecteer';
+    });
+
+    // Highlight huidige
+    const rij = btn.closest('.lpd-rij');
+    if (rij) rij.style.outline = '2px solid #1E3A8A';
+    btn.classList.remove('btn-secondary');
+    btn.classList.add('btn-primary');
+    btn.textContent = 'Geselecteerd';
+
+    huidigLpdId = lpdId;
+    huidigLpdNr = lpdNr;
+
+    // Toon info
+    const info = document.getElementById('geselecteerd-lpd-info');
+    const tekst = document.getElementById('geselecteerd-lpd-tekst');
+    if (info && tekst) {
+      const lpdTekstEl = rij.querySelector('p');
+      tekst.textContent = lpdTekstEl ? lpdTekstEl.textContent.trim() : 'LPD ' + lpdNr;
+      info.style.display = 'block';
+    }
+
+    // Schakel competentie-checkboxes in en herstel selectie
+    const checkboxes = document.querySelectorAll('.comp-checkbox');
+    checkboxes.forEach(function (cb) {
+      cb.disabled = false;
+
+      // Zet bestaande koppelingen (reeds opgeslagen in DB)
+      const bestaande = (cb.dataset.bestaande || '').split(',').filter(Boolean);
+      cb.checked = bestaande.includes(String(lpdNr)) || bestaande.includes(String(lpdId));
+
+      // Vervolgens wijzigingen toepassen die al in state zitten
+      const sleutel = cb.dataset.compId + '_' + lpdId;
+      if (sleutel in wijzigingen) {
+        cb.checked = wijzigingen[sleutel].aangevinkt;
+      }
+    });
+
+    // Verberg hint
+    const hint = document.getElementById('comp-hint');
+    if (hint) hint.style.display = 'none';
+
+    updateTeller();
+  };
+
+  // ── Teller bijhouden ──
+  window.updateTeller = function () {
+    if (!huidigLpdId) return;
+
+    const checkboxes = document.querySelectorAll('.comp-checkbox');
+    let aangevinkt = 0;
+
+    checkboxes.forEach(function (cb) {
+      // Sla wijziging op in state
+      const sleutel = cb.dataset.compId + '_' + huidigLpdId;
+      const bestaande = (cb.dataset.bestaande || '').split(',').filter(Boolean);
+      const wasAangevinkt = bestaande.includes(String(huidigLpdNr)) || bestaande.includes(String(huidigLpdId));
+
+      if (cb.checked !== wasAangevinkt) {
+        wijzigingen[sleutel] = {
+          compId:     cb.dataset.compId,
+          dbkId:      cb.dataset.dbkId,
+          lpdId:      huidigLpdId,
+          aangevinkt: cb.checked,
+        };
+      } else {
+        delete wijzigingen[sleutel];
+      }
+
+      if (cb.checked) aangevinkt++;
+    });
+
+    // Update selector teller
+    const selTeller = document.getElementById('gesel-teller');
+    if (selTeller) selTeller.textContent = aangevinkt + ' geselecteerd';
+
+    // Update wijzigingen teller
+    const aantalWijz = Object.keys(wijzigingen).length;
+    const wijzTeller = document.getElementById('wijzigingen-teller');
+    const opslaanBtn = document.getElementById('opslaan-btn');
+    const resetBtn   = document.getElementById('reset-btn');
+
+    if (wijzTeller) wijzTeller.textContent = aantalWijz > 0 ? aantalWijz + ' wijziging' + (aantalWijz !== 1 ? 'en' : '') : 'Geen wijzigingen';
+    if (opslaanBtn) opslaanBtn.disabled = aantalWijz === 0;
+    if (resetBtn)   resetBtn.style.display = aantalWijz > 0 ? '' : 'none';
+  };
+
+  // ── Reset selectie ──
+  window.resetSelectie = function () {
+    wijzigingen = {};
+    if (huidigLpdId) {
+      // Herstel checkboxes naar opgeslagen staat
+      document.querySelectorAll('.comp-checkbox').forEach(function (cb) {
+        const bestaande = (cb.dataset.bestaande || '').split(',').filter(Boolean);
+        cb.checked = bestaande.includes(String(huidigLpdNr)) || bestaande.includes(String(huidigLpdId));
+      });
+    }
+    updateTeller();
+  };
+
+  // ── Opslaan ──
+  window.opslaanMapping = async function () {
+    if (!huidigLpdId) {
+      toonStatus('Selecteer eerst een LPD-doel.', 'err');
+      return;
+    }
+
+    const aantalWijz = Object.keys(wijzigingen).length;
+    if (aantalWijz === 0) {
+      toonStatus('Geen wijzigingen om op te slaan.', 'ok');
+      return;
+    }
+
+    const btn = document.getElementById('opslaan-btn');
+    if (btn) { btn.disabled = true; btn.textContent = 'Bezig…'; }
+
+    const payload = {
+      lpdId:      huidigLpdId,
+      lpdNr:      huidigLpdNr,
+      wijzigingen: Object.values(wijzigingen),
+    };
+
+    try {
+      const resp = await fetch('/bk/<%= bk.id %>/mapping', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const data = await resp.json();
+
+      if (data.ok) {
+        toonStatus('Mapping opgeslagen (' + (data.aantalVerwerkt || aantalWijz) + ' koppeling' + (aantalWijz !== 1 ? 'en' : '') + ').', 'ok');
+        wijzigingen = {};
+
+        // Update bestaande dataset-attributen zodat de staat klopt
+        document.querySelectorAll('.comp-checkbox').forEach(function (cb) {
+          const sleutel = cb.dataset.compId + '_' + huidigLpdId;
+          const bestaande = (cb.dataset.bestaande || '').split(',').filter(Boolean);
+          if (cb.checked && !bestaande.includes(String(huidigLpdNr))) {
+            bestaande.push(String(huidigLpdNr));
+          } else if (!cb.checked) {
+            const idx = bestaande.indexOf(String(huidigLpdNr));
+            if (idx > -1) bestaande.splice(idx, 1);
+          }
+          cb.dataset.bestaande = bestaande.join(',');
+        });
+
+        // Refresh LPD-rij gemapped status
+        const lpdRij = document.querySelector('.lpd-rij [data-lpd-id="' + huidigLpdId + '"]');
+        if (lpdRij) {
+          const rij = lpdRij.closest('.lpd-rij');
+          if (rij) {
+            const heeftKoppelingen = document.querySelectorAll('.comp-checkbox:checked').length > 0;
+            rij.classList.toggle('gemapped', heeftKoppelingen);
+          }
+        }
+
+        updateTeller();
+      } else {
+        toonStatus('Fout: ' + (data.error || 'Onbekende fout'), 'err');
+      }
+    } catch (err) {
+      toonStatus('Verbindingsfout. Probeer opnieuw.', 'err');
+    } finally {
+      if (btn) {
+        btn.textContent = 'Opslaan';
+        btn.disabled = Object.keys(wijzigingen).length === 0;
+      }
+    }
+  };
+
+  // ── Status tonen ──
+  function toonStatus(bericht, type) {
+    const el = document.getElementById('mapping-status');
+    if (!el) return;
+    el.textContent = bericht;
+    el.className = type === 'ok' ? 'ok' : 'err';
+    el.style.display = 'block';
+    setTimeout(function () { el.style.display = 'none'; }, 4000);
+  }
+
+  // ── Filter LPD-lijst ──
+  window.filterLpds = function (zoekterm) {
+    const term = zoekterm.toLowerCase().trim();
+    const rijen = document.querySelectorAll('#lpd-lijst .lpd-rij');
+    rijen.forEach(function (rij) {
+      const tekst = rij.dataset.lpdTekst || '';
+      const nr    = rij.dataset.lpdNr    || '';
+      rij.style.display = (!term || tekst.includes(term) || nr.includes(term)) ? '' : 'none';
+    });
+  };
+
+})();
+</script>
+
+<%- include('../partials/footer') %>

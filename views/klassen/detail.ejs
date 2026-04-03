@@ -196,6 +196,66 @@
     <% } %>
   </div>
 
+  <!-- Beroepskwalificaties (alleen tonen als er BK's zijn voor deze richting) -->
+  <% if (typeof klasBks !== 'undefined' && klasBks.length > 0) { %>
+  <div class="card" style="padding:20px;">
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;">
+      <h2 style="font-size:16px; font-weight:700; color:#0F172A; margin:0;">Beroepskwalificaties</h2>
+      <span class="badge badge-orange"><%= klasBks.length %> BK<%= klasBks.length !== 1 ? "'s" : '' %></span>
+    </div>
+
+    <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:8px;">
+      <% klasBks.forEach(function(bk) { %>
+        <li style="padding:8px 10px; background:#FEF3C7; border:1px solid #FDE68A; border-radius:6px;">
+          <a href="/bk/<%= encodeURIComponent(bk.code) %>"
+             style="text-decoration:none; color:inherit; display:flex; flex-direction:column; gap:2px;"
+             onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">
+            <span style="font-size:12px; font-weight:700; color:#92400E; font-family:monospace;"><%= bk.code %></span>
+            <span style="font-size:13px; color:#0F172A;"><%= bk.naam %></span>
+            <% if (bk.niveau) { %>
+              <span style="font-size:11px; color:#78350F;">Niveau <%= bk.niveau %></span>
+            <% } %>
+          </a>
+          <% if (typeof user !== 'undefined' && (user.rol === 'admin' || user.rol === 'superadmin')) { %>
+            <% if (typeof leerplanUuid !== 'undefined' && leerplanUuid) { %>
+              <a href="/bk/<%= encodeURIComponent(bk.code) %>/mapping/<%= leerplanUuid %>"
+                 style="display:inline-flex; align-items:center; gap:4px; font-size:11px; font-weight:600; color:#92400E; text-decoration:none; margin-top:5px;"
+                 onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">
+                LPD–BK mapping
+                <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+              </a>
+            <% } %>
+          <% } %>
+        </li>
+      <% }); %>
+    </ul>
+
+    <div style="margin-top:14px; padding-top:14px; border-top:1px solid #E2E8F0;">
+      <a href="/export/klas/<%= klas.id %>/bk/excel" class="btn btn-secondary btn-full" style="min-height:44px; justify-content:center; gap:8px;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4 4l4 4m0 0l4-4m-4 4V4" />
+        </svg>
+        Export BK overzicht (Excel)
+      </a>
+    </div>
+
+    <% if (typeof user !== 'undefined' && (user.rol === 'admin' || user.rol === 'superadmin')) { %>
+      <div style="margin-top:8px;">
+        <a href="/bk" style="font-size:13px; font-weight:600; color:#1E3A8A; text-decoration:none; display:inline-flex; align-items:center; gap:4px;"
+           onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">
+          Alle beroepskwalificaties
+          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </a>
+      </div>
+    <% } %>
+  </div>
+  <% } %>
+
   <!-- Snelle acties -->
   <div class="card" style="padding:20px;">
     <h2 style="font-size:16px; font-weight:700; color:#0F172A; margin:0 0 14px 0;">Acties</h2>

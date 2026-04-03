@@ -419,6 +419,10 @@
          class="nav-link<%= typeof activePage !== 'undefined' && activePage === 'llinkid' ? ' active' : '' %>">
         LLinkid
       </a>
+      <a href="/bk"
+         class="nav-link<%= typeof activePage !== 'undefined' && activePage === 'bk' ? ' active' : '' %>">
+        Beroepskwalificaties
+      </a>
       <% } %>
       <% if (typeof user !== 'undefined' && user.rol === 'superadmin') { %>
       <a href="/admin/gebruikers"
@@ -463,6 +467,10 @@
     <a href="/llinkid"
        class="nav-link<%= typeof activePage !== 'undefined' && activePage === 'llinkid' ? ' active' : '' %>">
       LLinkid
+    </a>
+    <a href="/bk"
+       class="nav-link<%= typeof activePage !== 'undefined' && activePage === 'bk' ? ' active' : '' %>">
+      Beroepskwalificaties
     </a>
     <% } %>
     <% if (typeof user !== 'undefined' && user.rol === 'superadmin') { %>

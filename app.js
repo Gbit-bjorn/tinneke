@@ -30,6 +30,8 @@ app.use((req, res, next) => {
   next();
 });
 
+const bkRoutes = require('./routes/bk');
+
 app.use('/auth',  require('./routes/auth'));
 app.use('/admin', require('./routes/admin'));
 app.use('/klassen', require('./routes/klassen'));
@@ -37,6 +39,7 @@ app.use('/attestering', require('./routes/attestering'));
 app.use('/llinkid', require('./routes/llinkid'));
 app.use('/export', require('./routes/export'));
 app.use('/wisa', require('./routes/wisa'));
+app.use('/bk', bkRoutes);
 
 app.get('/', (req, res) => {
   if (req.session.loggedIn) {

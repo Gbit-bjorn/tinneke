@@ -1,0 +1,270 @@
+{
+  "_info": "Mapping van richtingsnaam naar officiële beroepskwalificaties (AKOV/VKS). Gegenereerd op 2026-04-03.",
+
+  "Bandenmonteur": {
+    "bks": [
+      {
+        "code": "BK-0227-3",
+        "naam": "Bandenmonteur",
+        "niveau": 2,
+        "dbks": []
+      }
+    ]
+  },
+  "Hoeknaadlasser": {
+    "bks": [
+      {
+        "code": "BK-0236-4",
+        "naam": "Hoeknaadlasser",
+        "niveau": 3,
+        "dbks": [
+          { "code": "BK-0236-4-DBK-01", "naam": "Halfautomaat lassen" },
+          { "code": "BK-0236-4-DBK-02", "naam": "TIG lassen" }
+        ]
+      }
+    ]
+  },
+  "Keukenmedewerker": {
+    "bks": [
+      {
+        "code": "BK-0198-3",
+        "naam": "Keukenmedewerker",
+        "niveau": 2,
+        "dbks": []
+      }
+    ]
+  },
+  "Medewerker hout": {
+    "bks": [
+      {
+        "code": "BK-0468-1",
+        "naam": "Medewerker hout",
+        "niveau": 2,
+        "dbks": []
+      }
+    ]
+  },
+  "Medewerker ruwbouw": {
+    "bks": [
+      {
+        "code": "BK-0901-1",
+        "naam": "Medewerker ruwbouw",
+        "niveau": 2,
+        "dbks": []
+      }
+    ]
+  },
+  "Monteur sanitaire en verwarmingsinstallaties": {
+    "bks": [
+      {
+        "code": "BK-0364-2",
+        "naam": "Monteur installatietechnieken",
+        "niveau": 3,
+        "dbks": [
+          { "code": "BK-0364-2-DBK-01", "naam": "Verwarming" },
+          { "code": "BK-0364-2-DBK-02", "naam": "Ventilatie" },
+          { "code": "BK-0364-2-DBK-03", "naam": "Sanitair" }
+        ]
+      }
+    ]
+  },
+  "Winkelmedewerker": {
+    "bks": [
+      {
+        "code": "BK-0068-2",
+        "naam": "Winkelmedewerker",
+        "niveau": 3,
+        "dbks": [
+          { "code": "BK-0068-2-DBK-01", "naam": "Kassier" },
+          { "code": "BK-0068-2-DBK-02", "naam": "Aanvuller" }
+        ]
+      }
+    ]
+  },
+  "Binnen- en buitenschrijnwerk": {
+    "bks": [
+      {
+        "code": "BK-0038-3",
+        "naam": "Binnenschrijnwerker",
+        "niveau": 3,
+        "dbks": [
+          { "code": "BK-0038-3-DBK-01", "naam": "Plaatser binnenschrijnwerk" }
+        ]
+      },
+      {
+        "code": "BK-0453-1",
+        "naam": "Buitenschrijnwerker hout",
+        "niveau": 3,
+        "dbks": []
+      }
+    ]
+  },
+  "Binnenschrijnwerk en interieur": {
+    "bks": [
+      {
+        "code": "BK-0038-3",
+        "naam": "Binnenschrijnwerker",
+        "niveau": 3,
+        "dbks": [
+          { "code": "BK-0038-3-DBK-01", "naam": "Plaatser binnenschrijnwerk" }
+        ]
+      },
+      {
+        "code": "BK-0041-3",
+        "naam": "Interieurbouwer",
+        "niveau": 3,
+        "dbks": [
+          { "code": "BK-0041-3-DBK-01", "naam": "Plaatser interieurprojecten" }
+        ]
+      }
+    ]
+  },
+  "Lassen-constructie": {
+    "bks": [
+      {
+        "code": "BK-0236-4",
+        "naam": "Hoeknaadlasser",
+        "niveau": 3,
+        "dbks": [
+          { "code": "BK-0236-4-DBK-01", "naam": "Halfautomaat lassen" },
+          { "code": "BK-0236-4-DBK-02", "naam": "TIG lassen" }
+        ]
+      },
+      {
+        "code": "BK-0544-1",
+        "naam": "Plaatlasser",
+        "niveau": 3,
+        "dbks": [
+          { "code": "BK-0544-1-DBK-01", "naam": "Plaatlassen halfautomaat" },
+          { "code": "BK-0544-1-DBK-02", "naam": "Plaatlassen TIG" }
+        ]
+      },
+      {
+        "code": "BK-0237-4",
+        "naam": "Pijplasser",
+        "niveau": 3,
+        "dbks": []
+      }
+    ]
+  },
+  "Onderhoudsmechanica auto": {
+    "bks": [
+      {
+        "code": "BK-0178-4",
+        "naam": "Onderhoudsmecanicien PW & LBV",
+        "niveau": 3,
+        "dbks": []
+      }
+    ]
+  },
+  "Onthaal, organisatie en sales": {
+    "bks": [
+      {
+        "code": "BK-0447-2",
+        "naam": "Winkelverkoper",
+        "niveau": 4,
+        "dbks": []
+      },
+      {
+        "code": "BK-0205-3",
+        "naam": "Administratief medewerker onthaal",
+        "niveau": 3,
+        "dbks": []
+      }
+    ]
+  },
+  "Restaurant en keuken": {
+    "bks": [
+      {
+        "code": "BK-0251-4",
+        "naam": "Hulpkok",
+        "niveau": 3,
+        "dbks": []
+      },
+      {
+        "code": "BK-0077-2",
+        "naam": "Kelner",
+        "niveau": 4,
+        "dbks": []
+      }
+    ]
+  },
+  "Ruwbouw": {
+    "bks": [
+      {
+        "code": "BK-0082-2",
+        "naam": "Metselaar",
+        "niveau": 3,
+        "dbks": []
+      }
+    ]
+  },
+  "Sanitaire en verwarmingsinstallaties": {
+    "bks": [
+      {
+        "code": "BK-0364-2",
+        "naam": "Monteur installatietechnieken",
+        "niveau": 3,
+        "dbks": [
+          { "code": "BK-0364-2-DBK-01", "naam": "Verwarming" },
+          { "code": "BK-0364-2-DBK-02", "naam": "Ventilatie" },
+          { "code": "BK-0364-2-DBK-03", "naam": "Sanitair" }
+        ]
+      }
+    ]
+  },
+  "Dakwerker": {
+    "bks": [
+      {
+        "code": "BK-0534-3",
+        "naam": "Dakafdichter",
+        "niveau": 3,
+        "dbks": []
+      },
+      {
+        "code": "BK-0291-3",
+        "naam": "Dakdekker niet-metalen dakbedekking",
+        "niveau": 3,
+        "dbks": []
+      }
+    ]
+  },
+  "Interieurbouwer": {
+    "bks": [
+      {
+        "code": "BK-0041-3",
+        "naam": "Interieurbouwer",
+        "niveau": 3,
+        "dbks": [
+          { "code": "BK-0041-3-DBK-01", "naam": "Plaatser interieurprojecten" }
+        ]
+      }
+    ]
+  },
+  "Schrijnwerker houtbouw": {
+    "bks": [
+      {
+        "code": "BK-0040-4",
+        "naam": "Schrijnwerker houtbouw",
+        "niveau": 3,
+        "dbks": [
+          { "code": "BK-0040-4-DBK-01", "naam": "Plaatser houtbouwconstructies" }
+        ]
+      }
+    ]
+  },
+  "Technicus installatietechnieken": {
+    "bks": [
+      {
+        "code": "BK-0367-3",
+        "naam": "Technicus installatietechnieken",
+        "niveau": 4,
+        "dbks": [
+          { "code": "BK-0367-3-DBK-01", "naam": "Verwarming" },
+          { "code": "BK-0367-3-DBK-02", "naam": "Ventilatie" },
+          { "code": "BK-0367-3-DBK-03", "naam": "Sanitair" }
+        ]
+      }
+    ]
+  }
+}

@@ -1,11 +1,34 @@
 'use strict';
 
+const path   = require('path');
+const fs     = require('fs');
 const express = require('express');
 const router  = express.Router();
 
 const { loginRequired, adminRequired } = require('../middleware/auth');
 const { db }            = require('../lib');
 const { huidigSchooljaar } = require('../lib/schooljaar');
+
+const BK_MAPPING_PAD = path.join(__dirname, '..', 'richting_bk_mapping.json');
+
+function laadBkMapping() {
+  try {
+    return JSON.parse(fs.readFileSync(BK_MAPPING_PAD, 'utf8'));
+  } catch {
+    return {};
+  }
+}
+
+/**
+ * Geeft de BK's terug voor een richting (of [] als er geen zijn).
+ * @param {object} mapping  - de volledige richting_bk_mapping
+ * @param {string} richting - richtingsnaam van de klas
+ */
+function bksVoorRichting(mapping, richting) {
+  if (!richting) return [];
+  const data = mapping[richting];
+  return data ? (data.bks || []) : [];
+}
 
 function flash(req, type, message) {
   req.session.flash = { [type]: message };
@@ -20,12 +43,21 @@ function consumeFlash(req) {
 // ── GET /klassen ──────────────────────────────────────────────────────────────
 router.get('/', loginRequired, async (req, res) => {
   try {
-    const klassen   = await db.getKlassen();
+    const klassen    = await db.getKlassen();
+    const bkMapping  = laadBkMapping();
+
+    // Bouw een { klasId: aantalBks } object — één keer de mapping laden, geen N+1
+    const bkCounts = {};
+    for (const klas of klassen) {
+      const bks = bksVoorRichting(bkMapping, klas.richting);
+      if (bks.length > 0) bkCounts[klas.id] = bks.length;
+    }
 
     res.render('dashboard', {
       title:      'Dashboard',
       activePage: 'klassen',
       klassen,
+      bkCounts,
       schooljaar: huidigSchooljaar(),
       flash:      consumeFlash(req),
     });
@@ -145,12 +177,17 @@ router.get('/:id', loginRequired, async (req, res) => {
     const leerlingen   = await db.getLeerlingen(klasId);
     const leerplanUuid = await db.getKlasLeerplan(klasId);
 
+    // BK's voor de richting van deze klas (leeg array als er geen zijn)
+    const bkMapping = laadBkMapping();
+    const klasBks   = bksVoorRichting(bkMapping, klas.richting);
+
     res.render('klassen/detail', {
       title:      klas.naam,
       activePage: 'klassen',
       klas,
       leerlingen,
       leerplanUuid,
+      klasBks,
       flash:      consumeFlash(req),
     });
   } catch (err) {

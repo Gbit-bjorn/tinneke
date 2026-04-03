@@ -1,0 +1,237 @@
+<%- include('../partials/head', { title: bk.code + ' — ' + bk.naam, activePage: 'bk', flash: flash || {} }) %>
+
+  <style>
+    /* Uitklapbare DBK-secties */
+    details.dbk-sectie { border-radius: 10px; overflow: hidden; }
+    details.dbk-sectie + details.dbk-sectie { margin-top: 8px; }
+
+    details.dbk-sectie summary {
+      list-style: none;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 18px;
+      background: #F8FAFC;
+      border: 1.5px solid #E2E8F0;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 14px;
+      color: #0F172A;
+      transition: background 150ms, border-color 150ms;
+      user-select: none;
+    }
+    details.dbk-sectie[open] summary {
+      background: #EFF6FF;
+      border-color: #BFDBFE;
+      border-radius: 10px 10px 0 0;
+    }
+    details.dbk-sectie summary:hover { background: #EFF6FF; border-color: #BFDBFE; }
+    details.dbk-sectie summary::-webkit-details-marker { display: none; }
+
+    .toggle-pijl { transition: transform 200ms; flex-shrink: 0; }
+    details.dbk-sectie[open] .toggle-pijl { transform: rotate(90deg); }
+
+    .dbk-inhoud {
+      border: 1.5px solid #BFDBFE;
+      border-top: none;
+      border-radius: 0 0 10px 10px;
+      background: #fff;
+      padding: 0;
+      overflow: hidden;
+    }
+
+    /* Competentie-rijen */
+    .competentie-rij {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px 18px;
+      border-bottom: 1px solid #F1F5F9;
+      font-size: 14px;
+      color: #0F172A;
+      transition: background 100ms;
+    }
+    .competentie-rij:last-child { border-bottom: none; }
+    .competentie-rij:hover { background: #F8FAFC; }
+
+    /* Richting-badge rij */
+    .richting-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 5px 12px;
+      background: #F1F5F9;
+      border: 1px solid #E2E8F0;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      color: #0F172A;
+      text-decoration: none;
+      transition: background 100ms, border-color 100ms;
+      gap: 6px;
+    }
+    .richting-badge:hover {
+      background: #EFF6FF;
+      border-color: #BFDBFE;
+      color: #1E3A8A;
+      text-decoration: none;
+    }
+  </style>
+
+  <!-- Broodkruimel -->
+  <nav style="font-size:0.875rem; color:#94A3B8; margin-bottom:20px; display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+    <a href="/bk" style="color:#94A3B8; text-decoration:none; transition:color 120ms;" onmouseover="this.style.color='#475569'" onmouseout="this.style.color='#94A3B8'">
+      Beroepskwalificaties
+    </a>
+    <svg width="12" height="12" fill="none" stroke="#CBD5E1" viewBox="0 0 24 24" stroke-width="2.5">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+    </svg>
+    <span style="color:#0F172A; font-weight:500;"><%= bk.code %> &mdash; <%= bk.naam %></span>
+  </nav>
+
+  <!-- BK Metadata kaart -->
+  <div class="card" style="padding:24px; margin-bottom:24px;">
+    <div style="display:flex; flex-wrap:wrap; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:20px;">
+      <div>
+        <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:8px;">
+          <span style="font-family:monospace; font-size:15px; font-weight:700; color:#1E3A8A; background:#EFF6FF; border-radius:8px; padding:4px 12px;">
+            <%= bk.code %>
+          </span>
+          <% if (bk.vks_niveau) { %>
+          <span class="badge badge-<%= bk.vks_niveau >= 4 ? 'blue' : bk.vks_niveau >= 3 ? 'orange' : 'gray' %>" style="font-size:13px;">
+            VKS Niveau <%= bk.vks_niveau %>
+          </span>
+          <% } %>
+          <% if (bk.bron) { %>
+          <span class="badge badge-gray" style="font-size:12px;"><%= bk.bron %></span>
+          <% } %>
+        </div>
+        <h1 style="font-size:1.5rem; font-weight:700; color:#0F172A; margin:0; line-height:1.3;">
+          <%= bk.naam %>
+        </h1>
+      </div>
+      <a href="/bk/<%= bk.id %>/mapping" class="btn btn-primary" style="gap:8px; white-space:nowrap;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+        </svg>
+        LPD-mapping beheren
+      </a>
+    </div>
+
+    <!-- Metadata raster -->
+    <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(160px, 1fr)); gap:16px; padding-top:16px; border-top:1px solid #E2E8F0;">
+      <div>
+        <span style="display:block; font-size:0.75rem; color:#94A3B8; margin-bottom:3px; font-weight:600; text-transform:uppercase; letter-spacing:0.04em;">DBK's</span>
+        <span style="font-size:1.25rem; font-weight:700; color:#1E3A8A;"><%= dbks ? dbks.length : 0 %></span>
+      </div>
+      <div>
+        <span style="display:block; font-size:0.75rem; color:#94A3B8; margin-bottom:3px; font-weight:600; text-transform:uppercase; letter-spacing:0.04em;">Competenties</span>
+        <span style="font-size:1.25rem; font-weight:700; color:#1E3A8A;">
+          <%= dbks ? dbks.reduce(function(som, d) { return som + (d.competenties ? d.competenties.length : 0); }, 0) : 0 %>
+        </span>
+      </div>
+      <div>
+        <span style="display:block; font-size:0.75rem; color:#94A3B8; margin-bottom:3px; font-weight:600; text-transform:uppercase; letter-spacing:0.04em;">Richtingen</span>
+        <span style="font-size:1.25rem; font-weight:700; color:#1E3A8A;"><%= richtingen ? richtingen.length : 0 %></span>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:grid; grid-template-columns:1fr 340px; gap:20px; align-items:start;">
+
+    <!-- Linker kolom: DBK's en competenties -->
+    <div>
+      <h2 style="font-size:1.125rem; font-weight:700; color:#0F172A; margin:0 0 14px 0;">
+        Deelberoepskwalificaties (DBK's)
+      </h2>
+
+      <% if (dbks && dbks.length > 0) { %>
+        <% dbks.forEach(function(dbk, idx) { %>
+        <details class="dbk-sectie" <%= idx === 0 ? 'open' : '' %>>
+          <summary>
+            <svg class="toggle-pijl" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+            </svg>
+            <span style="flex:1;">
+              <% if (dbk.code) { %>
+              <span style="font-family:monospace; font-size:12px; color:#1E3A8A; background:#DBEAFE; border-radius:4px; padding:1px 6px; margin-right:8px;"><%= dbk.code %></span>
+              <% } %>
+              <%= dbk.naam || 'DBK ' + (idx + 1) %>
+            </span>
+            <span class="badge badge-gray" style="font-size:12px; flex-shrink:0;">
+              <%= dbk.competenties ? dbk.competenties.length : 0 %> competenties
+            </span>
+          </summary>
+
+          <div class="dbk-inhoud">
+            <% if (dbk.competenties && dbk.competenties.length > 0) { %>
+              <% dbk.competenties.forEach(function(comp, cIdx) { %>
+              <div class="competentie-rij">
+                <span style="flex-shrink:0; min-width:24px; height:20px; display:inline-flex; align-items:center; justify-content:center; background:#F1F5F9; border-radius:4px; font-size:11px; font-weight:700; color:#64748B; margin-top:2px;">
+                  <%= cIdx + 1 %>
+                </span>
+                <span style="line-height:1.5; color:#0F172A;">
+                  <%= comp.omschrijving || comp.naam || comp %>
+                </span>
+                <% if (comp.aantal_lpd_koppelingen > 0) { %>
+                <span class="badge badge-green" style="flex-shrink:0; font-size:11px; margin-left:auto;">
+                  <%= comp.aantal_lpd_koppelingen %> LPD
+                </span>
+                <% } %>
+              </div>
+              <% }) %>
+            <% } else { %>
+            <div style="padding:20px 18px; font-size:14px; color:#94A3B8; font-style:italic;">
+              Geen competentiecomponenten gevonden voor deze DBK.
+            </div>
+            <% } %>
+          </div>
+        </details>
+        <% }) %>
+      <% } else { %>
+      <div class="card" style="padding:32px; text-align:center;">
+        <p style="font-size:14px; color:#94A3B8; margin:0;">Geen DBK's beschikbaar voor deze BK.</p>
+      </div>
+      <% } %>
+    </div>
+
+    <!-- Rechter kolom: gekoppelde richtingen -->
+    <div>
+      <h2 style="font-size:1.125rem; font-weight:700; color:#0F172A; margin:0 0 14px 0;">
+        Gekoppelde richtingen
+      </h2>
+
+      <div class="card" style="padding:16px;">
+        <% if (richtingen && richtingen.length > 0) { %>
+        <div style="display:flex; flex-direction:column; gap:8px;">
+          <% richtingen.forEach(function(richting) { %>
+          <div style="display:flex; align-items:center; justify-content:space-between; padding:10px 12px; background:#F8FAFC; border:1px solid #E2E8F0; border-radius:8px; font-size:13px;">
+            <div style="display:flex; flex-direction:column; gap:2px; min-width:0;">
+              <span style="font-weight:600; color:#0F172A; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                <%= richting.naam || richting %>
+              </span>
+              <% if (richting.code) { %>
+              <span style="font-size:11px; font-family:monospace; color:#94A3B8;"><%= richting.code %></span>
+              <% } %>
+            </div>
+            <% if (richting.id) { %>
+            <a href="/klassen?richting=<%= encodeURIComponent(richting.naam || richting) %>"
+               style="color:#3B82F6; font-size:12px; white-space:nowrap; margin-left:8px; text-decoration:none;"
+               title="Bekijk klassen met deze richting">
+              Klassen →
+            </a>
+            <% } %>
+          </div>
+          <% }) %>
+        </div>
+        <% } else { %>
+        <p style="font-size:14px; color:#94A3B8; margin:0; text-align:center; padding:16px 0;">
+          Geen richtingen gekoppeld aan deze BK.
+        </p>
+        <% } %>
+      </div>
+    </div>
+
+  </div>
+
+<%- include('../partials/footer') %>

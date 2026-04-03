@@ -4,6 +4,7 @@ const router = require('express').Router();
 const { loginRequired } = require('../middleware/auth');
 const { db, llinkid } = require('../lib');
 const { berekenStats } = require('../lib/stats');
+const { berekenBkStats } = require('../lib/bk-stats');
 
 // ---------------------------------------------------------------------------
 // GET /attestering/:leerlingId
@@ -43,6 +44,14 @@ router.get('/:leerlingId', loginRequired, async (req, res) => {
     }
   }
 
+  // BK-statistieken ophalen (optioneel — als er geen mapping is, heeftBks: false)
+  let bkStats = { heeftBks: false };
+  try {
+    bkStats = await berekenBkStats(db, leerlingId, leerling.klas_id);
+  } catch (err) {
+    console.error('BK-stats fout (niet fataal):', err.message);
+  }
+
   res.render('attestering/detail', {
     leerling:     { id: leerling.id, naam: leerling.naam, voornaam: leerling.voornaam },
     klas:         { naam: klas?.naam ?? '—', richting: klas?.richting ?? '' },
@@ -52,6 +61,7 @@ router.get('/:leerlingId', loginRequired, async (req, res) => {
     llinkidFout,
     vorigeLeerling,
     volgendeLeerling,
+    bkStats,
   });
 });
 
@@ -71,7 +81,19 @@ router.post('/:leerlingId/toggle', loginRequired, async (req, res) => {
   try {
     await db.toggleLpd(leerlingId, lpdUuid, Boolean(behaald));
     const resultaten = await db.getLpdResultaten(leerlingId);
-    res.json({ success: true, resultaten });
+
+    // Herbereken BK-stats als er een BK-mapping bestaat voor deze leerling
+    let bkStats = { heeftBks: false };
+    try {
+      const leerling = await db.getLeerling(leerlingId);
+      if (leerling) {
+        bkStats = await berekenBkStats(db, leerlingId, leerling.klas_id);
+      }
+    } catch (bkErr) {
+      console.error('BK-stats herberekening fout (niet fataal):', bkErr.message);
+    }
+
+    res.json({ success: true, resultaten, bkStats });
   } catch (err) {
     console.error('Toggle fout:', err.message);
     res.status(500).json({ success: false, error: 'Opslaan mislukt' });

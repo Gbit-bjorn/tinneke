@@ -39,6 +39,11 @@ db.initTables()
       await db.seedRichtingLeerplan(mapping);
     } catch { /* JSON niet aanwezig of al geseeded */ }
 
+    // Seed BK-data vanuit richting_bk_mapping.json (alleen als tabel leeg is)
+    try {
+      await db.seedBkData();
+    } catch (err) { console.warn('[BK-seed] Fout bij seeden:', err.message); }
+
     // Koppel leerplannen aan klassen die er nog geen hebben
     const gekoppeld = await db.koppelOntbrekendeLeerplannen();
     if (gekoppeld > 0) console.log(`${gekoppeld} klassen alsnog aan leerplan gekoppeld`);

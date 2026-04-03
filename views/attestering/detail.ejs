@@ -299,6 +299,11 @@
     <button type="button" id="tab-btn-bk" onclick="setTab('bk')" class="tab-btn">
       BK's
     </button>
+    <% if (typeof bkStats !== 'undefined' && bkStats && bkStats.heeftBks) { %>
+    <button type="button" id="tab-btn-officiele-bk" onclick="setTab('officiele-bk')" class="tab-btn">
+      Officiële BK's
+    </button>
+    <% } %>
   </div>
 
 
@@ -498,6 +503,190 @@
 
   </div><!-- /tab-bk -->
 
+
+  <!-- ══════════════════════════════════════════════════ -->
+  <!-- TAB 3: Officiële BK's (optioneel)                 -->
+  <!-- ══════════════════════════════════════════════════ -->
+  <% if (typeof bkStats !== 'undefined' && bkStats && bkStats.heeftBks) { %>
+  <div id="tab-officiele-bk" style="display: none; flex-direction: column; gap: 16px;">
+
+    <% bkStats.bks.forEach(function(bk) { %>
+
+      <div class="card" style="overflow: hidden;" data-obk-code="<%= bk.code %>">
+
+        <!-- BK header -->
+        <details open>
+          <summary class="bk-summary"
+                   style="display: flex; align-items: center; gap: 12px; padding: 16px 20px;
+                          background: #F0FDF4; border-bottom: 1px solid #BBF7D0;
+                          cursor: pointer; list-style: none; user-select: none;
+                          transition: background 150ms;">
+            <span class="toggle-icon" style="color: #065F46; font-size: 12px; flex-shrink: 0;">&#9654;</span>
+
+            <!-- BK code badge -->
+            <span style="display: inline-flex; align-items: center; background: #D1FAE5; color: #065F46;
+                         font-size: 12px; font-weight: 700; padding: 2px 10px; border-radius: 999px;
+                         white-space: nowrap; flex-shrink: 0;">
+              <%= bk.code %>
+            </span>
+
+            <span style="font-weight: 700; font-size: 15px; color: #065F46; flex: 1;">
+              <%= bk.naam %>
+            </span>
+
+            <!-- VKS niveau badge -->
+            <span style="display: inline-flex; align-items: center; background: #ECFDF5; color: #047857;
+                         font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 999px;
+                         white-space: nowrap; flex-shrink: 0; border: 1px solid #A7F3D0;">
+              VKS <%= bk.niveau %>
+            </span>
+
+            <% if (!bk.needsMapping) { %>
+              <!-- BK behaald badge -->
+              <span
+                data-obk-badge="<%= bk.code %>"
+                class="bk-behaald-badge"
+                style="<%= bk.percentage === 100 ? '' : 'display: none;' %>">
+                &#10003; Behaald
+              </span>
+              <!-- BK voortgang teller -->
+              <span
+                data-obk-stats="<%= bk.code %>"
+                style="font-size: 14px; color: #475569; font-weight: 600; white-space: nowrap; flex-shrink: 0;">
+                <%= bk.behaald %>/<%= bk.totaal %>
+              </span>
+            <% } %>
+          </summary>
+
+          <!-- BK voortgangsbalk -->
+          <% if (!bk.needsMapping) { %>
+          <div style="padding: 8px 20px 4px; background: #F0FDF4; border-bottom: 1px solid #BBF7D0;">
+            <div class="progress-track">
+              <div
+                class="progress-fill<%= bk.percentage < 100 ? ' partial' : '' %>"
+                style="width:<%= bk.percentage %>%; background: #059669;"
+                data-obk-bar="<%= bk.code %>">
+              </div>
+            </div>
+          </div>
+          <% } %>
+
+          <!-- BK body -->
+          <div style="padding: 20px; display: flex; flex-direction: column; gap: 20px;">
+
+            <!-- Mapping waarschuwing -->
+            <% if (bk.needsMapping) { %>
+              <div style="display: flex; align-items: center; gap: 10px; padding: 12px 16px;
+                          background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 8px;
+                          color: #92400E; font-size: 13px;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24"
+                     stroke="currentColor" stroke-width="2" style="flex-shrink: 0;">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                </svg>
+                <span>Mapping nog niet geconfigureerd voor <strong><%= bk.code %></strong>. Koppel LPD's aan competenties via het beheerssysteem.</span>
+              </div>
+            <% } else { %>
+
+              <% if (bk.dbks.length === 0) { %>
+                <!-- Geen DBK's: toon info -->
+                <div style="font-size: 13px; color: #64748B; padding: 4px 0;">
+                  Geen deelberoepskwalificaties gedefinieerd voor deze BK.
+                </div>
+              <% } %>
+
+              <!-- DBK secties -->
+              <% bk.dbks.forEach(function(dbk) { %>
+                <div data-obk-dbk-code="<%= dbk.code %>" style="border: 1px solid #E2E8F0; border-radius: 10px; overflow: hidden;">
+
+                  <!-- DBK header -->
+                  <div style="display: flex; align-items: center; gap: 10px; padding: 10px 14px;
+                               background: #F8FAFC; border-bottom: 1px solid #E2E8F0;">
+                    <span style="font-weight: 700; font-size: 13px; color: #0F172A; flex: 1;">
+                      <%= dbk.naam %>
+                    </span>
+                    <span
+                      data-obk-dbk-badge="<%= dbk.code %>"
+                      class="dpk-behaald-vink"
+                      style="<%= dbk.percentage === 100 ? '' : 'display: none;' %>">
+                      &#10003;
+                    </span>
+                    <span
+                      data-obk-dbk-stats="<%= dbk.code %>"
+                      style="font-size: 12px; font-weight: 600; white-space: nowrap;
+                             color: <%= dbk.percentage === 100 ? '#059669' : '#94A3B8' %>;">
+                      <%= dbk.behaald %>/<%= dbk.totaal %>
+                    </span>
+                  </div>
+
+                  <!-- DBK voortgangsbalk -->
+                  <div style="padding: 6px 14px 2px; background: #F8FAFC; border-bottom: 1px solid #E2E8F0;">
+                    <div class="progress-track">
+                      <div
+                        class="progress-fill<%= dbk.percentage < 100 ? ' partial' : '' %>"
+                        style="width:<%= dbk.percentage %>%; background: #059669;"
+                        data-obk-dbk-bar="<%= dbk.code %>">
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Competentiecomponenten -->
+                  <div style="padding: 12px 14px; display: flex; flex-direction: column; gap: 10px;">
+                    <% dbk.competenties.forEach(function(comp) { %>
+                      <div style="border-left: 3px solid <%= comp.behaald ? '#059669' : '#E2E8F0' %>; padding-left: 10px;">
+
+                        <!-- Competentie omschrijving -->
+                        <div style="display: flex; align-items: flex-start; gap: 8px; margin-bottom: 6px;">
+                          <% if (comp.behaald) { %>
+                            <span style="color: #059669; font-size: 14px; font-weight: 700; flex-shrink: 0; margin-top: 1px;">&#10003;</span>
+                          <% } else { %>
+                            <span style="color: #CBD5E1; font-size: 14px; flex-shrink: 0; margin-top: 1px;">&#9679;</span>
+                          <% } %>
+                          <span style="font-size: 13px; font-weight: 600; color: #0F172A; flex: 1; line-height: 1.4;">
+                            <%= comp.omschrijving %>
+                          </span>
+                          <% if (comp.code) { %>
+                          <span style="font-size: 11px; color: #94A3B8; white-space: nowrap; flex-shrink: 0;">
+                            <%= comp.code %>
+                          </span>
+                          <% } %>
+                        </div>
+
+                        <!-- Gekoppelde LPD's -->
+                        <% if (comp.lpds && comp.lpds.length > 0) { %>
+                          <div style="padding-left: 20px; display: flex; flex-direction: column; gap: 3px;">
+                            <% comp.lpds.forEach(function(lpd) { %>
+                              <div style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: #64748B;">
+                                <span style="color: <%= lpd.behaald ? '#059669' : '#CBD5E1' %>; flex-shrink: 0;">
+                                  <%= lpd.behaald ? '&#10003;' : '&#9675;' %>
+                                </span>
+                                <span class="<%= lpd.behaald ? 'lpd-label behaald' : 'lpd-label' %>"
+                                      style="font-size: 12px;">
+                                  <%= lpd.uuid %>
+                                </span>
+                              </div>
+                            <% }); %>
+                          </div>
+                        <% } %>
+
+                      </div>
+                    <% }); %>
+                  </div>
+
+                </div><!-- /dbk -->
+              <% }); %>
+
+            <% } %>
+          </div><!-- /bk body -->
+        </details>
+
+      </div><!-- /card -->
+
+    <% }); %>
+
+  </div><!-- /tab-officiele-bk -->
+  <% } %>
+
   <% } %>
 
   <!-- Toast -->
@@ -518,21 +707,30 @@
 
     // ── Tab-switching ──
     function setTab(naam) {
-      var tabLpd = document.getElementById('tab-lpd');
-      var tabBk  = document.getElementById('tab-bk');
-      var btnLpd = document.getElementById('tab-btn-lpd');
-      var btnBk  = document.getElementById('tab-btn-bk');
+      var tabLpd       = document.getElementById('tab-lpd');
+      var tabBk        = document.getElementById('tab-bk');
+      var tabOficBk    = document.getElementById('tab-officiele-bk');
+      var btnLpd       = document.getElementById('tab-btn-lpd');
+      var btnBk        = document.getElementById('tab-btn-bk');
+      var btnOficBk    = document.getElementById('tab-btn-officiele-bk');
+
+      // Verberg alles
+      if (tabLpd)    tabLpd.style.display    = 'none';
+      if (tabBk)     tabBk.style.display     = 'none';
+      if (tabOficBk) tabOficBk.style.display = 'none';
+      if (btnLpd)    btnLpd.classList.remove('actief');
+      if (btnBk)     btnBk.classList.remove('actief');
+      if (btnOficBk) btnOficBk.classList.remove('actief');
 
       if (naam === 'lpd') {
-        tabLpd.style.display = '';
-        tabBk.style.display  = 'none';
-        btnLpd.classList.add('actief');
-        btnBk.classList.remove('actief');
-      } else {
-        tabLpd.style.display = 'none';
-        tabBk.style.display  = 'flex';
-        btnLpd.classList.remove('actief');
-        btnBk.classList.add('actief');
+        if (tabLpd) tabLpd.style.display = '';
+        if (btnLpd) btnLpd.classList.add('actief');
+      } else if (naam === 'bk') {
+        if (tabBk) tabBk.style.display = 'flex';
+        if (btnBk) btnBk.classList.add('actief');
+      } else if (naam === 'officiele-bk') {
+        if (tabOficBk) tabOficBk.style.display = 'flex';
+        if (btnOficBk) btnOficBk.classList.add('actief');
       }
     }
 
@@ -563,6 +761,9 @@
         if (!data.success) throw new Error(data.error || 'Onbekende fout');
 
         _herbereken(data.resultaten);
+        if (data.bkStats && data.bkStats.heeftBks) {
+          _herberekeOfficiëleBks(data.bkStats.bks);
+        }
         showToast(behaald ? 'Doel behaald opgeslagen' : 'Doel gemarkeerd als niet behaald', 'ok');
 
       } catch (err) {
@@ -645,6 +846,51 @@
         const bkBadge = document.querySelector(`[data-bk-badge="${bkKey}"]`);
         if (bkBadge) {
           bkBadge.style.display = bkPct === 100 ? 'inline-flex' : 'none';
+        }
+      });
+    }
+
+    // Herbereken de officiële BK-tab op basis van verse server-data.
+    // Werkt op de data-obk-* attributen in tab-officiele-bk.
+    function _herberekeOfficiëleBks(bks) {
+      if (!bks || !bks.length) return;
+
+      bks.forEach(function(bk) {
+        if (bk.needsMapping) return;
+
+        // BK voortgangsbalk
+        var bkBar = document.querySelector('[data-obk-bar="' + bk.code + '"]');
+        if (bkBar) {
+          bkBar.style.width = bk.percentage + '%';
+          bkBar.classList.toggle('partial', bk.percentage < 100);
+        }
+
+        // BK stats teller
+        var bkStats = document.querySelector('[data-obk-stats="' + bk.code + '"]');
+        if (bkStats) bkStats.textContent = bk.behaald + '/' + bk.totaal;
+
+        // BK behaald badge
+        var bkBadge = document.querySelector('[data-obk-badge="' + bk.code + '"]');
+        if (bkBadge) bkBadge.style.display = bk.percentage === 100 ? 'inline-flex' : 'none';
+
+        // DBK's bijwerken
+        if (bk.dbks) {
+          bk.dbks.forEach(function(dbk) {
+            var dbkBar = document.querySelector('[data-obk-dbk-bar="' + dbk.code + '"]');
+            if (dbkBar) {
+              dbkBar.style.width = dbk.percentage + '%';
+              dbkBar.classList.toggle('partial', dbk.percentage < 100);
+            }
+
+            var dbkStats = document.querySelector('[data-obk-dbk-stats="' + dbk.code + '"]');
+            if (dbkStats) {
+              dbkStats.textContent = dbk.behaald + '/' + dbk.totaal;
+              dbkStats.style.color = dbk.percentage === 100 ? '#059669' : '#94A3B8';
+            }
+
+            var dbkBadge = document.querySelector('[data-obk-dbk-badge="' + dbk.code + '"]');
+            if (dbkBadge) dbkBadge.style.display = dbk.percentage === 100 ? '' : 'none';
+          });
         }
       });
     }
