@@ -83,7 +83,9 @@
       <select id="schooljaar-filter" class="input">
         <option value="">Alle schooljaren</option>
         <%
-          const uniekJaren = [...new Set(klassen.map(k => k.schooljaar))].sort((a, b) => b - a);
+          const jaarSet = new Set(klassen.map(k => k.schooljaar));
+          jaarSet.add(schooljaar);
+          const uniekJaren = [...jaarSet].sort((a, b) => b - a);
           uniekJaren.forEach(function(jaar) {
         %>
           <option value="<%= jaar %>" <%= jaar === schooljaar ? 'selected' : '' %>><%= jaar %>&ndash;<%= jaar + 1 %></option>
