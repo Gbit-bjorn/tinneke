@@ -5,8 +5,8 @@
   <div>
     <h1 style="font-size:26px; font-weight:700; color:#0F172A; margin:0 0 4px 0;">Mijn klassen</h1>
     <p style="font-size:14px; color:#475569; margin:0;">
-      Schooljaar <strong><%= schooljaar %>&ndash;<%= schooljaar + 1 %></strong>
-      &mdash; <span id="klas-teller"><%= klassen.length %></span> klas<%= klassen.length !== 1 ? 'sen' : '' %>
+      <span id="schooljaar-tekst">Schooljaar <strong><%= schooljaar %>&ndash;<%= schooljaar + 1 %></strong></span>
+      &mdash; <span id="klas-teller"><%= klassen.length %></span> klas<span id="klas-teller-suffix"><%= klassen.length !== 1 ? 'sen' : '' %></span>
     </p>
   </div>
   <% if (typeof user !== 'undefined' && (user.rol === 'admin' || user.rol === 'superadmin')) { %>
@@ -216,6 +216,8 @@
   const grid             = document.getElementById('klassen-grid');
   const geenResultaten   = document.getElementById('geen-resultaten');
   const teller           = document.getElementById('klas-teller');
+  const tellerSuffix     = document.getElementById('klas-teller-suffix');
+  const schooljaarTekst  = document.getElementById('schooljaar-tekst');
 
   if (!zoekInput || !grid) return;
 
@@ -246,6 +248,17 @@
     }
     if (teller) {
       teller.textContent = zichtbaar;
+    }
+    if (tellerSuffix) {
+      tellerSuffix.textContent = zichtbaar !== 1 ? 'sen' : '';
+    }
+    if (schooljaarTekst) {
+      if (schooljaar) {
+        var j = parseInt(schooljaar, 10);
+        schooljaarTekst.innerHTML = 'Schooljaar <strong>' + j + '\u2013' + (j + 1) + '</strong>';
+      } else {
+        schooljaarTekst.innerHTML = '<strong>Alle schooljaren</strong>';
+      }
     }
   }
 
