@@ -70,7 +70,8 @@ router.get('/:leerlingId/html', loginRequired, async (req, res) => {
     const resultaten = await db.getLpdResultaten(leerlingId);
     const bkSecties  = berekenStats(doelen, resultaten);
     const flatLpds   = flattenBkHierarchy(bkSecties);
-    const html       = genereerHtmlAttest(leerling, klas, flatLpds, resultaten);
+    const schoolNaam = process.env.SCHOOL_NAAM || 'Damiaaninstituut Aarschot';
+    const html       = genereerHtmlAttest(leerling, klas, flatLpds, resultaten, schoolNaam);
 
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     res.setHeader('Content-Disposition', `attachment; filename="attest_${leerling.voornaam}_${leerling.naam}.html"`);
