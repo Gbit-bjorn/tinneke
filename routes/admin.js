@@ -1,7 +1,7 @@
 'use strict';
 
 const express  = require('express');
-const bcrypt   = require('bcrypt');
+const bcrypt   = require('bcryptjs');
 const router   = express.Router();
 const { db }   = require('../lib');
 const { loginRequired, superadminRequired } = require('../middleware/auth');

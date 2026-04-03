@@ -15,7 +15,7 @@ function logError(label, err) {
 let bcrypt, db, app;
 
 try {
-  bcrypt     = require('bcrypt');
+  bcrypt     = require('bcryptjs');
   ({ db }    = require('./lib'));
   app        = require('./app');
 } catch (err) {
