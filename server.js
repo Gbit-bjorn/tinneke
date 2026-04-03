@@ -1,9 +1,35 @@
 require('dotenv').config();
 
-const bcrypt = require('bcrypt');
-const { db } = require('./lib');
-const app    = require('./app');
-const PORT   = process.env.PORT || 3000;
+const fs   = require('fs');
+const path = require('path');
+
+// Schrijf fouten naar een logbestand dat je via Plesk File Manager kunt lezen
+const logFile = path.join(__dirname, 'startup-error.log');
+
+function logError(label, err) {
+  const msg = `[${new Date().toISOString()}] ${label}: ${err.stack || err.message || err}\n`;
+  fs.appendFileSync(logFile, msg);
+  console.error(msg);
+}
+
+let bcrypt, db, app;
+
+try {
+  bcrypt     = require('bcrypt');
+  ({ db }    = require('./lib'));
+  app        = require('./app');
+} catch (err) {
+  logError('REQUIRE FOUT', err);
+  // Toon de fout in de browser via een nood-express
+  const express = require('express');
+  app = express();
+  app.use((req, res) => res.status(500).send(`<pre>Startup fout:\n${err.stack}</pre>`));
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT);
+  throw err; // ook naar Passenger logs
+}
+
+const PORT = process.env.PORT || 3000;
 
 db.initTables()
   .then(async () => {
@@ -29,6 +55,10 @@ db.initTables()
     app.listen(PORT, () => console.log(`Server draait op poort ${PORT}`));
   })
   .catch(err => {
-    console.error('Database initialisatie mislukt:', err.message);
-    process.exit(1);
+    logError('DATABASE INIT FOUT', err);
+    // Start nood-server zodat je de fout in de browser kunt zien
+    const express = require('express');
+    const noodApp = express();
+    noodApp.use((req, res) => res.status(500).send(`<pre>Database fout:\n${err.stack}</pre>`));
+    noodApp.listen(PORT);
   });
