@@ -1,21 +1,11 @@
 <%- include('partials/head', { title: 'Dashboard', activePage: 'klassen' }) %>
 
-<!-- ── Flash messages ── -->
-<% if (typeof flash !== 'undefined' && flash) { %>
-  <% if (flash.success) { %>
-    <div class="alert alert-success" style="margin-bottom:20px;"><%= flash.success %></div>
-  <% } %>
-  <% if (flash.error) { %>
-    <div class="alert alert-error" style="margin-bottom:20px;"><%= flash.error %></div>
-  <% } %>
-<% } %>
-
 <!-- ── Pagina-header ── -->
 <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:12px; margin-bottom:28px;">
   <div>
     <h1 style="font-size:26px; font-weight:700; color:#0F172A; margin:0 0 4px 0;">Mijn klassen</h1>
     <p style="font-size:14px; color:#475569; margin:0;">
-      Schooljaar <strong><%= schooljaar || new Date().getFullYear() %>&ndash;<%= (schooljaar || new Date().getFullYear()) + 1 %></strong>
+      Schooljaar <strong><%= schooljaar %>&ndash;<%= schooljaar + 1 %></strong>
       &mdash; <span id="klas-teller"><%= klassen.length %></span> klas<%= klassen.length !== 1 ? 'sen' : '' %>
     </p>
   </div>
@@ -96,7 +86,7 @@
           const uniekJaren = [...new Set(klassen.map(k => k.schooljaar))].sort((a, b) => b - a);
           uniekJaren.forEach(function(jaar) {
         %>
-          <option value="<%= jaar %>"><%= jaar %>&ndash;<%= jaar + 1 %></option>
+          <option value="<%= jaar %>" <%= jaar === schooljaar ? 'selected' : '' %>><%= jaar %>&ndash;<%= jaar + 1 %></option>
         <% }); %>
       </select>
     </div>
@@ -125,7 +115,7 @@
         </div>
 
         <!-- Leerlingenteller -->
-        <div style="display:flex; align-items:center; gap:6px; color:#64748B; font-size:13px; margin-bottom:16px;">
+        <div style="display:flex; align-items:center; gap:6px; color:#64748B; font-size:13px; margin-bottom:8px;">
           <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="#1E3A8A" style="flex-shrink:0;">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                   d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197" />
@@ -135,6 +125,18 @@
             leerling<%= klas.aantal_leerlingen !== 1 ? 'en' : '' %>
           </span>
         </div>
+
+        <!-- Laatste WISA-sync -->
+        <% if (klas.laatste_sync) { %>
+          <div style="display:flex; align-items:center; gap:5px; color:#94A3B8; font-size:11px; margin-bottom:16px;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="flex-shrink:0;">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <span>Sync: <%= new Date(klas.laatste_sync).toLocaleDateString('nl-BE', { day: 'numeric', month: 'short', year: 'numeric' }) %></span>
+          </div>
+        <% } else { %>
+          <div style="margin-bottom:16px;"></div>
+        <% } %>
 
         <!-- Actie -->
         <div style="margin-top:auto;">
@@ -247,6 +249,9 @@
 
   zoekInput.addEventListener('input', filterKlassen);
   if (schooljaarSelect) schooljaarSelect.addEventListener('change', filterKlassen);
+
+  // Filter direct bij laden als er een schooljaar geselecteerd is
+  if (schooljaarSelect && schooljaarSelect.value) filterKlassen();
 })();
 </script>
 
