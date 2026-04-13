@@ -429,9 +429,13 @@
       </a>
       <% } %>
       <div style="width:1px; height:24px; background:#E2E8F0; margin:0 8px;"></div>
-      <div style="width:32px; height:32px; background:#1E3A8A; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0;" title="<%= user ? user.naam : '' %>">
+      <% if (user && user.username === 'tinneke') { %>
+      <img src="/images/avatar.png" alt="Tinneke" style="width:32px; height:32px; border-radius:50%; object-fit:cover; cursor:pointer; flex-shrink:0;" title="<%= user.naam %>" onclick="openProfielfoto('/images/avatar.png', '<%= user.naam %>')" />
+      <% } else { %>
+      <div style="width:32px; height:32px; background:#1E3A8A; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; cursor:pointer;" title="<%= user ? user.naam : '' %>" onclick="openProfielfoto(null, '<%= user ? user.naam : '' %>')">
         <span style="color:#fff; font-size:13px; font-weight:600; line-height:1;"><%= user ? user.naam.charAt(0).toUpperCase() : '?' %></span>
       </div>
+      <% } %>
       <span style="font-size:13px; color:#475569; font-weight:500;"><%= user ? user.naam : '' %></span>
       <form action="/auth/logout" method="POST" style="margin:0;">
         <button type="submit" class="btn btn-secondary btn-sm" style="touch-action:manipulation;">
@@ -508,6 +512,33 @@
       close.style.display = '';
     }
   }
+</script>
+
+<!-- ── Profielfoto lightbox ── -->
+<div id="profielfoto-overlay" onclick="sluitProfielfoto()" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:9999; display:none; align-items:center; justify-content:center; cursor:pointer;">
+  <div style="text-align:center;" onclick="event.stopPropagation()">
+    <div id="profielfoto-container"></div>
+    <p id="profielfoto-naam" style="color:#fff; font-size:16px; font-weight:600; margin-top:12px;"></p>
+  </div>
+</div>
+<script>
+  function openProfielfoto(imgSrc, naam) {
+    var overlay = document.getElementById('profielfoto-overlay');
+    var container = document.getElementById('profielfoto-container');
+    var naamEl = document.getElementById('profielfoto-naam');
+    if (imgSrc) {
+      container.innerHTML = '<img src="' + imgSrc + '" alt="' + naam + '" style="width:200px; height:200px; border-radius:50%; object-fit:cover; border:4px solid #fff; box-shadow:0 8px 32px rgba(0,0,0,0.3);" />';
+    } else {
+      var letter = naam ? naam.charAt(0).toUpperCase() : '?';
+      container.innerHTML = '<div style="width:200px; height:200px; background:#1E3A8A; border-radius:50%; display:flex; align-items:center; justify-content:center; border:4px solid #fff; box-shadow:0 8px 32px rgba(0,0,0,0.3); margin:0 auto;"><span style="color:#fff; font-size:72px; font-weight:700;">' + letter + '</span></div>';
+    }
+    naamEl.textContent = naam;
+    overlay.style.display = 'flex';
+  }
+  function sluitProfielfoto() {
+    document.getElementById('profielfoto-overlay').style.display = 'none';
+  }
+  document.addEventListener('keydown', function(e) { if (e.key === 'Escape') sluitProfielfoto(); });
 </script>
 
 <!-- ── Autocomplete helper ── -->
