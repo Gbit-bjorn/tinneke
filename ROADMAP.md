@@ -2,6 +2,7 @@
 
 > Claude: controleer dit bestand bij elke sessie. Markeer taken als:
 > `[ ]` todo — `[-]` bezig (+ datum) — `[x]` afgerond (+ datum)
+> Gedetailleerd plan: `docs/implementatieplan.md`
 
 ## Afgerond
 
@@ -15,23 +16,43 @@
 - [x] 2026-04-09 Export: HTML/Excel/CSV klasoverzicht, WISA-import
 - [x] 2026-04-13 Rebrand: DIA-logo, app-naam "Attestering"
 - [x] 2026-04-13 Onderwijs Vlaanderen API verkend: 16 APIs, key werkend
+- [x] 2026-04-13 Research: WISA sync, leerplan/BK structuur, duaal vs regulier, API data, code-kwaliteit
 
-## Hoge prioriteit
+## Fase 1 — WISA Sync veilig maken (HOOGSTE PRIORITEIT)
 
-- [ ] Onderwijs Vlaanderen API integratie — BK-data live ophalen i.p.v. statische JSON
-- [ ] Opleidingstrajecten API — duale trajecten met competenties koppelen
-- [ ] Export BK-bewijs — PDF/HTML per leerling met BK/DBK-hiërarchie en percentages
-- [ ] Onderwijsdoelen API — officiële eindtermen/minimumdoelen integreren
+- [ ] `wisa_id` (stamboeknummer) kolom toevoegen aan leerlingen
+- [ ] Sync van delete+insert naar upsert op wisa_id
+- [ ] Bestaande attesteringen behouden bij re-sync
+- [ ] Schooljaar-filter in sync UI
+- [ ] Verdwenen leerlingen markeren als "uitgeschreven" i.p.v. verwijderen
 
-## Medium prioriteit
+## Fase 2 — Meerdere leerplannen per klas/leerling
 
-- [ ] Admin UI richting→BK koppeling (nu handmatig via JSON)
-- [ ] Batch-herberekening BK-stats (nu on-demand per leerling)
-- [ ] Structuuronderdelen API — studierichtingen koppelen aan officiële structuur
-- [ ] Onderwijsaanbod SO API — welke school biedt welke duale richting aan
+- [ ] `klas_leerplan_mapping` → composiet PK (klas_id + leerplan_uuid) + type-kolom
+- [ ] `lpd_resultaten` uitbreiden met `leerplan_uuid`
+- [ ] Attestering-route: meerdere leerplannen laden
+- [ ] UI: LPD's groeperen per leerplan
+- [ ] LLinkid koppel-endpoint implementeren (TODO in code)
 
-## Laag prioriteit
+## Fase 3 — Onderwijs Vlaanderen API live integratie
 
-- [ ] DKW-kolommen in WISA DUAAL_API2
-- [ ] Testen op school-PC (exe, zonder Python)
-- [ ] App icoon voor desktop exe
+- [ ] API-client voor Beroepskwalificaties 2.0 + Opleidingstrajecten
+- [ ] Instelling 147637 (Damiaaninstituut B en C) als standaard
+- [ ] seedBkData() idempotent maken (ON DUPLICATE KEY UPDATE)
+- [ ] Cache met TTL in database
+- [ ] Fuzzy LIKE matching vervangen door exacte koppeltabel
+
+## Fase 4 — Code-kwaliteit en performance
+
+- [ ] CSS-bestand aanmaken: variabelen + utility classes (490 inline styles verwijderen)
+- [ ] JS uit EJS templates naar public/js/*.js
+- [ ] EJS partials: page-header, empty-state, progress-bar, card
+- [ ] Routes opruimen: business logic naar lib/
+- [ ] lib/export.js (1129r) opsplitsen
+
+## Fase 5 — Regulier SO ondersteuning
+
+- [ ] Onderwijsvorm-concept (duaal vs regulier) in datamodel
+- [ ] Regulier: attestering per vak/leerplan (A/B/C)
+- [ ] Duaal: huidige BK/DPK workflow behouden
+- [ ] Auto-detectie via WISA leerwegcode (D=duaal, V=voltijds)
